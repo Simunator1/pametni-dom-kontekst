@@ -4,7 +4,7 @@ const cors = require('cors');
 const { Pool } = require('pg');
 
 const app = express();
-const PORT = process.env.BACKEND_PORT || 3001; // Razlikuj od frontend porta
+const PORT = process.env.BACKEND_PORT || 3001;
 
 // Middleware
 app.use(cors());
