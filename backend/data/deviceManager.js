@@ -53,10 +53,10 @@ let devices = [
             targetTemp: 22,
             mode: 'COOL' // 'OFF', 'HEAT', 'COOL'
         },
-        supportedActions: ['SET_TEMPERATURE', 'SET_MODE', 'TOGGLE_ON_OFF']
+        supportedActions: ['SET_TEMPERATURE', 'SET_MODE']
     },
     {
-        deviceId: 'device-006',
+        id: 'device-006',
         name: 'Senzor Temperature i Vlage Dnevni Boravak',
         type: 'SENSOR',
         roomId: 'room-001',
@@ -64,9 +64,86 @@ let devices = [
             temperature: 21,
             humidity: 45
         },
-        supportedActions: ['READ_TEMPERATURE', 'READ_HUMIDITY']
+        supportedActions: ['READ']
     }
 ];
+
+// simulacija vanjske temperature
+let outsideTemperature = 25;
+
+// Ažurirajanje vanjske temperature
+function updateOutsideTemperature(newTemp) {
+    if (typeof newTemp === 'number') {
+        outsideTemperature = Math.max(-15, Math.min(45, newTemp));
+        console.log(`Vanjska temperatura ažurirana na: ${outsideTemperature}°C`);
+        return outsideTemperature;
+    } else {
+        console.warn('Ažuriranje vanjske temperature nije uspjelo. Unesite ispravnu brojčanu vrijednost.');
+        return null;
+    }
+}
+
+// Funkcija za dohvat vanjske temperature
+function getOutsideTemperature() {
+    return outsideTemperature;
+}
+
+function simulateTemperatureChanges() {
+    const INERTIA_FACTOR = 0.1;
+
+    devices.forEach(device => {
+        if (device.type === 'THERMOSTAT' || device.type === 'AIR_CONDITIONER' || device.type === 'SENSOR') {
+            let currentDeviceTemp = device.state.temperature;
+            let targetDeviceSimTemp = currentDeviceTemp; // Temperatura kojoj će simulacija težiti
+
+            if (device.type === 'SENSOR') { // SENZOR
+                targetDeviceSimTemp = outsideTemperature;
+            } else { // THERMOSTAT ili AIR_CONDITIONER
+                const mode = device.state.mode;
+                const targetUserTemp = device.state.targetTemp;
+
+                if (mode === 'OFF') {
+                    // Ako je uređaj ISKLJUČEN, teži vanjskoj temperaturi
+                    targetDeviceSimTemp = outsideTemperature;
+                } else if (mode === 'HEAT') {
+                    if ((targetUserTemp <= currentDeviceTemp && currentDeviceTemp <= outsideTemperature) ||
+                        (currentDeviceTemp <= targetUserTemp && targetUserTemp <= outsideTemperature) ||
+                        (targetUserTemp <= outsideTemperature && outsideTemperature <= currentDeviceTemp)
+                    ) {
+                        targetDeviceSimTemp = outsideTemperature;
+                    } else {
+                        targetDeviceSimTemp = targetUserTemp;
+                    }
+                } else if (mode === 'COOL') {
+                    if ((targetUserTemp <= currentDeviceTemp && currentDeviceTemp <= outsideTemperature) ||
+                        (currentDeviceTemp <= targetUserTemp && targetUserTemp <= outsideTemperature) ||
+                        (targetUserTemp <= outsideTemperature && outsideTemperature <= currentDeviceTemp)
+                    ) {
+                        targetDeviceSimTemp = targetUserTemp;
+                    } else {
+                        targetDeviceSimTemp = outsideTemperature;
+                    }
+                }
+            }
+
+            let change = (targetDeviceSimTemp - currentDeviceTemp) * INERTIA_FACTOR;
+            if (Math.abs(change) < 0.1) {
+                change = targetDeviceSimTemp > currentDeviceTemp ? 0.1 : -0.1; // Osiguraj minimalnu promjenu
+            }
+            let newTemp = currentDeviceTemp + change;
+            device.state.temperature = parseFloat(newTemp.toFixed(1));
+
+            if (device.type === 'SENSOR' && device.state.hasOwnProperty('humidity')) {
+                let currentHumidity = device.state.humidity;
+                let randomChange = (Math.random() - 0.5) * 2; // Nasumična promjena između -1 i 1
+                device.state.humidity = Math.max(0, Math.min(100, parseFloat((currentHumidity + randomChange).toFixed(0))));
+            }
+        }
+    });
+    // console.log('Simulirane temperature ažurirane.');
+}
+
+const simulationInterval = setInterval(simulateTemperatureChanges, 5000); // 5000ms = 5s
 
 // Funkcija za dohvat svih uređaja
 function getAllDevices() {
@@ -83,6 +160,7 @@ function executeDeviceAction(deviceId, actionType, payload) {
     const device = getDeviceById(deviceId);
     if (!device) {
         console.error(`Uređaj s ID-om '${deviceId} nije pronađen.`);
+        return null;
     }
 
     switch (device.type) {
@@ -90,7 +168,7 @@ function executeDeviceAction(deviceId, actionType, payload) {
             if (actionType === 'TOGGLE_ON_OFF') {
                 device.state.isOn = !device.state.isOn;
             } else if (actionType === 'SET_BRIGHTNESS') {
-                if (payload && payload.brightness === 'number') {
+                if (payload && typeof payload.brightness === 'number') {
                     device.state.brightness = Math.max(0, Math.min(100, payload.brightness));
                 } else {
                     console.warn('SET_BRIGHTNESS pozvana bez ispravnog payload-a.');
@@ -102,10 +180,9 @@ function executeDeviceAction(deviceId, actionType, payload) {
             }
             break;
         case 'THERMOSTAT':
-            if (actionType === 'Set_TEMPERATURE') {
-                if (payload && payload.targetTemp === 'number') {
+            if (actionType === 'SET_TEMPERATURE') {
+                if (payload && typeof payload.targetTemp === 'number') {
                     device.state.targetTemp = Math.max(10, Math.min(30, payload.targetTemp));
-                    device.state.temperature = device.state.targetTemp; // Simulacija promjene temperature
                 } else {
                     console.warn('SET_TEMPERATURE pozvana bez ispravnog payload-a.');
                     return null;
@@ -123,28 +200,30 @@ function executeDeviceAction(deviceId, actionType, payload) {
                 console.warn(`Nepoznata akcija za THERMOSTAT uređaj: ${actionType}`);
                 return null;
             }
+            break;
         case 'SMART_OUTLET':
             if (actionType === 'TOGGLE_ON_OFF') {
                 device.state.isOn = !device.state.isOn;
             } else if (actionType === 'READ_POWER_USAGE') {
-                device.state.powerUsage = Math.random() * 100; // Simulacija potrošnje
+                device.state.powerUsage = parseFloat((Math.random() * 100).toFixed(1)); // Simulacija potrošnje
                 return device.state.powerUsage; // Simulacija vraćanja potrošnje
             } else {
                 console.warn(`Nepoznata akcija za SMART_OUTLET uređaj: ${actionType}`);
                 return null;
             }
+            break;
         case 'SMART_BLIND':
             if (actionType === 'SET_POSITION') {
-                if (payload && payload.position === 'number') {
+                if (payload && typeof payload.position === 'number') {
                     device.state.position = Math.max(0, Math.min(100, payload.position));
                 } else {
                     console.warn('SET_POSITION pozvana bez ispravnog payload-a.');
                     return null;
                 }
             } else if (actionType === 'OPEN') {
-                device.state.position = 100; // Otvori roletu
+                device.state.position = 0; // Otvori roletu
             } else if (actionType === 'CLOSE') {
-                device.state.position = 0; // Zatvori roletu
+                device.state.position = 100; // Zatvori roletu
             } else {
                 console.warn(`Nepoznata akcija za SMART_BLIND uređaj: ${actionType}`);
                 return null;
@@ -152,9 +231,8 @@ function executeDeviceAction(deviceId, actionType, payload) {
             break;
         case 'AIR_CONDITIONER':
             if (actionType === 'SET_TEMPERATURE') {
-                if (payload && payload.targetTemp === 'number') {
+                if (payload && typeof payload.targetTemp === 'number') {
                     device.state.targetTemp = Math.max(16, Math.min(30, payload.targetTemp));
-                    device.state.temperature = device.state.targetTemp; // Simulacija promjene temperature
                 } else {
                     console.warn('SET_TEMPERATURE pozvana bez ispravnog payload-a.');
                     return null;
@@ -166,10 +244,16 @@ function executeDeviceAction(deviceId, actionType, payload) {
                     console.warn('SET_MODE pozvana bez ispravnog payload-a.');
                     return null;
                 }
-            } else if (actionType === 'TOGGLE_ON_OFF') {
-                device.state.isOn = !device.state.isOn;
             } else {
                 console.warn(`Nepoznata akcija za AIR_CONDITIONER uređaj: ${actionType}`);
+                return null;
+            }
+            break;
+        case 'SENSOR':
+            if (actionType === 'READ') {
+                return device.state;
+            } else {
+                console.warn(`Nepoznata akcija za SENSOR uređaj: ${actionType}`);
                 return null;
             }
             break;
@@ -185,5 +269,7 @@ function executeDeviceAction(deviceId, actionType, payload) {
 module.exports = {
     getAllDevices,
     getDeviceById,
-    executeDeviceAction
+    executeDeviceAction,
+    updateOutsideTemperature,
+    getOutsideTemperature
 };
