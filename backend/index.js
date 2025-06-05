@@ -57,7 +57,7 @@ app.post('/api/outside-temp', (req, res) => {
         res.json(newTemp);
 });
 
-// --- RUTE ZA UPRAVLJANJE UREĐAJIMA ---ou
+// --- RUTE ZA UPRAVLJANJE UREĐAJIMA ---
 
 // Dohvati sve uređaje
 app.get('/api/devices', (req, res) => {
@@ -100,6 +100,21 @@ app.post('/api/devices/:id/actions', (req, res) => {
         } else {
             res.status(400).json({ message: `Akcija '${actionType}' nije uspjela ili nije podržana za uređaj ${deviceId}.` });
         }
+    }
+});
+
+app.get('/api/getRoomsWithDevices', (req, res) => {
+    const rooms = deviceManager.getRoomsWithDevices();
+    res.json(rooms);
+});
+
+app.get('/api/getAllDevicesByRoom/:roomId', (req, res) => {
+    const roomId = req.params.roomId;
+    const devices = deviceManager.getAllDevicesByRoom(roomId);
+    if (devices) {
+        res.json(devices);
+    } else {
+        res.status(404).json({ error: `Nema uređaja u sobi s ID-om ${roomId}.` });
     }
 });
 

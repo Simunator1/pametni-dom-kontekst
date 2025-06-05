@@ -1,0 +1,40 @@
+.header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 90vw;
+    height: auto;
+    margin-bottom: 0vh;
+}
+
+.naslov {
+    margin-top: 1vh;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.ikone {
+    width: 37vw;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    margin-top: 1vh;
+}
+
+.ikona {
+    font-size: 2rem;
+    color: #fff;
+}
+
+.bi-plus-square {
+    font-size: 1.7rem;
+}
+
+.bi-list {
+    font-size: 2.1rem;
+    transform: scaleX(1.3);
+
+    display: inline-block;
+}

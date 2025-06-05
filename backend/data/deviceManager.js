@@ -57,7 +57,7 @@ let devices = [
     },
     {
         id: 'device-006',
-        name: 'Senzor Temperature i Vlage Dnevni Boravak',
+        name: 'Senzor Temp i Vlage Dnevni Boravak',
         type: 'SENSOR',
         roomId: 'room-001',
         state: {
@@ -65,6 +65,61 @@ let devices = [
             humidity: 45
         },
         supportedActions: ['READ']
+    },
+    {
+        id: 'device-007',
+        name: 'Svjetlo Kupaonica',
+        type: 'LIGHT',
+        roomId: 'room-004',
+        state: {
+            isOn: false,
+            brightness: 0 // 0 - 100
+        },
+        supportedActions: ['TOGGLE_ON_OFF', 'SET_BRIGHTNESS']
+    },
+    {
+        id: 'device-008',
+        name: 'Roleta Balkon',
+        type: 'SMART_BLIND',
+        roomId: 'room-005',
+        state: {
+            position: 0 // 0% - 100%
+        },
+        supportedActions: ['SET_POSITION', 'OPEN', 'CLOSE']
+    },
+    {
+        id: 'device-009',
+        name: 'Senzor Temp i Vlage Kupaonica',
+        type: 'SENSOR',
+        roomId: 'room-004',
+        state: {
+            temperature: 21,
+            humidity: 45
+        },
+        supportedActions: ['READ']
+    }
+];
+
+let Rooms = [
+    {
+        id: 'room-001',
+        name: 'Dnevni Boravak'
+    },
+    {
+        id: 'room-002',
+        name: 'Kuhinja'
+    },
+    {
+        id: 'room-003',
+        name: 'Spavaća Soba'
+    },
+    {
+        id: 'room-004',
+        name: 'Kupaonica'
+    },
+    {
+        id: 'room-005',
+        name: 'Balkon'
     }
 ];
 
@@ -266,10 +321,29 @@ function executeDeviceAction(deviceId, actionType, payload) {
     return device;
 }
 
+function getAllDevicesByRoom(roomId) {
+    return devices.filter(device => device.roomId === roomId);
+}
+
+function getRoomsWithDevices() {
+    // Mapiraj preko definiranih soba
+    return Rooms.map(room => {
+        const devicesInRoom = devices.filter(device => device.roomId === room.id);
+        return {
+            id: room.id,
+            name: room.name,
+            devices: devicesInRoom,
+            numDevices: devicesInRoom.length
+        };
+    });
+}
+
 module.exports = {
     getAllDevices,
     getDeviceById,
     executeDeviceAction,
     updateOutsideTemperature,
-    getOutsideTemperature
+    getOutsideTemperature,
+    getAllDevicesByRoom,
+    getRoomsWithDevices
 };
