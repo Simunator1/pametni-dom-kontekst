@@ -27,6 +27,18 @@
     display: block;
 }
 
+.device-ikona.no-switch {
+    flex: 1 0;
+}
+
+.device-name-wrapper-no-switch {
+    flex: 10 0;
+    max-width: 90%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+}
+
 .device-name {
     font-weight: bold;
     white-space: nowrap;

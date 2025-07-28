@@ -16,11 +16,13 @@ let devices = [
         type: 'THERMOSTAT',
         roomId: 'room-002',
         state: {
+            isOn: false,
             temperature: 22,
             targetTemp: 25,
-            mode: 'OFF' // 'OFF', 'HEAT', 'COOL'
+            mode: 'OFF', // 'OFF', 'HEAT', 'COOL'
+            prevMode: 'HEAT' // 'HEAT' ili 'COOL'
         },
-        supportedActions: ['SET_TEMPERATURE', 'SET_MODE', 'READ_TEMPERATURE']
+        supportedActions: ['TOGGLE_ON_OFF', 'SET_TEMPERATURE', 'SET_MODE', 'READ_TEMPERATURE']
     },
     {
         id: 'device-003',
@@ -49,11 +51,13 @@ let devices = [
         type: 'AIR_CONDITIONER',
         roomId: 'room-003',
         state: {
+            isOn: true,
             temperature: 24,
             targetTemp: 22,
-            mode: 'COOL' // 'OFF', 'HEAT', 'COOL'
+            mode: 'COOL', // 'OFF', 'HEAT', 'COOL'
+            prevMode: 'HEAT' // 'HEAT' ili 'COOL'
         },
-        supportedActions: ['SET_TEMPERATURE', 'SET_MODE']
+        supportedActions: ['TOGGLE_ON_OFF', 'SET_TEMPERATURE', 'SET_MODE']
     },
     {
         id: 'device-006',
@@ -242,9 +246,16 @@ function executeDeviceAction(deviceId, actionType, payload) {
                     console.warn('SET_TEMPERATURE pozvana bez ispravnog payload-a.');
                     return null;
                 }
+            } else if (actionType === 'TOGGLE_ON_OFF') {
+                device.state.isOn = !device.state.isOn;
+                device.state.mode = device.state.isOn ? device.state.prevMode : 'OFF';
             } else if (actionType === 'SET_MODE') {
-                if (payload && ['OFF', 'HEAT', 'COOL'].includes(payload.mode)) {
+                if (payload && ['HEAT', 'COOL'].includes(payload.mode)) {
+                    device.state.mode = device.state.prevMode = payload.mode;
+                    device.state.isOn = true;
+                } else if (payload && payload.mode === 'OFF') {
                     device.state.mode = payload.mode;
+                    device.state.isOn = false;
                 } else {
                     console.warn('SET_MODE pozvana bez ispravnog payload-a.');
                     return null;
@@ -292,9 +303,16 @@ function executeDeviceAction(deviceId, actionType, payload) {
                     console.warn('SET_TEMPERATURE pozvana bez ispravnog payload-a.');
                     return null;
                 }
+            } else if (actionType === 'TOGGLE_ON_OFF') {
+                device.state.isOn = !device.state.isOn;
+                device.state.mode = device.state.isOn ? device.state.prevMode : 'OFF';
             } else if (actionType === 'SET_MODE') {
-                if (payload && ['OFF', 'HEAT', 'COOL'].includes(payload.mode)) {
+                if (payload && ['HEAT', 'COOL'].includes(payload.mode)) {
+                    device.state.mode = device.state.prevMode = payload.mode;
+                    device.state.isOn = true;
+                } else if (payload && payload.mode === 'OFF') {
                     device.state.mode = payload.mode;
+                    device.state.isOn = false;
                 } else {
                     console.warn('SET_MODE pozvana bez ispravnog payload-a.');
                     return null;

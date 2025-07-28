@@ -1,0 +1,12 @@
+ + Botun Gašenje/Paljenje uređaja
+ - Prikaz detalja uređaja
+ - General settings
+ - Dodavanje sobe/uređaja
+ - MainMenu hamburger Botun
+ - Gašenje/Paljenje sobe
+ - Prikaz detalja sobe
+
+
+
+ - Spojiti na bazu podataka
+ - Quick actions settings

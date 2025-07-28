@@ -32,3 +32,26 @@ export const fetchRoomsWithDevices = async () => {
         throw error;
     }
 };
+
+export const sendDeviceAction = async (deviceId, action) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/devices/${deviceId}/actions`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(action), // npr. { actionType: 'TOGGLE_ON_OFF' }
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri slanju akcije: ${response.status} ${errorData.message || ''}`);
+        }
+
+        const updatedDevice = await response.json();
+        return updatedDevice;
+    } catch (error) {
+        console.error("Problem sa sendDeviceAction:", error);
+        throw error;
+    }
+};

@@ -47,6 +47,22 @@ function DashboardPage() {
         return <p>Greška: {error}</p>;
     }
 
+    const handleDeviceStateChange = (updatedDevice) => {
+        setAllDevices(prevDevices =>
+            prevDevices.map(device =>
+                device.id === updatedDevice.id ? updatedDevice : device
+            )
+        );
+        setRoomsData(prevRooms =>
+            prevRooms.map(room => ({
+                ...room,
+                devices: room.devices.map(device =>
+                    device.id === updatedDevice.id ? updatedDevice : device
+                )
+            }))
+        );
+    };
+
     return (
         <div className="dashboard-container">
             <Header title={naslov} />
@@ -62,7 +78,10 @@ function DashboardPage() {
             {viewMode === 'devices' &&
                 <div className="devices-wrapper">
                     {allDevices.map(device => (
-                        <Device key={device.id} device={device} />
+                        <Device
+                            key={device.id}
+                            device={device}
+                            onStateChange={handleDeviceStateChange} />
                     ))}
                 </div>
             }
