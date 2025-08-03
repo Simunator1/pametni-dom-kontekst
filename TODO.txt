@@ -1,8 +1,8 @@
  + Botun Gašenje/Paljenje uređaja
  - Prikaz detalja uređaja
- - General settings
+ - Developer settings
  - Dodavanje sobe/uređaja
- - MainMenu hamburger Botun
+ + MainMenu hamburger Botun
  - Gašenje/Paljenje sobe
  - Prikaz detalja sobe
 

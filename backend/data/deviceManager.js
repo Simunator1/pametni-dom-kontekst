@@ -356,6 +356,42 @@ function getRoomsWithDevices() {
     });
 }
 
+function addRoom(roomName) {
+    if (!roomName) {
+        console.error('Dodavanje sobe nije uspjelo. Naziv sobe je obavezan.');
+        return null;
+    }
+
+    // Provjeri postoji li već soba s tim imenom
+    const existingRoom = Rooms.find(room => room.name.toLowerCase() === roomName.toLowerCase());
+    if (existingRoom) {
+        console.error(`Soba s imenom '${roomName}' već postoji.`);
+        return null;
+    }
+
+    // Generiranje novog ID-a
+    const newRoomId = `room-${String(Rooms.length + 1).padStart(3, '0')}`;
+
+    const newRoom = {
+        id: newRoomId,
+        name: roomName
+    };
+
+    Rooms.push(newRoom);
+    console.log(`Soba ${newRoom.name} dodana.`);
+    return newRoom;
+}
+
+function addDevice(device) {
+    if (!device || !device.id || !device.name || !device.type || !device.roomId) {
+        console.error('Dodavanje uređaja nije uspjelo. Provjerite ispravnost podataka.');
+        return null;
+    }
+    devices.push(device);
+    console.log(`Uređaj ${device.name} dodan.`);
+    return device;
+}
+
 module.exports = {
     getAllDevices,
     getDeviceById,
@@ -363,5 +399,8 @@ module.exports = {
     updateOutsideTemperature,
     getOutsideTemperature,
     getAllDevicesByRoom,
-    getRoomsWithDevices
+    getRoomsWithDevices,
+    simulationInterval,
+    addRoom,
+    addDevice
 };

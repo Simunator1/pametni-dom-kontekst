@@ -103,11 +103,13 @@ app.post('/api/devices/:id/actions', (req, res) => {
     }
 });
 
+// Dohvati sve sobe s uređajima
 app.get('/api/getRoomsWithDevices', (req, res) => {
     const rooms = deviceManager.getRoomsWithDevices();
     res.json(rooms);
 });
 
+// Dohvati sve uređaje u sobi po ID-u
 app.get('/api/getAllDevicesByRoom/:roomId', (req, res) => {
     const roomId = req.params.roomId;
     const devices = deviceManager.getAllDevicesByRoom(roomId);
@@ -116,6 +118,16 @@ app.get('/api/getAllDevicesByRoom/:roomId', (req, res) => {
     } else {
         res.status(404).json({ error: `Nema uređaja u sobi s ID-om ${roomId}.` });
     }
+});
+
+// Dodavanje nove sobe
+app.post('/api/addRoom', (req, res) => {
+    const { name } = req.body;
+    if (!name) {
+        return res.status(400).json({ error: 'Naziv sobe je obavezan.' });
+    }
+    const newRoom = deviceManager.addRoom(name);
+    res.status(201).json(newRoom);
 });
 
 app.listen(PORT, () => {
