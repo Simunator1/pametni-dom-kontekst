@@ -1,12 +1,23 @@
 import React from 'react';
 import '../styles/room.css';
 import { useState } from 'react';
+import { toggleRoom } from '../services/apiService';
 
-const Room = ({ room }) => {
-    const [isOn, setIsOn] = useState(true);
+const Room = ({ room, handleRoomToggle }) => {
+    const [isOn, setIsOn] = useState(room.isOn);
 
-    const handleSwitch = (e) => {
-        setIsOn(e.target.checked);
+    const handleSwitch = async () => {
+        const previousState = isOn;
+        setIsOn(!previousState);
+
+        try {
+            const response = await toggleRoom(room.id);
+            const devices = response.room.devices || [];
+            handleRoomToggle(devices);
+        } catch (error) {
+            console.error("Greška u prebacivanju sobe:", error);
+            setIsOn(previousState);
+        }
     };
 
     return (

@@ -4,12 +4,12 @@ import HamburgerMenu from './hamburgerMenu';
 import AddMenu from './addMenu';
 import DeveloperMenu from './developerMenu';
 
-const Header = ({ title }) => (
+const Header = ({ title, onRoomAdded, onDeviceAdded }) => (
     <nav className="header">
         <h1 className="naslov">{title}</h1>
         <ul className="ikone">
             <NavItem className="ikona bi bi-gear"><DeveloperMenu className="developer-menu" /> </NavItem>
-            <NavItem className="ikona bi bi-plus-square"><AddMenu className="add-menu" /></NavItem>
+            <NavItem className="ikona bi bi-plus-square"><AddMenu className="add-menu" onRoomAdded={onRoomAdded} onDeviceAdded={onDeviceAdded} /></NavItem>
             <NavItem className="ikona bi bi-list"><HamburgerMenu className="hamburger-menu" /></NavItem>
         </ul>
     </nav>

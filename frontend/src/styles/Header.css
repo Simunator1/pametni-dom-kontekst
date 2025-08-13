@@ -71,7 +71,7 @@ a {
 .dropdown {
     position: absolute;
     top: 8vh;
-    width: 90vw;
+    width: 90.4vw;
     background-color: #5db4c3;
     border-radius: 10px;
     overflow: hidden;
@@ -153,4 +153,16 @@ a {
 .menu-secondary-exit-active {
     transform: translateX(110%);
     transition: all var(--speed) ease;
+}
+
+.add-form {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    border-top: 2px solid black;
+}
+
+.feedback-message {
+    text-align: center;
+    font-weight: bold;
 }

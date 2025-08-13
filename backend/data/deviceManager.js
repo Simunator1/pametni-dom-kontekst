@@ -1,3 +1,5 @@
+const DEVICE_TYPES = ['LIGHT', 'THERMOSTAT', 'SMART_OUTLET', 'SMART_BLIND', 'AIR_CONDITIONER', 'SENSOR'];
+
 let devices = [
     {
         id: 'device-001',
@@ -5,6 +7,7 @@ let devices = [
         type: 'LIGHT',
         roomId: 'room-001',
         state: {
+            roomState: 'OFF',
             isOn: false,
             brightness: 0 // 0 - 100
         },
@@ -16,6 +19,7 @@ let devices = [
         type: 'THERMOSTAT',
         roomId: 'room-002',
         state: {
+            roomState: 'OFF',
             isOn: false,
             temperature: 22,
             targetTemp: 25,
@@ -30,6 +34,7 @@ let devices = [
         type: 'SMART_OUTLET',
         roomId: 'room-002',
         state: {
+            roomState: 'OFF',
             isOn: false,
             powerUsage: 0
         },
@@ -51,6 +56,7 @@ let devices = [
         type: 'AIR_CONDITIONER',
         roomId: 'room-003',
         state: {
+            roomState: 'ON',
             isOn: true,
             temperature: 24,
             targetTemp: 22,
@@ -76,6 +82,7 @@ let devices = [
         type: 'LIGHT',
         roomId: 'room-004',
         state: {
+            roomState: 'OFF',
             isOn: false,
             brightness: 0 // 0 - 100
         },
@@ -107,23 +114,28 @@ let devices = [
 let Rooms = [
     {
         id: 'room-001',
-        name: 'Dnevni Boravak'
+        name: 'Dnevni Boravak',
+        isOn: true
     },
     {
         id: 'room-002',
-        name: 'Kuhinja'
+        name: 'Kuhinja',
+        isOn: true
     },
     {
         id: 'room-003',
-        name: 'Spavaća Soba'
+        name: 'Spavaća Soba',
+        isOn: true
     },
     {
         id: 'room-004',
-        name: 'Kupaonica'
+        name: 'Kupaonica',
+        isOn: true
     },
     {
         id: 'room-005',
-        name: 'Balkon'
+        name: 'Balkon',
+        isOn: true
     }
 ];
 
@@ -226,6 +238,7 @@ function executeDeviceAction(deviceId, actionType, payload) {
         case 'LIGHT':
             if (actionType === 'TOGGLE_ON_OFF') {
                 device.state.isOn = !device.state.isOn;
+                device.state.roomState = device.state.isOn ? 'ON' : 'OFF';
             } else if (actionType === 'SET_BRIGHTNESS') {
                 if (payload && typeof payload.brightness === 'number') {
                     device.state.brightness = Math.max(0, Math.min(100, payload.brightness));
@@ -248,14 +261,17 @@ function executeDeviceAction(deviceId, actionType, payload) {
                 }
             } else if (actionType === 'TOGGLE_ON_OFF') {
                 device.state.isOn = !device.state.isOn;
+                device.state.roomState = device.state.isOn ? 'ON' : 'OFF';
                 device.state.mode = device.state.isOn ? device.state.prevMode : 'OFF';
             } else if (actionType === 'SET_MODE') {
                 if (payload && ['HEAT', 'COOL'].includes(payload.mode)) {
                     device.state.mode = device.state.prevMode = payload.mode;
                     device.state.isOn = true;
+                    device.state.roomState = 'ON';
                 } else if (payload && payload.mode === 'OFF') {
                     device.state.mode = payload.mode;
                     device.state.isOn = false;
+                    device.state.roomState = 'OFF';
                 } else {
                     console.warn('SET_MODE pozvana bez ispravnog payload-a.');
                     return null;
@@ -270,9 +286,10 @@ function executeDeviceAction(deviceId, actionType, payload) {
         case 'SMART_OUTLET':
             if (actionType === 'TOGGLE_ON_OFF') {
                 device.state.isOn = !device.state.isOn;
+                device.state.roomState = device.state.isOn ? 'ON' : 'OFF';
             } else if (actionType === 'READ_POWER_USAGE') {
-                device.state.powerUsage = parseFloat((Math.random() * 100).toFixed(1)); // Simulacija potrošnje
-                return device.state.powerUsage; // Simulacija vraćanja potrošnje
+                device.state.powerUsage = parseFloat((Math.random() * 100).toFixed(1));
+                return device.state.powerUsage;
             } else {
                 console.warn(`Nepoznata akcija za SMART_OUTLET uređaj: ${actionType}`);
                 return null;
@@ -305,14 +322,17 @@ function executeDeviceAction(deviceId, actionType, payload) {
                 }
             } else if (actionType === 'TOGGLE_ON_OFF') {
                 device.state.isOn = !device.state.isOn;
+                device.state.roomState = device.state.isOn ? 'ON' : 'OFF';
                 device.state.mode = device.state.isOn ? device.state.prevMode : 'OFF';
             } else if (actionType === 'SET_MODE') {
                 if (payload && ['HEAT', 'COOL'].includes(payload.mode)) {
                     device.state.mode = device.state.prevMode = payload.mode;
                     device.state.isOn = true;
+                    device.state.roomState = 'ON';
                 } else if (payload && payload.mode === 'OFF') {
                     device.state.mode = payload.mode;
                     device.state.isOn = false;
+                    device.state.roomState = 'OFF';
                 } else {
                     console.warn('SET_MODE pozvana bez ispravnog payload-a.');
                     return null;
@@ -344,16 +364,20 @@ function getAllDevicesByRoom(roomId) {
 }
 
 function getRoomsWithDevices() {
-    // Mapiraj preko definiranih soba
     return Rooms.map(room => {
         const devicesInRoom = devices.filter(device => device.roomId === room.id);
         return {
             id: room.id,
             name: room.name,
+            isOn: room.isOn,
             devices: devicesInRoom,
             numDevices: devicesInRoom.length
         };
     });
+}
+
+function fetchDeviceTypes() {
+    return DEVICE_TYPES;
 }
 
 function addRoom(roomName) {
@@ -362,19 +386,18 @@ function addRoom(roomName) {
         return null;
     }
 
-    // Provjeri postoji li već soba s tim imenom
     const existingRoom = Rooms.find(room => room.name.toLowerCase() === roomName.toLowerCase());
     if (existingRoom) {
         console.error(`Soba s imenom '${roomName}' već postoji.`);
         return null;
     }
 
-    // Generiranje novog ID-a
     const newRoomId = `room-${String(Rooms.length + 1).padStart(3, '0')}`;
 
     const newRoom = {
         id: newRoomId,
-        name: roomName
+        name: roomName,
+        isOn: false
     };
 
     Rooms.push(newRoom);
@@ -382,14 +405,100 @@ function addRoom(roomName) {
     return newRoom;
 }
 
-function addDevice(device) {
-    if (!device || !device.id || !device.name || !device.type || !device.roomId) {
-        console.error('Dodavanje uređaja nije uspjelo. Provjerite ispravnost podataka.');
+function addDevice({ name, type, roomId }) {
+    if (!name || !type || !roomId) {
+        console.error('Nedostaju podaci za kreiranje uređaja.');
+        return { error: 'Nedostaju podaci (ime, tip, ili soba).' };
+    }
+
+    if (!DEVICE_TYPES.includes(type)) {
+        console.error(`Pokušaj kreiranja uređaja s nepostojećim tipom: ${type}`);
+        return { error: `Nepostojeći tip uređaja: ${type}` };
+    }
+
+    const newDeviceId = `device-${String(devices.length + 1).padStart(3, '0')}`;
+
+    const newDevice = {
+        id: newDeviceId,
+        name: name,
+        type: type,
+        roomId: roomId,
+        state: {},
+        supportedActions: []
+    };
+
+    switch (type) {
+        case 'LIGHT':
+            newDevice.state = { roomState: 'OFF', isOn: false, brightness: 0 };
+            newDevice.supportedActions = ['TOGGLE_ON_OFF', 'SET_BRIGHTNESS'];
+            break;
+        case 'THERMOSTAT':
+            newDevice.state = { roomState: 'OFF', isOn: false, temperature: outsideTemperature, targetTemp: 22, mode: 'OFF', prevMode: 'HEAT' };
+            newDevice.supportedActions = ['TOGGLE_ON_OFF', 'SET_TEMPERATURE', 'SET_MODE'];
+            break;
+        case 'SMART_OUTLET':
+            newDevice.state = { roomState: 'OFF', isOn: false, powerUsage: 0 };
+            newDevice.supportedActions = ['TOGGLE_ON_OFF', 'READ_POWER_USAGE'];
+            break;
+        case 'SMART_BLIND':
+            newDevice.state = { position: 0 };
+            newDevice.supportedActions = ['SET_POSITION', 'OPEN', 'CLOSE'];
+            break;
+        case 'AIR_CONDITIONER':
+            newDevice.state = { roomState: 'OFF', isOn: false, temperature: outsideTemperature, targetTemp: 24, mode: 'OFF', prevMode: 'HEAT' };
+            newDevice.supportedActions = ['TOGGLE_ON_OFF', 'SET_TEMPERATURE', 'SET_MODE'];
+            break;
+        case 'SENSOR':
+            newDevice.state = { temperature: outsideTemperature, humidity: 50 };
+            newDevice.supportedActions = ['READ'];
+            break;
+        default:
+            newDevice.state = { status: 'unconfigured' };
+            break;
+    }
+
+    devices.push(newDevice);
+    console.log(`Uređaj ${newDevice.name} dodan u sobu ${roomId}.`);
+    return { device: newDevice };
+}
+
+function roomToggle(roomId) {
+    const room = Rooms.find(r => r.id === roomId);
+    if (!room) {
+        console.error("Soba s tim ID-om ne postoji.");
         return null;
     }
-    devices.push(device);
-    console.log(`Uređaj ${device.name} dodan.`);
-    return device;
+
+    const devicesInRoom = getAllDevicesByRoom(roomId);
+
+    if (devicesInRoom.length === 0) {
+        console.warn("Soba nema uređaja za uključivanje/isključivanje.");
+        room.isOn = false;
+        return null;
+    }
+
+    if (room.isOn) {
+        room.isOn = false;
+        devicesInRoom.forEach(device => {
+            if (!['LIGHT', 'THERMOSTAT', 'SMART_OUTLET', 'AIR_CONDITIONER'].includes(device.type)) return;
+            device.state.isOn = false;
+            if (device.type === 'THERMOSTAT' || device.type === 'AIR_CONDITIONER') {
+                device.state.mode = 'OFF';
+            }
+        })
+    } else {
+        room.isOn = true;
+        devicesInRoom.forEach(device => {
+            if (!['LIGHT', 'THERMOSTAT', 'SMART_OUTLET', 'AIR_CONDITIONER'].includes(device.type)) return;
+            if (device.state.roomState === 'ON') {
+                device.state.isOn = true;
+                if (device.type === 'THERMOSTAT' || device.type === 'AIR_CONDITIONER') {
+                    device.state.mode = device.state.prevMode;
+                }
+            }
+        });
+    }
+    return { room };
 }
 
 module.exports = {
@@ -402,5 +511,7 @@ module.exports = {
     getRoomsWithDevices,
     simulationInterval,
     addRoom,
-    addDevice
+    addDevice,
+    fetchDeviceTypes,
+    roomToggle
 };

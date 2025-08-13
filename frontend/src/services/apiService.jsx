@@ -40,7 +40,7 @@ export const sendDeviceAction = async (deviceId, action) => {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify(action), // npr. { actionType: 'TOGGLE_ON_OFF' }
+            body: JSON.stringify(action),
         });
 
         if (!response.ok) {
@@ -52,6 +52,90 @@ export const sendDeviceAction = async (deviceId, action) => {
         return updatedDevice;
     } catch (error) {
         console.error("Problem sa sendDeviceAction:", error);
+        throw error;
+    }
+};
+
+export const addRoom = async (roomName) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/addRoom`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ name: roomName }),
+        });
+
+        if (response.status === 409) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`${errorData.message || ''}`);
+        }
+
+        else if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dodavanju sobe: ${response.status} ${errorData.message || ''}`);
+        }
+
+        const newRoom = await response.json();
+        return newRoom;
+    } catch (error) {
+        console.error("Problem s addRoom:", error);
+        throw error;
+    }
+};
+
+export const fetchDeviceTypes = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/getAllDeviceTypes`);
+        if (!response.ok) {
+            throw new Error('Greška pri dohvaćanju tipova uređaja');
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s fetchDeviceTypes:", error);
+        throw error;
+    }
+};
+
+export const addDevice = async (deviceData) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/addDevice`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(deviceData),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dodavanju uređaja: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s addDevice:", error);
+        throw error;
+    }
+};
+
+export const toggleRoom = async (roomId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/roomToggle`, {
+            method: `POST`,
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ roomId }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri gašenju/paljenju sobe: ${response.status} ${errorData.message || ''}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s toggleRoom:", error);
         throw error;
     }
 };

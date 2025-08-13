@@ -123,11 +123,55 @@ app.get('/api/getAllDevicesByRoom/:roomId', (req, res) => {
 // Dodavanje nove sobe
 app.post('/api/addRoom', (req, res) => {
     const { name } = req.body;
-    if (!name) {
-        return res.status(400).json({ error: 'Naziv sobe je obavezan.' });
+    if (!name || !name.trim()) {
+        return res.status(400).json({ message: 'Naziv sobe je obavezan.' });
     }
+
     const newRoom = deviceManager.addRoom(name);
-    res.status(201).json(newRoom);
+
+    if (newRoom) {
+        res.status(201).json(newRoom);
+    } else {
+        res.status(409).json({ message: `Soba s imenom '${name}' već postoji.` });
+    }
+});
+
+// Dohvati sve tipove uređaja
+app.get('/api/getAllDeviceTypes', (req, res) => {
+    const deviceTypes = deviceManager.fetchDeviceTypes();
+    res.json(deviceTypes);
+});
+
+// Dodavanje novog uređaja
+app.post('/api/addDevice', (req, res) => {
+    const { name, type, roomId } = req.body;
+
+    if (!name || !type || !roomId) {
+        return res.status(400).json({ message: 'Potrebno je unijeti ime, tip i sobu za novi uređaj.' });
+    }
+
+    const result = deviceManager.addDevice({ name, type, roomId });
+
+    if (result.error) {
+        return res.status(400).json({ message: result.error });
+    }
+
+    res.status(201).json(result.device);
+});
+
+app.post('/api/roomToggle', (req, res) => {
+    const { roomId } = req.body;
+    if (!roomId) {
+        return res.status(400).json({ message: 'ID sobe je obavezan.' });
+    }
+    const result = deviceManager.roomToggle(roomId);
+    if (result && result.error) {
+        return res.status(400).json({ message: result.error });
+    }
+    if (result === null) {
+        return res.status(404).json({ message: `Soba s ID-om ${roomId} nije pronađena.` });
+    }
+    res.status(200).json({ success: true, room: result.room });
 });
 
 app.listen(PORT, () => {

@@ -63,15 +63,41 @@ function DashboardPage() {
         );
     };
 
+    const handleRoomAdded = (newRoom) => {
+        setRoomsData(prevRooms => [...prevRooms, { ...newRoom, devices: [], numDevices: 0 }]);
+    };
+
+    const handleDeviceAdded = (newDevice) => {
+        setAllDevices(prevDevices => [...prevDevices, newDevice]);
+
+        setRoomsData(prevRooms =>
+            prevRooms.map(room => {
+                if (room.id === newDevice.roomId) {
+                    return {
+                        ...room,
+                        devices: [...room.devices, newDevice],
+                        numDevices: room.numDevices + 1
+                    };
+                }
+                return room;
+            })
+        );
+    };
+
+    const handleRoomToggle = (devices) => { devices.forEach(d => { handleDeviceStateChange(d) }); }
+
     return (
         <div className="dashboard-container">
-            <Header title={naslov} />
+            <Header
+                title={naslov}
+                onRoomAdded={handleRoomAdded}
+                onDeviceAdded={handleDeviceAdded} />
             <QuickActions />
             <DisplayOptions currentView={viewMode} onViewChange={setViewMode} />
             {viewMode === 'rooms' &&
                 <div className="rooms-wrapper">
                     {roomsData.map(room => (
-                        <Room key={room.id} room={room} />
+                        <Room key={room.id} room={room} handleRoomToggle={handleRoomToggle} />
                     ))}
                 </div>
             }
