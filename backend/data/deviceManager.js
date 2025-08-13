@@ -498,7 +498,13 @@ function roomToggle(roomId) {
             }
         });
     }
-    return { room };
+
+    const updatedRoomWithDevices = {
+        ...room,
+        devices: devicesInRoom,
+        numDevices: devicesInRoom.length
+    };
+    return { room: updatedRoomWithDevices };
 }
 
 module.exports = {

@@ -1,42 +1,46 @@
 import React from 'react';
 import '../styles/room.css';
-import { useState } from 'react';
 import { toggleRoom } from '../services/apiService';
 
-const Room = ({ room, handleRoomToggle }) => {
-    const [isOn, setIsOn] = useState(room.isOn);
-
+const Room = ({ room, onRoomToggle }) => {
     const handleSwitch = async () => {
-        const previousState = isOn;
-        setIsOn(!previousState);
-
         try {
             const response = await toggleRoom(room.id);
-            const devices = response.room.devices || [];
-            handleRoomToggle(devices);
+            if (response && response.room) {
+                onRoomToggle(response.room);
+            }
         } catch (error) {
             console.error("Greška u prebacivanju sobe:", error);
-            setIsOn(previousState);
         }
     };
+
+    const handleImgError = (e) => {
+        e.target.onerror = null;
+        e.target.src = "/images/Work-In-Progress.png";
+    };
+
 
     return (
         <div className="room" id={room.id}>
             <div className="img-icon-wrapper">
-                <img src={`/images/${room.id}.jpg`} alt={room.id} className="room-image" />
+                <img
+                    src={`/images/${room.id}.jpg`}
+                    onError={handleImgError}
+                    alt={room.id}
+                    className="room-image" />
                 <i className="dots3 bi bi-three-dots-vertical"></i>
             </div>
             <p className="room-name">{room.name}</p>
             <p className="number-of-devices">{room.numDevices} {room.numDevices === 1 ? "device" : "devices"}</p>
             <div className="status-wrapper">
-                <p className="status-string">{isOn ? "ON" : "OFF"}</p>
+                <p className="status-string">{room.isOn ? "ON" : "OFF"}</p>
                 <div className="form-check form-switch">
                     <input
                         className="form-check-input"
                         type="checkbox"
                         role="switch"
                         id="switchCheckDefault"
-                        checked={isOn}
+                        checked={room.isOn}
                         onChange={handleSwitch} />
                 </div>
             </div>

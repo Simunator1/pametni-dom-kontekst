@@ -84,8 +84,22 @@ function DashboardPage() {
         );
     };
 
-    const handleRoomToggle = (devices) => { devices.forEach(d => { handleDeviceStateChange(d) }); }
+    const handleRoomToggle = (updatedRoom) => {
+        const updatedDeviceIds = new Set(updatedRoom.devices.map(d => d.id));
+        const updatedDevicesMap = new Map(updatedRoom.devices.map(d => [d.id, d]));
 
+        setAllDevices(prevDevices =>
+            prevDevices.map(device =>
+                updatedDeviceIds.has(device.id) ? updatedDevicesMap.get(device.id) : device
+            )
+        );
+
+        setRoomsData(prevRooms =>
+            prevRooms.map(room =>
+                room.id === updatedRoom.id ? updatedRoom : room
+            )
+        );
+    };
     return (
         <div className="dashboard-container">
             <Header
@@ -97,7 +111,7 @@ function DashboardPage() {
             {viewMode === 'rooms' &&
                 <div className="rooms-wrapper">
                     {roomsData.map(room => (
-                        <Room key={room.id} room={room} handleRoomToggle={handleRoomToggle} />
+                        <Room key={room.id} room={room} onRoomToggle={handleRoomToggle} />
                     ))}
                 </div>
             }
