@@ -3,7 +3,7 @@ const DEVICE_TYPES = ['LIGHT', 'THERMOSTAT', 'SMART_OUTLET', 'SMART_BLIND', 'AIR
 let devices = [
     {
         id: 'device-001',
-        name: 'Svjetlo Dnevnik Boravak',
+        name: 'Svjetlo Dnevni Boravak',
         type: 'LIGHT',
         roomId: 'room-001',
         state: {
@@ -72,7 +72,7 @@ let devices = [
         roomId: 'room-001',
         state: {
             temperature: 21,
-            humidity: 45
+            humidity: 40
         },
         supportedActions: ['READ']
     },
@@ -105,7 +105,7 @@ let devices = [
         roomId: 'room-004',
         state: {
             temperature: 21,
-            humidity: 45
+            humidity: 60
         },
         supportedActions: ['READ']
     }
@@ -140,7 +140,7 @@ let Rooms = [
 ];
 
 // simulacija vanjske temperature
-let outsideTemperature = 25;
+let outsideTemperature = 28;
 
 // Ažurirajanje vanjske temperature
 function updateOutsideTemperature(newTemp) {
@@ -168,7 +168,21 @@ function simulateTemperatureChanges() {
             let targetDeviceSimTemp = currentDeviceTemp; // Temperatura kojoj će simulacija težiti
 
             if (device.type === 'SENSOR') { // SENZOR
-                targetDeviceSimTemp = outsideTemperature;
+                let UVJET = false;
+                for (const tempdevice of devices) {
+                    if ((tempdevice.type === 'THERMOSTAT' || tempdevice.type === 'AIR_CONDITIONER')
+                        && tempdevice.roomId === device.roomId) {
+                        device.state.temperature = tempdevice.state.temperature;
+                        UVJET = true;
+                        break;
+                    }
+                }
+                if (!UVJET) {
+                    device.state.temperature = outsideTemperature;
+                }
+                let currentHumidity = device.state.humidity;
+                let randomChange = (Math.random() - 0.5) * 2; // Nasumična promjena između -1 i 1
+                device.state.humidity = Math.max(0, Math.min(100, parseFloat((currentHumidity + randomChange).toFixed(0))));
             } else { // THERMOSTAT ili AIR_CONDITIONER
                 const mode = device.state.mode;
                 const targetUserTemp = device.state.targetTemp;
@@ -195,19 +209,13 @@ function simulateTemperatureChanges() {
                         targetDeviceSimTemp = outsideTemperature;
                     }
                 }
-            }
 
-            let change = (targetDeviceSimTemp - currentDeviceTemp) * INERTIA_FACTOR;
-            if (Math.abs(change) < 0.1) {
-                change = targetDeviceSimTemp > currentDeviceTemp ? 0.1 : -0.1; // Osiguraj minimalnu promjenu
-            }
-            let newTemp = currentDeviceTemp + change;
-            device.state.temperature = parseFloat(newTemp.toFixed(1));
-
-            if (device.type === 'SENSOR' && device.state.hasOwnProperty('humidity')) {
-                let currentHumidity = device.state.humidity;
-                let randomChange = (Math.random() - 0.5) * 2; // Nasumična promjena između -1 i 1
-                device.state.humidity = Math.max(0, Math.min(100, parseFloat((currentHumidity + randomChange).toFixed(0))));
+                let change = (targetDeviceSimTemp - currentDeviceTemp) * INERTIA_FACTOR;
+                if (Math.abs(change) < 0.1) {
+                    change = targetDeviceSimTemp > currentDeviceTemp ? 0.1 : -0.1; // Osiguraj minimalnu promjenu
+                }
+                let newTemp = currentDeviceTemp + change;
+                device.state.temperature = parseFloat(newTemp.toFixed(1));
             }
         }
     });
@@ -445,7 +453,7 @@ function addDevice({ name, type, roomId }) {
             newDevice.supportedActions = ['SET_POSITION', 'OPEN', 'CLOSE'];
             break;
         case 'AIR_CONDITIONER':
-            newDevice.state = { roomState: 'OFF', isOn: false, temperature: outsideTemperature, targetTemp: 24, mode: 'OFF', prevMode: 'HEAT' };
+            newDevice.state = { roomState: 'OFF', isOn: false, temperature: outsideTemperature, targetTemp: 24, mode: 'OFF', prevMode: 'COOL' };
             newDevice.supportedActions = ['TOGGLE_ON_OFF', 'SET_TEMPERATURE', 'SET_MODE'];
             break;
         case 'SENSOR':

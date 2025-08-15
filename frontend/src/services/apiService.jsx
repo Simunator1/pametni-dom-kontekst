@@ -139,3 +139,35 @@ export const toggleRoom = async (roomId) => {
         throw error;
     }
 };
+
+export const getOutsideTemperature = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/outside-temp`);
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dohvaćanju vanjske temperature: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s getOutsideTemperature:", error);
+        throw error;
+    }
+};
+
+export const getDeviceById = async (deviceId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/devices/${deviceId}`);
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dohvaćanju uređaja: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s getDeviceById:", error);
+        throw error;
+    }
+};

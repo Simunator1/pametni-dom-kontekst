@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { fetchRoomsWithDevices, fetchDevices } from '../services/apiService';
+import React, { useState, useEffect, useCallback } from 'react';
+import { fetchRoomsWithDevices, fetchDevices, getOutsideTemperature } from '../services/apiService';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/Dashboard.css';
 import Header from '../components/Header';
@@ -7,6 +7,11 @@ import QuickActions from '../components/quickActions';
 import DisplayOptions from '../components/displayOptions';
 import Room from '../components/room';
 import Device from '../components/device';
+import Light from '../components/devices/light';
+import TempConditioner from '../components/devices/tempConditioner';
+import SmartBlind from '../components/devices/smartBlind';
+import SmartOutlet from '../components/devices/smartOutlet';
+import Sensor from '../components/devices/sensor';
 
 function DashboardPage() {
     const [allDevices, setAllDevices] = useState([]); // Za "All Devices" prikaz
@@ -14,6 +19,7 @@ function DashboardPage() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [viewMode, setViewMode] = useState('rooms'); // 'rooms' ili 'devices'
+    const [outsideTemp, setOutsideTemp] = useState('N/A');
 
     const naslov = "Home";
 
@@ -39,15 +45,21 @@ function DashboardPage() {
         loadInitialData();
     }, []);
 
-    if (loading) {
-        return <p>Učitavanje uređaja...</p>;
-    }
+    useEffect(() => {
+        const fetchOutsideTemperature = async () => {
+            try {
+                const response = await getOutsideTemperature();
+                setOutsideTemp(response.outsideTemp);
+            } catch (error) {
+                console.error("Greška pri dohvaćanju vanjske temperature:", error);
+                setOutsideTemp('N/A');
+            }
+        };
 
-    if (error) {
-        return <p>Greška: {error}</p>;
-    }
+        fetchOutsideTemperature();
+    }, []);
 
-    const handleDeviceStateChange = (updatedDevice) => {
+    const handleDeviceStateChange = useCallback((updatedDevice) => {
         setAllDevices(prevDevices =>
             prevDevices.map(device =>
                 device.id === updatedDevice.id ? updatedDevice : device
@@ -61,7 +73,15 @@ function DashboardPage() {
                 )
             }))
         );
-    };
+    }, []);
+
+    if (loading) {
+        return <p>Učitavanje uređaja...</p>;
+    }
+
+    if (error) {
+        return <p>Greška: {error}</p>;
+    }
 
     const handleRoomAdded = (newRoom) => {
         setRoomsData(prevRooms => [...prevRooms, { ...newRoom, devices: [], numDevices: 0 }]);
@@ -100,6 +120,7 @@ function DashboardPage() {
             )
         );
     };
+
     return (
         <div className="dashboard-container">
             <Header

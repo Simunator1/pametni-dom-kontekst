@@ -4,4 +4,8 @@
  + Gašenje/Paljenje sobe
  - Prikaz detalja uređaja
  - Developer settings
+ - uredi uređaj
+ - uredi sobu
+ - brisanje uređaja
+ - brisanje sobe
  - Prikaz detalja sobe
