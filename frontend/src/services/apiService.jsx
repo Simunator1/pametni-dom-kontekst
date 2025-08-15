@@ -171,3 +171,84 @@ export const getDeviceById = async (deviceId) => {
         throw error;
     }
 };
+
+export const removeDevice = async (deviceId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/devices/${deviceId}`, {
+            method: 'DELETE',
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri brisanju uređaja: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s removeDevice:", error);
+        throw error;
+    }
+};
+
+export const removeRoom = async (roomId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/rooms/${roomId}`, {
+            method: 'DELETE',
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri brisanju sobe: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s removeRoom:", error);
+        throw error;
+    }
+};
+
+export const editRoom = async (roomId, newRoomName) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/rooms/${roomId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ newRoomName }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri uređivanju sobe: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s editRoom:", error);
+        throw error;
+    }
+};
+
+export const editDevice = async (deviceId, newDeviceName, newRoomId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/devices/${deviceId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ newDeviceName, newRoomId }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri uređivanju uređaja: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s editDevice:", error);
+        throw error;
+    }
+};
+

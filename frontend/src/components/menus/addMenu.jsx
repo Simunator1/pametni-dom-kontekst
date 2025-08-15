@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { CSSTransition } from 'react-transition-group';
-import { addRoom, fetchRoomsWithDevices, fetchDeviceTypes, addDevice } from '../services/apiService';
+import { addRoom, fetchRoomsWithDevices, fetchDeviceTypes, addDevice } from '../../services/apiService';
 
 function AddRoomForm({ onRoomAdded }) {
     const [roomName, setRoomName] = useState('');

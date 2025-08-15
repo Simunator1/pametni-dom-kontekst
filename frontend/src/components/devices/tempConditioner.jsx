@@ -17,6 +17,8 @@ const temperatureConditioner = ({ device, onStateChange, outsideTemp }) => {
             }
         };
 
+        pollDeviceState();
+
         const intervalId = setInterval(pollDeviceState, 5000);
 
         return () => {

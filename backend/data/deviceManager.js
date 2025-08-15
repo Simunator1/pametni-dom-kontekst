@@ -515,6 +515,59 @@ function roomToggle(roomId) {
     return { room: updatedRoomWithDevices };
 }
 
+function removeDevice(deviceId) {
+    const deviceIndex = devices.findIndex(device => device.id === deviceId);
+    if (deviceIndex === -1) {
+        console.error(`Uređaj s ID-om '${deviceId}' nije pronađen.`);
+        return null;
+    }
+
+    const removedDevice = devices.splice(deviceIndex, 1)[0];
+    console.log(`Uređaj ${removedDevice.name} uklonjen.`);
+    return removedDevice;
+}
+
+function removeRoom(roomId) {
+    const roomIndex = Rooms.findIndex(room => room.id === roomId);
+    if (roomIndex === -1) {
+        console.error(`Soba s ID-om '${roomId}' nije pronađena.`);
+        return null;
+    }
+
+    const removedRoom = Rooms.splice(roomIndex, 1)[0];
+    console.log(`Soba ${removedRoom.name} uklonjena.`);
+
+    devices = devices.filter(device => device.roomId !== roomId);
+    console.log(`Uređaji iz sobe ${removedRoom.name} su uklonjeni.`);
+
+    return removedRoom;
+}
+
+function editRoom({ roomId, newRoomName }) {
+    const roomIndex = Rooms.findIndex(room => room.id === roomId);
+    if (roomIndex === -1) {
+        console.error(`Soba s ID-om '${roomId}' nije pronađena.`);
+        return null;
+    }
+    Rooms[roomIndex].name = newRoomName;
+    console.log(`Soba ${roomId} preimenovana u ${newRoomName}.`);
+    return Rooms[roomIndex];
+}
+
+function editDevice({ deviceId, newDeviceName, newRoomId }) {
+    const deviceIndex = devices.findIndex(device => device.id === deviceId);
+    if (deviceIndex === -1) {
+        console.error(`Uređaj s ID-om '${deviceId}' nije pronađen.`);
+        return null;
+    }
+
+    devices[deviceIndex].name = newDeviceName;
+    devices[deviceIndex].roomId = newRoomId;
+
+    console.log(`Uređaj ${deviceId} preimenovan u ${newDeviceName} i premješten u sobu ${newRoomId}.`);
+    return devices[deviceIndex];
+}
+
 module.exports = {
     getAllDevices,
     getDeviceById,
@@ -527,5 +580,9 @@ module.exports = {
     addRoom,
     addDevice,
     fetchDeviceTypes,
-    roomToggle
+    roomToggle,
+    removeDevice,
+    removeRoom,
+    editRoom,
+    editDevice
 };

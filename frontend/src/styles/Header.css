@@ -87,6 +87,10 @@ a {
     transform: translateX(-74.35%);
 }
 
+.edit-device-menu {
+    transform: translateX(-86.22%);
+}
+
 .menu {
     width: 100%;
 }
@@ -165,4 +169,20 @@ a {
 .feedback-message {
     text-align: center;
     font-weight: bold;
+}
+
+.alternate-header {
+    list-style: none;
+    margin: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1vh;
+    padding: 0;
+}
+
+.alternate-header h1 {
+    margin: 0;
 }

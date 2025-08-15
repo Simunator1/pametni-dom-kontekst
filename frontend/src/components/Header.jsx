@@ -1,17 +1,44 @@
 import React, { useState, useRef, useEffect } from 'react';
 import '../styles/Header.css';
-import HamburgerMenu from './hamburgerMenu';
-import AddMenu from './addMenu';
-import DeveloperMenu from './developerMenu';
+import HamburgerMenu from './menus/hamburgerMenu';
+import AddMenu from './menus/addMenu';
+import DeveloperMenu from './menus/developerMenu';
+import EditDeviceMenu from './menus/editDeviceMenu';
 
-const Header = ({ title, onRoomAdded, onDeviceAdded }) => (
+const Header = ({ device, title, onBack, onRoomAdded, onDeviceAdded, onDeviceEdited, onDeviceRemoved }) => (
     <nav className="header">
-        <h1 className="naslov">{title}</h1>
-        <ul className="ikone">
-            <NavItem className="ikona bi bi-gear"><DeveloperMenu className="developer-menu" /> </NavItem>
-            <NavItem className="ikona bi bi-plus-square"><AddMenu className="add-menu" onRoomAdded={onRoomAdded} onDeviceAdded={onDeviceAdded} /></NavItem>
-            <NavItem className="ikona bi bi-list"><HamburgerMenu className="hamburger-menu" /></NavItem>
-        </ul>
+        {onBack && (
+            <div className="alternate-header">
+                <i className="ikona bi bi-arrow-left back-button" onClick={onBack}></i>
+                <h1 className="naslov">{title}</h1>
+                <NavItem className="ikona bi bi-three-dots">
+                    <EditDeviceMenu
+                        className="edit-device-menu"
+                        device={device}
+                        onDeviceEdited={onDeviceEdited}
+                        onDeviceRemoved={onDeviceRemoved} />
+                </NavItem>
+            </div>
+        )}
+
+        {!onBack && (
+            <>
+                <h1 className="naslov">{title}</h1>
+                <ul className="ikone">
+                    <NavItem className="ikona bi bi-gear"><DeveloperMenu className="developer-menu" /> </NavItem>
+                    <NavItem className="ikona bi bi-plus-square">
+                        {onRoomAdded && onDeviceAdded &&
+                            <AddMenu
+                                className="add-menu"
+                                onRoomAdded={onRoomAdded}
+                                onDeviceAdded={onDeviceAdded}
+                            />
+                        }
+                    </NavItem>
+                    <NavItem className="ikona bi bi-list"><HamburgerMenu className="hamburger-menu" /></NavItem>
+                </ul>
+            </>
+        )}
     </nav>
 );
 

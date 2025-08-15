@@ -9,20 +9,21 @@ const Sensor = ({ device, outsideTemp, onStateChange }) => {
         const pollDeviceState = async () => {
             console.log(`Polling for device ${device.id} state...`);
             try {
-                const latestDeviceState = await getDeviceById(device.id);
-                device.state = latestDeviceState.state;
-                onStateChange(device);
+                const updatedDevice = await getDeviceById(device.id);
+                onStateChange(updatedDevice);
             } catch (error) {
                 console.error(`Greška pri dohvaćanju stanja uređaja ${device.id}:`, error);
             }
         };
+
+        pollDeviceState();
 
         const intervalId = setInterval(pollDeviceState, 5000);
 
         return () => {
             clearInterval(intervalId);
         };
-    }, [device.id]);
+    }, [device.id, onStateChange]);
 
 
     return (

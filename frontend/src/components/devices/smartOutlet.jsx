@@ -3,7 +3,7 @@ import '../../styles/smartOutlet.css';
 import '../../styles/deviceDetails.css';
 import { sendDeviceAction } from '../../services/apiService';
 
-const Light = ({ device }) => {
+const SmartOutlet = ({ device, onStateChange }) => {
     const [powerUsage, setPowerUsage] = useState(0);
 
     useEffect(() => {
@@ -60,4 +60,4 @@ const Light = ({ device }) => {
     );
 };
 
-export default Light;
+export default SmartOutlet;

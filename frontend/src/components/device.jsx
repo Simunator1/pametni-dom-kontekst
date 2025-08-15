@@ -12,7 +12,7 @@ const iconMap = {
 };
 
 
-const Device = ({ device, onStateChange }) => {
+const Device = ({ device, onStateChange, onDeviceSelect }) => {
     const nameRef = useRef(null);
     const [shouldScroll, setShouldScroll] = useState(false);
 
@@ -40,7 +40,7 @@ const Device = ({ device, onStateChange }) => {
     const isDeviceOn = isToggleable ? device.state.isOn : true;
 
     return (
-        <div className={`device${!isDeviceOn ? ' gray' : ''}`}>
+        <div className={`device${!isDeviceOn ? ' gray' : ''}`} onClick={() => onDeviceSelect(device)}>
             <i className={`device-ikona ${!isDeviceOn ? ' gray ' : ''}bi ${iconClass}${isToggleable ? '' : ' no-switch'}`}></i>
             <div className={`${isToggleable ? 'device-name-wrapper' : 'device-name-wrapper-no-switch'}`}>
                 <p
@@ -52,7 +52,7 @@ const Device = ({ device, onStateChange }) => {
                 </p>
             </div>
             {isToggleable && (
-                <div className="form-check form-switch">
+                <div className="form-check form-switch" onClick={(e) => e.stopPropagation()}>
                     <input
                         className="form-check-input"
                         type="checkbox"

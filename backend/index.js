@@ -174,6 +174,66 @@ app.post('/api/roomToggle', (req, res) => {
     res.status(200).json({ success: true, room: result.room });
 });
 
+// Uređivanje sobe
+app.put('/api/rooms/:roomId', (req, res) => {
+    const { roomId } = req.params;
+    const { newRoomName } = req.body;
+
+    if (!newRoomName || !newRoomName.trim()) {
+        return res.status(400).json({ message: 'Novi naziv sobe je obavezan.' });
+    }
+
+    const updatedRoom = deviceManager.editRoom({ roomId, newRoomName });
+
+    if (updatedRoom) {
+        res.status(200).json(updatedRoom);
+    } else {
+        res.status(404).json({ message: `Soba s ID-om ${roomId} nije pronađena.` });
+    }
+});
+
+// Uređivanje uređaja
+app.put('/api/devices/:deviceId', (req, res) => {
+    const { deviceId } = req.params;
+    const { newDeviceName, newRoomId } = req.body;
+
+    if (!newDeviceName || !newRoomId) {
+        return res.status(400).json({ message: 'Novi naziv uređaja i ID sobe su obavezni.' });
+    }
+
+    const updatedDevice = deviceManager.editDevice({ deviceId, newDeviceName, newRoomId });
+
+    if (updatedDevice) {
+        res.status(200).json(updatedDevice);
+    } else {
+        res.status(404).json({ message: `Uređaj s ID-om ${deviceId} nije pronađen.` });
+    }
+});
+
+// Brisanje uređaja
+app.delete('/api/devices/:deviceId', (req, res) => {
+    const { deviceId } = req.params;
+    const removedDevice = deviceManager.removeDevice(deviceId);
+
+    if (removedDevice) {
+        res.status(200).json({ message: `Uređaj '${removedDevice.name}' je uspješno obrisan.` });
+    } else {
+        res.status(404).json({ message: `Uređaj s ID-om ${deviceId} nije pronađen.` });
+    }
+});
+
+// Brisanje sobe
+app.delete('/api/rooms/:roomId', (req, res) => {
+    const { roomId } = req.params;
+    const removedRoom = deviceManager.removeRoom(roomId);
+
+    if (removedRoom) {
+        res.status(200).json({ message: `Soba '${removedRoom.name}' i svi njezini uređaji su obrisani.` });
+    } else {
+        res.status(404).json({ message: `Soba s ID-om ${roomId} nije pronađena.` });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Backend server pokrenut na http://localhost:${PORT}`);
 });
