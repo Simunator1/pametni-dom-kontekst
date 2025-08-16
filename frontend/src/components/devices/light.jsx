@@ -31,9 +31,11 @@ const Light = ({ device, onStateChange }) => {
 
     return (
         <div className="device-details-container lights">
-            <span className="deviceName">{device.name}</span>
+            <div className="deviceNameContainer">
+                <span className="deviceName">{device.name}</span>
+            </div>
 
-            <div className="light-control">
+            <div className="light-control background">
                 <span>Turn ON/OFF</span>
                 <div className="botunDiv form-check form-switch">
                     <input
@@ -46,7 +48,7 @@ const Light = ({ device, onStateChange }) => {
                 </div>
             </div>
 
-            <div className="brightness">
+            <div className="brightness background">
                 <span>Brightness</span>
                 <div className="brightness-control">
                     <i className="bi bi-brightness-low"></i>

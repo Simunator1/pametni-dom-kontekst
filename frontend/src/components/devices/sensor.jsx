@@ -3,7 +3,7 @@ import '../../styles/sensor.css';
 import '../../styles/deviceDetails.css';
 import { getDeviceById } from '../../services/apiService';
 
-const Sensor = ({ device, outsideTemp, onStateChange }) => {
+const Sensor = ({ device, outsideTemp, onStateChange, pollingInterval }) => {
 
     useEffect(() => {
         const pollDeviceState = async () => {
@@ -18,27 +18,29 @@ const Sensor = ({ device, outsideTemp, onStateChange }) => {
 
         pollDeviceState();
 
-        const intervalId = setInterval(pollDeviceState, 5000);
+        const intervalId = setInterval(pollDeviceState, pollingInterval);
 
         return () => {
             clearInterval(intervalId);
         };
-    }, [device.id, onStateChange]);
+    }, [device.id, onStateChange, pollingInterval]);
 
 
     return (
         <div className="device-details-container sensor">
-            <span className="deviceName">{device.name}</span>
+            <div className="deviceNameContainer">
+                <span className="deviceName">{device.name}</span>
+            </div>
             <div className="sensor-data">
-                <div className="sensor-item">
+                <div className="sensor-item background">
                     <span>Temperature:</span>
                     <span>{device.state.temperature} °C</span>
                 </div>
-                <div className="sensor-item">
+                <div className="sensor-item background">
                     <span>Humidity:</span>
                     <span>{device.state.humidity} %</span>
                 </div>
-                <div className="sensor-item">
+                <div className="sensor-item background">
                     <span>Outside Temperature:</span>
                     <span>{outsideTemp} °C</span>
                 </div>

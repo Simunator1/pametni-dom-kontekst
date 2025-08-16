@@ -4,7 +4,7 @@ import '../../styles/tempConditioner.css';
 import '../../styles/deviceDetails.css';
 import { sendDeviceAction, getDeviceById } from '../../services/apiService';
 
-const temperatureConditioner = ({ device, onStateChange, outsideTemp }) => {
+const temperatureConditioner = ({ device, onStateChange, outsideTemp, pollingInterval }) => {
 
     useEffect(() => {
         const pollDeviceState = async () => {
@@ -19,12 +19,12 @@ const temperatureConditioner = ({ device, onStateChange, outsideTemp }) => {
 
         pollDeviceState();
 
-        const intervalId = setInterval(pollDeviceState, 5000);
+        const intervalId = setInterval(pollDeviceState, pollingInterval);
 
         return () => {
             clearInterval(intervalId);
         };
-    }, [device.id, onStateChange]);
+    }, [device.id, onStateChange, pollingInterval]);
 
     const handleToggle = async () => {
         try {
@@ -61,9 +61,11 @@ const temperatureConditioner = ({ device, onStateChange, outsideTemp }) => {
 
     return (
         <div className="device-details-container temp">
-            <span className="deviceName">{device.name}</span>
+            <div className="deviceNameContainer">
+                <span className="deviceName">{device.name}</span>
+            </div>
 
-            <div className="ONOFF-control">
+            <div className="ONOFF-control background">
                 <span>Turn ON/OFF</span>
                 <div className="botunDiv form-check form-switch">
                     <input
@@ -76,14 +78,14 @@ const temperatureConditioner = ({ device, onStateChange, outsideTemp }) => {
                 </div>
             </div>
 
-            <div className={`tempControl ${device.state.isOn ? '' : 'disabled'}`}>
+            <div className={`tempControl ${device.state.isOn ? '' : 'disabled'} background`}>
                 <span>Target Temperature:</span>
                 <i onClick={() => handleTemperatureChange(-1)} className="bi bi-dash-circle" />
                 <span className='stupnjevi'>{device.state.targetTemp}°C</span>
                 <i onClick={() => handleTemperatureChange(+1)} className="bi bi-plus-circle" />
             </div>
 
-            <div className="modeControl">
+            <div className="modeControl background">
                 <div className="text-icon-container cool">
                     <span>Cool</span>
                     <i className="bi bi-thermometer-snow" />
@@ -103,7 +105,7 @@ const temperatureConditioner = ({ device, onStateChange, outsideTemp }) => {
                     <i className='bi bi-thermometer-sun' />
                 </div>
             </div>
-            <div className="temps">
+            <div className="temps background">
                 <span>Current Temp: {device.state.temperature}°C</span>
                 <span>Outside Temp: {outsideTemp}°C</span>
             </div>

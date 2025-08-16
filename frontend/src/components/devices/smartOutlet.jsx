@@ -3,7 +3,7 @@ import '../../styles/smartOutlet.css';
 import '../../styles/deviceDetails.css';
 import { sendDeviceAction } from '../../services/apiService';
 
-const SmartOutlet = ({ device, onStateChange }) => {
+const SmartOutlet = ({ device, onStateChange, pollingInterval }) => {
     const [powerUsage, setPowerUsage] = useState(0);
 
     useEffect(() => {
@@ -18,10 +18,10 @@ const SmartOutlet = ({ device, onStateChange }) => {
         };
 
         fetchPowerUsage();
-        const intervalId = setInterval(fetchPowerUsage, 3000);
+        const intervalId = setInterval(fetchPowerUsage, pollingInterval);
 
         return () => clearInterval(intervalId);
-    }, [device.id, onStateChange]);
+    }, [device.id, onStateChange, pollingInterval]);
 
     const handleToggle = async () => {
         try {
@@ -34,9 +34,11 @@ const SmartOutlet = ({ device, onStateChange }) => {
 
     return (
         <div className="device-details-container">
-            <span className="deviceName">{device.name}</span>
+            <div className="deviceNameContainer">
+                <span className="deviceName">{device.name}</span>
+            </div>
 
-            <div className="outlet-ONOFF-control">
+            <div className="outlet-ONOFF-control background">
                 <span>Turn ON/OFF</span>
                 <div className="botunDiv form-check form-switch">
                     <input
@@ -49,7 +51,7 @@ const SmartOutlet = ({ device, onStateChange }) => {
                 </div>
             </div>
 
-            <div className="power-usage-container">
+            <div className="power-usage-container background">
                 <span>Power Usage: </span>
                 <div>
                     <i className="bi bi-lightning-charge" />

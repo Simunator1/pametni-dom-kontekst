@@ -70,25 +70,29 @@ a {
 
 .dropdown {
     position: absolute;
-    top: 8vh;
-    width: 90.4vw;
+    /* top: 8vh; */
+    width: 90.1vw;
     background-color: #5db4c3;
-    border-radius: 10px;
+    border-radius: 5px;
     overflow: hidden;
     transition: height var(--speed) ease;
     z-index: 9999;
 }
 
 .hamburger-menu {
-    transform: translateX(-86.22%);
+    transform: translateX(-85.9%);
 }
 
 .add-menu {
-    transform: translateX(-74.35%);
+    transform: translateX(-73.8%);
 }
 
 .edit-device-menu {
-    transform: translateX(-86.22%);
+    transform: translateX(-86.34%);
+}
+
+.developer-menu {
+    transform: translateX(-60.15%);
 }
 
 .menu {
@@ -106,6 +110,7 @@ a {
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 1.5rem;
 }
 
 .menu-item {

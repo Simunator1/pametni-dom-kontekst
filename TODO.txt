@@ -8,4 +8,6 @@
  - uredi sobu
  + brisanje uređaja
  - brisanje sobe
+
+ 
  - Prikaz detalja sobe

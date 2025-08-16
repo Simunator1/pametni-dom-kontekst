@@ -1,5 +1,17 @@
 const DEVICE_TYPES = ['LIGHT', 'THERMOSTAT', 'SMART_OUTLET', 'SMART_BLIND', 'AIR_CONDITIONER', 'SENSOR'];
 
+const TIMES_OF_DAY = ["MORNING", "AFTERNOON", "EVENING", "NIGHT"];
+
+let currentTimeOfDay = TIMES_OF_DAY[0];
+
+let userPresence = true;
+
+let outsideTemperature = 28;
+
+let simulationIntervalId = null;
+
+let simulationIntervalDuration = 5000;
+
 let devices = [
     {
         id: 'device-001',
@@ -139,11 +151,24 @@ let Rooms = [
     }
 ];
 
-// simulacija vanjske temperature
-let outsideTemperature = 28;
+function startSimulation(newDuration) {
+    if (simulationIntervalId) {
+        clearInterval(simulationIntervalId);
+    }
+
+    simulationIntervalDuration = newDuration;
+    simulationIntervalId = setInterval(simulateTemperatureChanges, simulationIntervalDuration);
+    console.log(`Simulacija je pokrenuta s intervalom od ${simulationIntervalDuration / 1000}s.`);
+}
+
+function getSimulationInterval() {
+    return simulationIntervalDuration;
+}
+
+startSimulation(simulationIntervalDuration);
 
 // Ažurirajanje vanjske temperature
-function updateOutsideTemperature(newTemp) {
+function setOutsideTemperature(newTemp) {
     if (typeof newTemp === 'number') {
         outsideTemperature = Math.max(-15, Math.min(45, newTemp));
         console.log(`Vanjska temperatura ažurirana na: ${outsideTemperature}°C`);
@@ -221,8 +246,6 @@ function simulateTemperatureChanges() {
     });
     // console.log('Simulirane temperature ažurirane.');
 }
-
-const simulationInterval = setInterval(simulateTemperatureChanges, 5000); // 5000ms = 5s
 
 // Funkcija za dohvat svih uređaja
 function getAllDevices() {
@@ -512,6 +535,8 @@ function roomToggle(roomId) {
         devices: devicesInRoom,
         numDevices: devicesInRoom.length
     };
+
+    console.log(`Soba ${room.name} je sada ${room.isOn ? 'uključena' : 'isključena'}.`);
     return { room: updatedRoomWithDevices };
 }
 
@@ -568,15 +593,47 @@ function editDevice({ deviceId, newDeviceName, newRoomId }) {
     return devices[deviceIndex];
 }
 
+function fetchTimesOfDay() {
+    return TIMES_OF_DAY;
+}
+
+function getCurrentTimeOfDay() {
+    return currentTimeOfDay;
+}
+
+function setCurrentTimeOfDay(newTimeOfDay) {
+    if (TIMES_OF_DAY.includes(newTimeOfDay)) {
+        currentTimeOfDay = newTimeOfDay;
+        console.log(`Trenutno doba dana postavljeno na: ${currentTimeOfDay}`);
+    }
+    else {
+        console.warn(`Nepoznata vrijednost doba dana: ${newTimeOfDay}`);
+    }
+    return currentTimeOfDay;
+}
+
+function getUserPresence() {
+    return userPresence;
+}
+
+function setUserPresence(isPresent) {
+    if (typeof isPresent === 'boolean') {
+        userPresence = isPresent;
+        console.log(`Trenutna prisutnost korisnika postavljena na: ${userPresence ? 'prisutni' : 'odsutni'}`);
+    } else {
+        console.warn('Pogrešan tip vrijednosti za prisutnost korisnika. Očekuje se boolean.');
+    }
+    return userPresence;
+}
+
 module.exports = {
     getAllDevices,
     getDeviceById,
     executeDeviceAction,
-    updateOutsideTemperature,
+    setOutsideTemperature,
     getOutsideTemperature,
     getAllDevicesByRoom,
     getRoomsWithDevices,
-    simulationInterval,
     addRoom,
     addDevice,
     fetchDeviceTypes,
@@ -584,5 +641,12 @@ module.exports = {
     removeDevice,
     removeRoom,
     editRoom,
-    editDevice
+    editDevice,
+    startSimulation,
+    getSimulationInterval,
+    getCurrentTimeOfDay,
+    setCurrentTimeOfDay,
+    getUserPresence,
+    setUserPresence,
+    fetchTimesOfDay
 };

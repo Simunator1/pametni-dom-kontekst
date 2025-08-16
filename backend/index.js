@@ -35,10 +35,6 @@ app.get('/api/db-test', async (req, res) => {
     }
 });
 
-app.get('/api', (req, res) => {
-    res.send('Backend server radi!');
-});
-
 // --- RUTE ZA VANJSKU TEMPERATURU ---
 // Dohvati vanjsku temperaturu
 app.get('/api/outside-temp', (req, res) => {
@@ -50,7 +46,7 @@ app.get('/api/outside-temp', (req, res) => {
 // Postavi novu vanjsku temperaturu
 app.post('/api/outside-temp', (req, res) => {
     const { temperature } = req.body;
-    const newTemp = deviceManager.updateOutsideTemperature(temperature);
+    const newTemp = deviceManager.setOutsideTemperature(temperature);
     if (newTemp === null) {
         return res.status(400).json({ error: 'Neispravna temperatura.' });
     } else
@@ -159,6 +155,7 @@ app.post('/api/addDevice', (req, res) => {
     res.status(201).json(result.device);
 });
 
+// Uključivanje/isključivanje sobe
 app.post('/api/roomToggle', (req, res) => {
     const { roomId } = req.body;
     if (!roomId) {
@@ -232,6 +229,57 @@ app.delete('/api/rooms/:roomId', (req, res) => {
     } else {
         res.status(404).json({ message: `Soba s ID-om ${roomId} nije pronađena.` });
     }
+});
+
+// Dobivanje trenutnog intervala simulacije
+app.get('/api/simulation/interval', (req, res) => {
+    res.json({ interval: deviceManager.getSimulationInterval() });
+});
+
+// Postavi novi interval simulacije
+app.post('/api/simulation/interval', (req, res) => {
+    const { newIntervalMs } = req.body;
+    if (typeof newIntervalMs !== 'number' || newIntervalMs < 500) {
+        return res.status(400).json({ message: 'Interval mora biti broj veći od 500ms.' });
+    }
+    deviceManager.startSimulation(newIntervalMs);
+    res.json({ success: true, newInterval: newIntervalMs });
+});
+
+// Dohvati trenutno doba dana
+app.get('/api/context/time-of-day', (req, res) => {
+    res.json({ timeOfDay: deviceManager.getCurrentTimeOfDay() });
+});
+
+// Postavi novo doba dana
+app.post('/api/context/time-of-day', (req, res) => {
+    const { timeOfDay } = req.body;
+    if (!timeOfDay) {
+        return res.status(400).json({ message: 'Doba dana je obavezno.' });
+    }
+    const newTimeOfDay = deviceManager.setCurrentTimeOfDay(timeOfDay);
+    res.json({ success: true, timeOfDay: newTimeOfDay });
+});
+
+// Dohvati prisutnost korisnika
+app.get('/api/context/user-presence', (req, res) => {
+    res.json({ userPresence: deviceManager.getUserPresence() });
+});
+
+// Postavi prisutnost korisnika
+app.post('/api/context/user-presence', (req, res) => {
+    const { isPresent } = req.body;
+    if (typeof isPresent !== 'boolean') {
+        return res.status(400).json({ message: 'Vrijednost prisutnosti mora biti boolean.' });
+    }
+    const newUserPresence = deviceManager.setUserPresence(isPresent);
+    res.json({ success: true, userPresence: newUserPresence });
+});
+
+// Dohvati sva doba dana
+app.get('/api/context/times-of-day', (req, res) => {
+    const timesOfDay = deviceManager.fetchTimesOfDay();
+    res.json(timesOfDay);
 });
 
 app.listen(PORT, () => {

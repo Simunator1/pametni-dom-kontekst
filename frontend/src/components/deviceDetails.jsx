@@ -14,7 +14,7 @@ const deviceComponentMap = {
     SENSOR: Sensor,
 };
 
-const DeviceDetails = ({ device, onStateChange, outsideTemp }) => {
+const DeviceDetails = ({ device, onStateChange, outsideTemp, pollingInterval }) => {
     const SpecificDeviceComponent = deviceComponentMap[device.type];
 
     if (!SpecificDeviceComponent) {
@@ -30,6 +30,7 @@ const DeviceDetails = ({ device, onStateChange, outsideTemp }) => {
         device={device}
         onStateChange={onStateChange}
         outsideTemp={outsideTemp}
+        pollingInterval={pollingInterval}
     />;
 };
 

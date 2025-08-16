@@ -5,6 +5,15 @@
     align-items: center;
 }
 
+.deviceNameContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 90vw;
+    background: linear-gradient(to right, #008CFF, rgb(255, 255, 255));
+    border-radius: 10px;
+}
+
 .deviceName {
     text-align: center;
     font-weight: bold;
@@ -18,4 +27,11 @@
 
 .botunDiv {
     width: auto;
+}
+
+.background {
+    background: linear-gradient(to right, #D1D1D1, #F8FBFF);
+    border-radius: 10px;
+    padding: 1rem;
+    width: 80vw;
 }

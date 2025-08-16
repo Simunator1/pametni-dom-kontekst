@@ -156,6 +156,27 @@ export const getOutsideTemperature = async () => {
     }
 };
 
+export const setOutsideTemperature = async (temperature) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/outside-temp`, {
+            method: 'POST',
+            headers: {
+
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ temperature }),
+        });
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri postavljanju vanjske temperature: ${response.status} ${errorData.message || ''}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s setOutsideTemperature:", error);
+        throw error;
+    }
+};
+
 export const getDeviceById = async (deviceId) => {
     try {
         const response = await fetch(`${API_BASE_URL}/devices/${deviceId}`);
@@ -252,3 +273,118 @@ export const editDevice = async (deviceId, newDeviceName, newRoomId) => {
     }
 };
 
+export const getSimulationInterval = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/simulation/interval`);
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dohvaćanju intervala simulacije: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s getSimulationInterval:", error);
+        throw error;
+    }
+}
+
+export const setSimulationInterval = async (newIntervalMs) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/simulation/interval`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ newIntervalMs }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri postavljanju intervala simulacije: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s setSimulationInterval:", error);
+        throw error;
+    }
+};
+
+export const getCurrentTimeOfDay = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/context/time-of-day`);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dohvaćanju doba dana: ${response.status} ${errorData.message || ''}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s getCurrentTimeOfDay:", error);
+        throw error;
+    }
+};
+
+export const setTimeOfDay = async (timeOfDay) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/context/time-of-day`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ timeOfDay }),
+        });
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri postavljanju doba dana: ${response.status} ${errorData.message || ''}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s setCurrentTimeOfDay:", error);
+        throw error;
+    }
+};
+
+export const getUserPresence = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/context/user-presence`);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dohvaćanju prisutnosti korisnika: ${response.status} ${errorData.message || ''}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s getUserPresence:", error);
+        throw error;
+    }
+};
+
+export const setUserPresence = async (isPresent) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/context/user-presence`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ isPresent }),
+        });
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri postavljanju prisutnosti korisnika: ${response.status} ${errorData.message || ''}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s setUserPresence:", error);
+        throw error;
+    }
+};
+
+export const getTimesOfDay = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/context/times-of-day`);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dohvaćanju svih doba dana: ${response.status} ${errorData.message || ''}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s getTimesOfDay:", error);
+        throw error;
+    }
+}

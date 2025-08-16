@@ -36,14 +36,16 @@ const SmartBlind = ({ device, onStateChange }) => {
 
     return (
         <div className="device-details-container">
-            <span className="deviceName">{device.name}</span>
+            <div className="deviceNameContainer">
+                <span className="deviceName">{device.name}</span>
+            </div>
 
-            <div className="smartBlindButtons">
+            <div className="smartBlindButtons background">
                 <button type="button" className="btn btn-primary btn-lg" onClick={() => handleAction('CLOSE')}>CLOSE</button>
                 <button type="button" className="btn btn-success btn-lg" onClick={() => handleAction('OPEN')}>OPEN</button>
             </div>
 
-            <div className="smart-blind-control">
+            <div className="smart-blind-control background">
                 <div className="slider-container">
                     <input
                         ref={sliderRef}

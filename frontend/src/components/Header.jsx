@@ -5,7 +5,13 @@ import AddMenu from './menus/addMenu';
 import DeveloperMenu from './menus/developerMenu';
 import EditDeviceMenu from './menus/editDeviceMenu';
 
-const Header = ({ device, title, onBack, onRoomAdded, onDeviceAdded, onDeviceEdited, onDeviceRemoved }) => (
+const Header = ({ device, title, onBack,
+    onRoomAdded, onDeviceAdded,
+    onDeviceEdited, onDeviceRemoved,
+    onIntervalChange, currentInterval,
+    onTempChange, OutsideTemp,
+    onTimeChange, TimeOfDay,
+    onPresenceChange, UserPresence }) => (
     <nav className="header">
         {onBack && (
             <div className="alternate-header">
@@ -25,7 +31,19 @@ const Header = ({ device, title, onBack, onRoomAdded, onDeviceAdded, onDeviceEdi
             <>
                 <h1 className="naslov">{title}</h1>
                 <ul className="ikone">
-                    <NavItem className="ikona bi bi-gear"><DeveloperMenu className="developer-menu" /> </NavItem>
+                    <NavItem className="ikona bi bi-gear">
+                        <DeveloperMenu
+                            className="developer-menu"
+                            onIntervalChange={onIntervalChange}
+                            currentInterval={currentInterval}
+                            onTempChange={onTempChange}
+                            OutsideTemp={OutsideTemp}
+                            onTimeChange={onTimeChange}
+                            TimeOfDay={TimeOfDay}
+                            onPresenceChange={onPresenceChange}
+                            UserPresence={UserPresence}
+                        />
+                    </NavItem>
                     <NavItem className="ikona bi bi-plus-square">
                         {onRoomAdded && onDeviceAdded &&
                             <AddMenu

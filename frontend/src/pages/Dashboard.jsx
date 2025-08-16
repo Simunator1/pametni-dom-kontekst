@@ -1,5 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { fetchRoomsWithDevices, fetchDevices, getOutsideTemperature } from '../services/apiService';
+import {
+    fetchRoomsWithDevices, fetchDevices,
+    getOutsideTemperature, setOutsideTemperature,
+    getSimulationInterval, setSimulationInterval,
+    getCurrentTimeOfDay, setTimeOfDay,
+    getUserPresence, setUserPresence
+} from '../services/apiService';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/Dashboard.css';
 import Header from '../components/Header';
@@ -17,6 +23,9 @@ function DashboardPage() {
     const [viewMode, setViewMode] = useState('rooms'); // 'rooms' ili 'devices'
     const [outsideTemp, setOutsideTemp] = useState('N/A');
     const [selectedDevice, setSelectedDevice] = useState(null);
+    const [pollingInterval, setPollingInterval] = useState(5000);
+    const [currentTimeOfDay, setCurrentTimeOfDay] = useState('MORNING');
+    const [userPresent, setUserPresent] = useState(true);
 
     const naslov = "Home";
 
@@ -29,40 +38,46 @@ function DashboardPage() {
         SENSOR: 'Sensor',
     }
 
+    // Učitavanje početnih podataka
     useEffect(() => {
-        const loadInitialData = async () => {
+        const fetchInitialData = async () => {
             try {
                 setLoading(true);
-                const fetchedRoomsData = await fetchRoomsWithDevices();
-                setRoomsData(fetchedRoomsData);
+                const [
+                    rooms,
+                    devices,
+                    temp,
+                    interval,
+                    timeOfDay,
+                    presence
+                ] = await Promise.all([
+                    fetchRoomsWithDevices(),
+                    fetchDevices(),
+                    getOutsideTemperature(),
+                    getSimulationInterval(),
+                    getCurrentTimeOfDay(),
+                    getUserPresence()
+                ]);
 
-                const fetchedAllDevices = await fetchDevices();
-                setAllDevices(fetchedAllDevices);
+                setRoomsData(rooms);
+                setAllDevices(devices);
+                setOutsideTemp(temp.outsideTemp);
+                setPollingInterval(interval.interval);
+                setCurrentTimeOfDay(timeOfDay);
+                setUserPresent(presence);
 
                 setError(null);
             } catch (err) {
-                console.error("Greška u DashboardPage pri dohvaćanju podataka:", err);
+                console.error("Greška pri dohvaćanju početnih podataka:", err);
                 setError(err.message || 'Došlo je do greške pri učitavanju.');
+                setOutsideTemp('N/A');
+                setUserPresent(true);
             } finally {
                 setLoading(false);
             }
         };
 
-        loadInitialData();
-    }, []);
-
-    useEffect(() => {
-        const fetchOutsideTemperature = async () => {
-            try {
-                const response = await getOutsideTemperature();
-                setOutsideTemp(response.outsideTemp);
-            } catch (error) {
-                console.error("Greška pri dohvaćanju vanjske temperature:", error);
-                setOutsideTemp('N/A');
-            }
-        };
-
-        fetchOutsideTemperature();
+        fetchInitialData();
     }, []);
 
     const handleDeviceChange = useCallback((updatedDevice) => {
@@ -80,7 +95,7 @@ function DashboardPage() {
                     return {
                         ...room,
                         devices: [...devicesWithoutUpdated, updatedDevice],
-                        numDevices: devicesWithoutUpdated.length + 1 // Ispravno računamo broj
+                        numDevices: devicesWithoutUpdated.length + 1
                     };
                 }
 
@@ -100,14 +115,6 @@ function DashboardPage() {
             return prevSelected;
         });
     }, []);
-
-    if (loading) {
-        return <p>Učitavanje uređaja...</p>;
-    }
-
-    if (error) {
-        return <p>Greška: {error}</p>;
-    }
 
     const handleDeviceSelect = (device) => {
         setSelectedDevice(device);
@@ -181,18 +188,83 @@ function DashboardPage() {
             return prevSelected;
         });
     };
+
+    const handleIntervalChange = async (newIntervalMs) => {
+        try {
+            await setSimulationInterval(newIntervalMs);
+            setPollingInterval(newIntervalMs);
+        } catch (error) {
+            console.error("Greška pri postavljanju novog intervala:", error);
+        }
+    };
+
+    const handleSetOutsideTemp = async (newOutsideTemp) => {
+        try {
+            const updatedTemp = await setOutsideTemperature(newOutsideTemp);
+            setOutsideTemp(updatedTemp);
+        } catch (error) {
+            console.error("Greška pri postavljanju vanjske temperature:", error);
+        }
+    }
+
+    const handleTimeChange = async (newTimeOfDay) => {
+        try {
+            await setTimeOfDay(newTimeOfDay);
+            setCurrentTimeOfDay(newTimeOfDay);
+        } catch (error) {
+            console.error("Greška pri postavljanju vremena dana:", error);
+        }
+    };
+
+    const handlePresenceToggle = async (isPresent) => {
+        try {
+            await setUserPresence(isPresent);
+            setUserPresent(isPresent);
+        }
+        catch (error) {
+            console.error("Greška pri postavljanju prisutnosti korisnika:", error);
+        }
+    }
+
+    let headerProps;
+
+    if (selectedDevice) {
+        // Props za detaljni prikaz uređaja
+        headerProps = {
+            device: selectedDevice,
+            title: deviceTypeMap[selectedDevice.type] || 'Device',
+            onBack: handleCloseDetails,
+            onDeviceEdited: handleDeviceChange,
+            onDeviceRemoved: handleDeviceRemoval
+        };
+    } else {
+        // Props za glavni prikaz
+        headerProps = {
+            title: naslov,
+            onIntervalChange: handleIntervalChange,
+            currentInterval: pollingInterval,
+            onTempChange: handleSetOutsideTemp,
+            OutsideTemp: outsideTemp,
+            onTimeChange: handleTimeChange,
+            TimeOfDay: currentTimeOfDay,
+            onPresenceChange: handlePresenceToggle,
+            UserPresence: userPresent,
+            onRoomAdded: handleRoomAdded,
+            onDeviceAdded: handleDeviceAdded,
+        };
+    }
+
+    if (loading) {
+        return <p>Učitavanje uređaja...</p>;
+    }
+
+    if (error) {
+        return <p>Greška: {error}</p>;
+    }
+
     return (
         <div className="dashboard-container">
-            <Header
-                device={selectedDevice ? selectedDevice : null}
-                title={selectedDevice ? deviceTypeMap[selectedDevice.type] : naslov}
-                onBack={selectedDevice ? handleCloseDetails : null}
-                onDeviceEdited={selectedDevice ? handleDeviceChange : null}
-                onDeviceRemoved={selectedDevice ? handleDeviceRemoval : null}
-
-                onRoomAdded={!selectedDevice ? handleRoomAdded : null}
-                onDeviceAdded={!selectedDevice ? handleDeviceAdded : null}
-            />
+            <Header {...headerProps} />
             {selectedDevice ? (
                 <>
                     <QuickActions />
@@ -200,6 +272,7 @@ function DashboardPage() {
                         device={selectedDevice}
                         onStateChange={handleDeviceChange}
                         outsideTemp={outsideTemp}
+                        pollingInterval={pollingInterval}
                     />
                 </>
             ) : (
@@ -222,7 +295,8 @@ function DashboardPage() {
                                     key={device.id}
                                     device={device}
                                     onStateChange={handleDeviceChange}
-                                    onDeviceSelect={handleDeviceSelect} // Proslijedi funkciju za odabir
+                                    onDeviceSelect={handleDeviceSelect}
+                                    pollingInterval={pollingInterval}
                                 />
                             ))}
                         </div>
