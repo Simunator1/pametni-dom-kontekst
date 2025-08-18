@@ -31,7 +31,7 @@ function AddRoomForm({ onRoomAdded }) {
                 placeholder="Unesite ime sobe"
                 className="form-control"
             />
-            <button type="submit" className="btn btn-primary mt-2">Dodaj Sobu</button>
+            <button type="submit" className="btn btn-primary mt-2">Add Room</button>
             {feedback && <p className="feedback-message mt-2">{feedback}</p>}
         </form>
     );
@@ -85,7 +85,7 @@ function AddDeviceForm({ onDeviceAdded }) {
         }
     };
 
-    if (loading) return <p className="feedback-message">Učitavanje...</p>;
+    if (loading) return <p className="feedback-message">Loading...</p>;
 
     return (
         <form onSubmit={handleSubmit} className="add-form">
@@ -102,7 +102,7 @@ function AddDeviceForm({ onDeviceAdded }) {
             <select className="form-select mb-2" value={selectedType} onChange={e => setSelectedType(e.target.value)}>
                 {deviceTypes.map(type => <option key={type} value={type}>{type}</option>)}
             </select>
-            <button type="submit" className="btn btn-primary mt-2">Dodaj Uređaj</button>
+            <button type="submit" className="btn btn-primary mt-2">Add Device</button>
             {feedback && <p className="feedback-message mt-2">{feedback}</p>}
         </form>
     );

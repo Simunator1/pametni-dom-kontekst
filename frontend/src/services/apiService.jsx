@@ -388,3 +388,18 @@ export const getTimesOfDay = async () => {
         throw error;
     }
 }
+
+export const getRoomDevices = async (roomId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/getAllDevicesByRoom/${roomId}`);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dohvaćanju uređaja sobe: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s getRoomDevices:", error);
+        throw error;
+    }
+}

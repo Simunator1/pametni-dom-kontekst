@@ -71,28 +71,15 @@ a {
 .dropdown {
     position: absolute;
     /* top: 8vh; */
-    width: 90.1vw;
+    width: 90.5vw;
     background-color: #5db4c3;
     border-radius: 5px;
     overflow: hidden;
     transition: height var(--speed) ease;
     z-index: 9999;
-}
 
-.hamburger-menu {
-    transform: translateX(-85.9%);
-}
-
-.add-menu {
-    transform: translateX(-73.8%);
-}
-
-.edit-device-menu {
-    transform: translateX(-86.34%);
-}
-
-.developer-menu {
-    transform: translateX(-60.15%);
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .menu {

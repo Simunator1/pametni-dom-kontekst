@@ -3,11 +3,9 @@
  + MainMenu hamburger Botun
  + Gašenje/Paljenje sobe
  + Prikaz detalja uređaja
- - Developer settings
+ + Developer settings
  + uredi uređaj
- - uredi sobu
+ + uredi sobu
  + brisanje uređaja
- - brisanje sobe
-
- 
- - Prikaz detalja sobe
+ + brisanje sobe
+ + Prikaz detalja sobe

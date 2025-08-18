@@ -14,6 +14,7 @@ import DisplayOptions from '../components/displayOptions';
 import Room from '../components/room';
 import Device from '../components/device';
 import DeviceDetails from '../components/deviceDetails';
+import RoomDetails from '../components/roomDetails';
 
 function DashboardPage() {
     const [allDevices, setAllDevices] = useState([]); // Za "All Devices" prikaz
@@ -23,6 +24,7 @@ function DashboardPage() {
     const [viewMode, setViewMode] = useState('rooms'); // 'rooms' ili 'devices'
     const [outsideTemp, setOutsideTemp] = useState('N/A');
     const [selectedDevice, setSelectedDevice] = useState(null);
+    const [selectedRoom, setSelectedRoom] = useState(null);
     const [pollingInterval, setPollingInterval] = useState(5000);
     const [currentTimeOfDay, setCurrentTimeOfDay] = useState('MORNING');
     const [userPresent, setUserPresent] = useState(true);
@@ -89,21 +91,19 @@ function DashboardPage() {
 
         setRoomsData(prevRooms => {
             const newRooms = prevRooms.map(room => {
-                const devicesWithoutUpdated = room.devices.filter(d => d.id !== updatedDevice.id);
-
                 if (room.id === updatedDevice.roomId) {
-                    return {
-                        ...room,
-                        devices: [...devicesWithoutUpdated, updatedDevice],
-                        numDevices: devicesWithoutUpdated.length + 1
-                    };
-                }
+                    const newDevices = room.devices.map(d =>
+                        d.id === updatedDevice.id ? updatedDevice : d
+                    );
+                    const updatedRoom = { ...room, devices: newDevices };
 
-                return {
-                    ...room,
-                    devices: devicesWithoutUpdated,
-                    numDevices: devicesWithoutUpdated.length
-                };
+                    if (selectedRoom && selectedRoom.id === room.id) {
+                        setSelectedRoom(updatedRoom);
+                    }
+
+                    return updatedRoom;
+                }
+                return room;
             });
             return newRooms;
         });
@@ -114,14 +114,22 @@ function DashboardPage() {
             }
             return prevSelected;
         });
-    }, []);
+    }, [selectedRoom]);
 
     const handleDeviceSelect = (device) => {
         setSelectedDevice(device);
     };
 
-    const handleCloseDetails = () => {
+    const handleDeviceCloseDetails = () => {
         setSelectedDevice(null);
+    };
+
+    const handleRoomSelect = (room) => {
+        setSelectedRoom(room);
+    };
+
+    const handleCloseRoomDetails = () => {
+        setSelectedRoom(null);
     };
 
     const handleRoomAdded = (newRoom) => {
@@ -129,20 +137,30 @@ function DashboardPage() {
     };
 
     const handleDeviceAdded = (newDevice) => {
+        let updatedRoom;
         setAllDevices(prevDevices => [...prevDevices, newDevice]);
 
-        setRoomsData(prevRooms =>
-            prevRooms.map(room => {
+        setRoomsData(prevRooms => {
+            let finalUpdatedRoom = null;
+            const newRooms = prevRooms.map(room => {
                 if (room.id === newDevice.roomId) {
-                    return {
+                    const updatedRoom = {
                         ...room,
                         devices: [...room.devices, newDevice],
                         numDevices: room.numDevices + 1
                     };
+                    finalUpdatedRoom = updatedRoom;
+                    return updatedRoom;
                 }
                 return room;
-            })
-        );
+            });
+
+            if (selectedRoom && selectedRoom.id === newDevice.roomId && finalUpdatedRoom) {
+                setSelectedRoom(finalUpdatedRoom);
+            }
+
+            return newRooms;
+        });
     };
 
     const handleRoomToggle = (updatedRoom) => {
@@ -160,6 +178,10 @@ function DashboardPage() {
                 room.id === updatedRoom.id ? updatedRoom : room
             )
         );
+
+        if (selectedRoom && selectedRoom.id === updatedRoom.id) {
+            setSelectedRoom(updatedRoom);
+        }
     };
 
     const handleDeviceRemoval = (deviceIdToDelete) => {
@@ -180,13 +202,7 @@ function DashboardPage() {
                 return room;
             })
         );
-
-        setSelectedDevice(prevSelected => {
-            if (prevSelected && prevSelected.id === deviceIdToDelete) {
-                return null;
-            }
-            return prevSelected;
-        });
+        setSelectedDevice(null);
     };
 
     const handleIntervalChange = async (newIntervalMs) => {
@@ -226,20 +242,65 @@ function DashboardPage() {
         }
     }
 
+    const handleRoomEdit = (updatedRoom) => {
+        const oldRoom = roomsData.find(room => room.id === updatedRoom.id);
+
+        const updatedRoomWithDevices = {
+            ...updatedRoom,
+            devices: oldRoom.devices,
+            numDevices: oldRoom.devices.length
+        }
+
+        setRoomsData(prevRooms =>
+            prevRooms.map(room =>
+                room.id === updatedRoom.id ? updatedRoomWithDevices : room
+            )
+        )
+
+        setSelectedRoom(updatedRoomWithDevices);
+    };
+
+    const handleRoomRemoval = (roomToDelete) => {
+        const devicesToRemove = roomToDelete.devices.map(device => device.id);
+        setRoomsData(prevRooms =>
+            prevRooms.filter(room => room.id !== roomToDelete.id)
+        );
+
+        setAllDevices(prevDevices =>
+            prevDevices.filter(device => !devicesToRemove.includes(device.id))
+        )
+
+        setSelectedRoom(null);
+    }
+
     let headerProps;
+
 
     if (selectedDevice) {
         // Props za detaljni prikaz uređaja
         headerProps = {
+            view: 'deviceDetails',
             device: selectedDevice,
             title: deviceTypeMap[selectedDevice.type] || 'Device',
-            onBack: handleCloseDetails,
+            onBack: handleDeviceCloseDetails,
             onDeviceEdited: handleDeviceChange,
             onDeviceRemoved: handleDeviceRemoval
         };
+    } else if (selectedRoom) {
+        // Props za detaljni prikaz sobe
+        headerProps = {
+            view: 'roomDetails',
+            room: selectedRoom,
+            title: "Room Overview",
+            onBack: handleCloseRoomDetails,
+            onRoomEdited: handleRoomEdit,
+            onRoomRemoved: handleRoomRemoval,
+            onDeviceAdded: handleDeviceAdded
+        }
     } else {
         // Props za glavni prikaz
         headerProps = {
+            view: 'main',
             title: naslov,
             onIntervalChange: handleIntervalChange,
             currentInterval: pollingInterval,
@@ -262,50 +323,73 @@ function DashboardPage() {
         return <p>Greška: {error}</p>;
     }
 
+
+    // --- Prikaz 1: Detalji Uređaja ---
+    if (selectedDevice) {
+        return (
+            <div className="dashboard-container">
+                <Header {...headerProps} />
+                <QuickActions />
+                <DeviceDetails
+                    device={selectedDevice}
+                    onStateChange={handleDeviceChange}
+                    outsideTemp={outsideTemp}
+                    pollingInterval={pollingInterval}
+                />
+            </div>
+        );
+    }
+
+    // --- Prikaz 2: Detalji Sobe ---
+    else if (selectedRoom) {
+        return (
+            <div className="dashboard-container">
+                <Header {...headerProps} />
+                <QuickActions />
+                <RoomDetails
+                    room={selectedRoom}
+                    onRoomToggle={handleRoomToggle}
+                    handleDeviceChange={handleDeviceChange}
+                    handleDeviceSelect={handleDeviceSelect}
+                />
+            </div>
+        );
+    }
+
+    // --- Prikaz 3: Glavna ploča (Default) ---
     return (
         <div className="dashboard-container">
             <Header {...headerProps} />
-            {selectedDevice ? (
-                <>
-                    <QuickActions />
-                    <DeviceDetails
-                        device={selectedDevice}
-                        onStateChange={handleDeviceChange}
-                        outsideTemp={outsideTemp}
-                        pollingInterval={pollingInterval}
-                    />
-                </>
-            ) : (
-                <>
-                    <QuickActions />
-                    <DisplayOptions currentView={viewMode} onViewChange={setViewMode} />
+            <QuickActions />
+            <DisplayOptions currentView={viewMode} onViewChange={setViewMode} />
 
-                    {viewMode === 'rooms' && (
-                        <div className="rooms-wrapper">
-                            {roomsData.map(room => (
-                                <Room key={room.id} room={room} onRoomToggle={handleRoomToggle} />
-                            ))}
-                        </div>
-                    )}
-
-                    {viewMode === 'devices' && (
-                        <div className="devices-wrapper">
-                            {allDevices.map(device => (
-                                <Device
-                                    key={device.id}
-                                    device={device}
-                                    onStateChange={handleDeviceChange}
-                                    onDeviceSelect={handleDeviceSelect}
-                                    pollingInterval={pollingInterval}
-                                />
-                            ))}
-                        </div>
-                    )}
-                </>
+            {viewMode === 'rooms' && (
+                <div className="rooms-wrapper">
+                    {roomsData.map(room => (
+                        <Room
+                            key={room.id}
+                            room={room}
+                            onRoomToggle={handleRoomToggle}
+                            onRoomSelect={handleRoomSelect}
+                        />
+                    ))}
+                </div>
             )}
-
+            {viewMode === 'devices' && (
+                <div className="devices-wrapper">
+                    {allDevices.map(device => (
+                        <Device
+                            key={device.id}
+                            device={device}
+                            onStateChange={handleDeviceChange}
+                            onDeviceSelect={handleDeviceSelect}
+                        />
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
+
 
 export default DashboardPage;

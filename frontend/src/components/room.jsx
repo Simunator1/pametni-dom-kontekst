@@ -2,7 +2,7 @@ import React from 'react';
 import '../styles/room.css';
 import { toggleRoom } from '../services/apiService';
 
-const Room = ({ room, onRoomToggle }) => {
+const Room = ({ room, onRoomToggle, onRoomSelect }) => {
     const handleSwitch = async () => {
         try {
             const response = await toggleRoom(room.id);
@@ -28,7 +28,7 @@ const Room = ({ room, onRoomToggle }) => {
                     onError={handleImgError}
                     alt={room.id}
                     className="room-image" />
-                <i className="dots3 bi bi-three-dots-vertical"></i>
+                <i className="dots3 bi bi-three-dots-vertical" onClick={() => onRoomSelect(room)}></i>
             </div>
             <p className="room-name">{room.name}</p>
             <p className="number-of-devices">{room.numDevices} {room.numDevices === 1 ? "device" : "devices"}</p>

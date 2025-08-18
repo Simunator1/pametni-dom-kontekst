@@ -47,13 +47,13 @@ function EditDeviceForm({ device, onDeviceEdited }) {
                 type="text"
                 value={deviceName}
                 onChange={(e) => setDeviceName(e.target.value)}
-                placeholder="Unesite novo ime uređaja"
+                placeholder="Enter new device name"
                 className="form-control mb-2"
             />
             <select className="form-select mb-2" value={selectedRoom} onChange={e => setSelectedRoom(e.target.value)}>
                 {rooms.map(room => <option key={room.id} value={room.id}>{room.name}</option>)}
             </select>
-            <button type="submit" className="btn btn-primary mt-2">Spremi Promjene</button>
+            <button type="submit" className="btn btn-primary mt-2">Save</button>
             {feedback && <p className="feedback-message mt-2">{feedback}</p>}
         </form>
     );

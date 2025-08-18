@@ -12,6 +12,10 @@ let simulationIntervalId = null;
 
 let simulationIntervalDuration = 5000;
 
+let deviceIdCounter = 9;
+
+let roomIdCounter = 5;
+
 let devices = [
     {
         id: 'device-001',
@@ -390,10 +394,18 @@ function executeDeviceAction(deviceId, actionType, payload) {
     return device;
 }
 
+// Funkcija za dohvat svih uređaja u sobi
 function getAllDevicesByRoom(roomId) {
-    return devices.filter(device => device.roomId === roomId);
+    const filteredDevices = devices.filter(device => device.roomId === roomId);
+
+    if (filteredDevices.length === 0) {
+        console.warn(`Nema uređaja u sobi s ID-om ${roomId}.`);
+        return null;
+    }
+    return filteredDevices;
 }
 
+// Funkcija za dohvat svih soba s uređajima
 function getRoomsWithDevices() {
     return Rooms.map(room => {
         const devicesInRoom = devices.filter(device => device.roomId === room.id);
@@ -407,10 +419,12 @@ function getRoomsWithDevices() {
     });
 }
 
+// Funkcija za dohvat tipova uređaja
 function fetchDeviceTypes() {
     return DEVICE_TYPES;
 }
 
+// Funkcija za dodavanje nove sobe
 function addRoom(roomName) {
     if (!roomName) {
         console.error('Dodavanje sobe nije uspjelo. Naziv sobe je obavezan.');
@@ -423,7 +437,8 @@ function addRoom(roomName) {
         return null;
     }
 
-    const newRoomId = `room-${String(Rooms.length + 1).padStart(3, '0')}`;
+    const newRoomId = `room-${String(roomIdCounter + 1).padStart(3, '0')}`;
+    roomIdCounter++;
 
     const newRoom = {
         id: newRoomId,
@@ -436,6 +451,7 @@ function addRoom(roomName) {
     return newRoom;
 }
 
+// Funkcija za dodavanje novog uređaja
 function addDevice({ name, type, roomId }) {
     if (!name || !type || !roomId) {
         console.error('Nedostaju podaci za kreiranje uređaja.');
@@ -447,7 +463,8 @@ function addDevice({ name, type, roomId }) {
         return { error: `Nepostojeći tip uređaja: ${type}` };
     }
 
-    const newDeviceId = `device-${String(devices.length + 1).padStart(3, '0')}`;
+    const newDeviceId = `device-${String(deviceIdCounter + 1).padStart(3, '0')}`;
+    deviceIdCounter++;
 
     const newDevice = {
         id: newDeviceId,
@@ -493,6 +510,7 @@ function addDevice({ name, type, roomId }) {
     return { device: newDevice };
 }
 
+// Funkcija za uključivanje/isključivanje sobe
 function roomToggle(roomId) {
     const room = Rooms.find(r => r.id === roomId);
     if (!room) {
@@ -540,6 +558,7 @@ function roomToggle(roomId) {
     return { room: updatedRoomWithDevices };
 }
 
+// Funkcija za brisanje uređaja
 function removeDevice(deviceId) {
     const deviceIndex = devices.findIndex(device => device.id === deviceId);
     if (deviceIndex === -1) {
@@ -552,6 +571,7 @@ function removeDevice(deviceId) {
     return removedDevice;
 }
 
+// Funkcija za brisanje sobe
 function removeRoom(roomId) {
     const roomIndex = Rooms.findIndex(room => room.id === roomId);
     if (roomIndex === -1) {
@@ -568,6 +588,7 @@ function removeRoom(roomId) {
     return removedRoom;
 }
 
+// Funkcija za uređivanje sobe
 function editRoom({ roomId, newRoomName }) {
     const roomIndex = Rooms.findIndex(room => room.id === roomId);
     if (roomIndex === -1) {
@@ -579,6 +600,7 @@ function editRoom({ roomId, newRoomName }) {
     return Rooms[roomIndex];
 }
 
+// Funkcija za uređivanje uređaja
 function editDevice({ deviceId, newDeviceName, newRoomId }) {
     const deviceIndex = devices.findIndex(device => device.id === deviceId);
     if (deviceIndex === -1) {
@@ -593,14 +615,17 @@ function editDevice({ deviceId, newDeviceName, newRoomId }) {
     return devices[deviceIndex];
 }
 
+// Funkcija za dohvat svih tipova doba dana
 function fetchTimesOfDay() {
     return TIMES_OF_DAY;
 }
 
+// Funkcija za dohvat trenutnog doba dana
 function getCurrentTimeOfDay() {
     return currentTimeOfDay;
 }
 
+// Funkcija za postavljanje trenutnog doba dana
 function setCurrentTimeOfDay(newTimeOfDay) {
     if (TIMES_OF_DAY.includes(newTimeOfDay)) {
         currentTimeOfDay = newTimeOfDay;
@@ -612,10 +637,12 @@ function setCurrentTimeOfDay(newTimeOfDay) {
     return currentTimeOfDay;
 }
 
+// Funkcija za dohvat prisutnosti korisnika
 function getUserPresence() {
     return userPresence;
 }
 
+// Funkcija za postavljanje prisutnosti korisnika
 function setUserPresence(isPresent) {
     if (typeof isPresent === 'boolean') {
         userPresence = isPresent;
