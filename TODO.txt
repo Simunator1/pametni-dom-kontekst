@@ -1,0 +1,11 @@
+ + Botun Gašenje/Paljenje uređaja
+ + Dodavanje sobe/uređaja
+ + MainMenu hamburger Botun
+ + Gašenje/Paljenje sobe
+ + Prikaz detalja uređaja
+ + Developer settings
+ + uredi uređaj
+ + uredi sobu
+ + brisanje uređaja
+ + brisanje sobe
+ + Prikaz detalja sobe

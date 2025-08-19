@@ -1,0 +1,23 @@
+.sensor {
+    gap: 1.5rem;
+}
+
+.sensor-data {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 90%;
+    gap: 1rem;
+}
+
+.sensor-item {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+}
+
+.sensor-item span {
+    font-weight: bold;
+    font-size: 1.2rem;
+}

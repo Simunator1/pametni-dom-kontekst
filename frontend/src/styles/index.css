@@ -1,0 +1,15 @@
+/* Import Roboto from Google Fonts */
+@import url('https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap');
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+#root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: 'Roboto', sans-serif;
+  background: linear-gradient(to bottom, #5db4c3, #3de3bf);
+}
+
+body {
+  margin: 0;
+}

@@ -1,0 +1,37 @@
+.device-details-container {
+    width: 90vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.deviceNameContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 90vw;
+    background: linear-gradient(to right, #008CFF, rgb(255, 255, 255));
+    border-radius: 10px;
+}
+
+.deviceName {
+    text-align: center;
+    font-weight: bold;
+    margin: 0.2rem 0 0.5rem 0;
+    font-size: 1.4rem;
+}
+
+.form-switch .form-check-input {
+    margin-left: -1.5em;
+}
+
+.botunDiv {
+    width: auto;
+}
+
+.background {
+    background: linear-gradient(to right, #D1D1D1, #F8FBFF);
+    border-radius: 10px;
+    padding: 1rem;
+    width: 80vw;
+}

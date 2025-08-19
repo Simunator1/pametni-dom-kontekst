@@ -1,0 +1,36 @@
+.outlet-ONOFF-control span {
+    font-size: 1.3rem;
+    font-weight: bold;
+}
+
+.outlet-ONOFF-control {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 90%;
+}
+
+.power-usage-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    width: 90%;
+}
+
+.power-usage-container span {
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.power-usage-container i {
+    font-size: 1.5rem;
+}
+
+.power-usage-container div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
+    width: 30%;
+}

@@ -35,10 +35,6 @@ app.get('/api/db-test', async (req, res) => {
     }
 });
 
-app.get('/api', (req, res) => {
-    res.send('Backend server radi!');
-});
-
 // --- RUTE ZA VANJSKU TEMPERATURU ---
 // Dohvati vanjsku temperaturu
 app.get('/api/outside-temp', (req, res) => {
@@ -50,14 +46,14 @@ app.get('/api/outside-temp', (req, res) => {
 // Postavi novu vanjsku temperaturu
 app.post('/api/outside-temp', (req, res) => {
     const { temperature } = req.body;
-    const newTemp = deviceManager.updateOutsideTemperature(temperature);
+    const newTemp = deviceManager.setOutsideTemperature(temperature);
     if (newTemp === null) {
         return res.status(400).json({ error: 'Neispravna temperatura.' });
     } else
         res.json(newTemp);
 });
 
-// --- RUTE ZA UPRAVLJANJE UREĐAJIMA ---ou
+// --- RUTE ZA UPRAVLJANJE UREĐAJIMA ---
 
 // Dohvati sve uređaje
 app.get('/api/devices', (req, res) => {
@@ -101,6 +97,189 @@ app.post('/api/devices/:id/actions', (req, res) => {
             res.status(400).json({ message: `Akcija '${actionType}' nije uspjela ili nije podržana za uređaj ${deviceId}.` });
         }
     }
+});
+
+// Dohvati sve sobe s uređajima
+app.get('/api/getRoomsWithDevices', (req, res) => {
+    const rooms = deviceManager.getRoomsWithDevices();
+    res.json(rooms);
+});
+
+// Dohvati sve uređaje u sobi po ID-u
+app.get('/api/getAllDevicesByRoom/:roomId', (req, res) => {
+    const roomId = req.params.roomId;
+    const devices = deviceManager.getAllDevicesByRoom(roomId);
+    if (devices) {
+        res.json(devices);
+    } else {
+        res.status(404).json({ error: `Nema uređaja u sobi s ID-om ${roomId}.` });
+    }
+});
+
+// Dodavanje nove sobe
+app.post('/api/addRoom', (req, res) => {
+    const { name } = req.body;
+    if (!name || !name.trim()) {
+        return res.status(400).json({ message: 'Naziv sobe je obavezan.' });
+    }
+
+    const newRoom = deviceManager.addRoom(name);
+
+    if (newRoom) {
+        res.status(201).json(newRoom);
+    } else {
+        res.status(409).json({ message: `Soba s imenom '${name}' već postoji.` });
+    }
+});
+
+// Dohvati sve tipove uređaja
+app.get('/api/getAllDeviceTypes', (req, res) => {
+    const deviceTypes = deviceManager.fetchDeviceTypes();
+    res.json(deviceTypes);
+});
+
+// Dodavanje novog uređaja
+app.post('/api/addDevice', (req, res) => {
+    const { name, type, roomId } = req.body;
+
+    if (!name || !type || !roomId) {
+        return res.status(400).json({ message: 'Potrebno je unijeti ime, tip i sobu za novi uređaj.' });
+    }
+
+    const result = deviceManager.addDevice({ name, type, roomId });
+
+    if (result.error) {
+        return res.status(400).json({ message: result.error });
+    }
+
+    res.status(201).json(result.device);
+});
+
+// Uključivanje/isključivanje sobe
+app.post('/api/roomToggle', (req, res) => {
+    const { roomId } = req.body;
+    if (!roomId) {
+        return res.status(400).json({ message: 'ID sobe je obavezan.' });
+    }
+    const result = deviceManager.roomToggle(roomId);
+    if (result && result.error) {
+        return res.status(400).json({ message: result.error });
+    }
+    if (result === null) {
+        return res.status(404).json({ message: `Soba s ID-om ${roomId} nije pronađena.` });
+    }
+    res.status(200).json({ success: true, room: result.room });
+});
+
+// Uređivanje sobe
+app.put('/api/rooms/:roomId', (req, res) => {
+    const { roomId } = req.params;
+    const { newRoomName } = req.body;
+
+    if (!newRoomName || !newRoomName.trim()) {
+        return res.status(400).json({ message: 'Novi naziv sobe je obavezan.' });
+    }
+
+    const updatedRoom = deviceManager.editRoom({ roomId, newRoomName });
+
+    if (updatedRoom) {
+        res.status(200).json(updatedRoom);
+    } else {
+        res.status(404).json({ message: `Soba s ID-om ${roomId} nije pronađena.` });
+    }
+});
+
+// Uređivanje uređaja
+app.put('/api/devices/:deviceId', (req, res) => {
+    const { deviceId } = req.params;
+    const { newDeviceName, newRoomId } = req.body;
+
+    if (!newDeviceName || !newRoomId) {
+        return res.status(400).json({ message: 'Novi naziv uređaja i ID sobe su obavezni.' });
+    }
+
+    const updatedDevice = deviceManager.editDevice({ deviceId, newDeviceName, newRoomId });
+
+    if (updatedDevice) {
+        res.status(200).json(updatedDevice);
+    } else {
+        res.status(404).json({ message: `Uređaj s ID-om ${deviceId} nije pronađen.` });
+    }
+});
+
+// Brisanje uređaja
+app.delete('/api/devices/:deviceId', (req, res) => {
+    const { deviceId } = req.params;
+    const removedDevice = deviceManager.removeDevice(deviceId);
+
+    if (removedDevice) {
+        res.status(200).json({ message: `Uređaj '${removedDevice.name}' je uspješno obrisan.` });
+    } else {
+        res.status(404).json({ message: `Uređaj s ID-om ${deviceId} nije pronađen.` });
+    }
+});
+
+// Brisanje sobe
+app.delete('/api/rooms/:roomId', (req, res) => {
+    const { roomId } = req.params;
+    const removedRoom = deviceManager.removeRoom(roomId);
+
+    if (removedRoom) {
+        res.status(200).json({ message: `Soba '${removedRoom.name}' i svi njezini uređaji su obrisani.` });
+    } else {
+        res.status(404).json({ message: `Soba s ID-om ${roomId} nije pronađena.` });
+    }
+});
+
+// Dobivanje trenutnog intervala simulacije
+app.get('/api/simulation/interval', (req, res) => {
+    res.json({ interval: deviceManager.getSimulationInterval() });
+});
+
+// Postavi novi interval simulacije
+app.post('/api/simulation/interval', (req, res) => {
+    const { newIntervalMs } = req.body;
+    if (typeof newIntervalMs !== 'number' || newIntervalMs < 500) {
+        return res.status(400).json({ message: 'Interval mora biti broj veći od 500ms.' });
+    }
+    deviceManager.startSimulation(newIntervalMs);
+    res.json({ success: true, newInterval: newIntervalMs });
+});
+
+// Dohvati trenutno doba dana
+app.get('/api/context/time-of-day', (req, res) => {
+    res.json({ timeOfDay: deviceManager.getCurrentTimeOfDay() });
+});
+
+// Postavi novo doba dana
+app.post('/api/context/time-of-day', (req, res) => {
+    const { timeOfDay } = req.body;
+    if (!timeOfDay) {
+        return res.status(400).json({ message: 'Doba dana je obavezno.' });
+    }
+    const newTimeOfDay = deviceManager.setCurrentTimeOfDay(timeOfDay);
+    res.json({ success: true, timeOfDay: newTimeOfDay });
+});
+
+// Dohvati prisutnost korisnika
+app.get('/api/context/user-presence', (req, res) => {
+    res.json({ userPresence: deviceManager.getUserPresence() });
+});
+
+// Postavi prisutnost korisnika
+app.post('/api/context/user-presence', (req, res) => {
+    const { isPresent } = req.body;
+    if (typeof isPresent !== 'boolean') {
+        return res.status(400).json({ message: 'Vrijednost prisutnosti mora biti boolean.' });
+    }
+    const newUserPresence = deviceManager.setUserPresence(isPresent);
+    res.json({ success: true, userPresence: newUserPresence });
+});
+
+// Dohvati sva doba dana
+app.get('/api/context/times-of-day', (req, res) => {
+    const timesOfDay = deviceManager.fetchTimesOfDay();
+    res.json(timesOfDay);
 });
 
 app.listen(PORT, () => {

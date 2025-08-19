@@ -1,0 +1,40 @@
+.dashboard-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-beetween;
+    width: 100vw;
+    height: 100dvh;
+}
+
+.rooms-wrapper {
+    margin-bottom: 1vh;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1vw;
+    justify-items: center;
+    align-items: center;
+    width: 90vw;
+    /* height: 100%; */
+    overflow-y: auto;
+    scrollbar-width: none;
+    /*Firefox */
+}
+
+.rooms-wrapper ::-webkit-scrollbar {
+    display: none;
+    /*Chrome, Safari, and Edge */
+}
+
+.devices-wrapper {
+    height: auto;
+    width: 90vw;
+    overflow-y: auto;
+    scrollbar-width: none;
+    margin-bottom: 2vh;
+}
+
+.devices-wrapper ::-webkit-scrollbar {
+    display: none;
+    /*Chrome, Safari, and Edge */
+}
