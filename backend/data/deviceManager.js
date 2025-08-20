@@ -124,6 +124,141 @@ let devices = [
             humidity: 60
         },
         supportedActions: ['READ']
+    },
+    {
+        id: 'device-010',
+        name: 'Utičnica TV',
+        type: 'SMART_OUTLET',
+        roomId: 'room-001',
+        state: {
+            roomState: 'ON',
+            isOn: true,
+            powerUsage: 0
+        },
+        supportedActions: ['TOGGLE_ON_OFF', 'READ_POWER_USAGE']
+    },
+    {
+        id: 'device-011',
+        name: 'Klima Uređaj Dnevni Boravak',
+        type: 'AIR_CONDITIONER',
+        roomId: 'room-001',
+        state: {
+            roomState: 'OFF',
+            isOn: false,
+            temperature: 25,
+            targetTemp: 22,
+            mode: 'OFF',
+            prevMode: 'COOL'
+        },
+        supportedActions: ['TOGGLE_ON_OFF', 'SET_TEMPERATURE', 'SET_MODE']
+    },
+    {
+        id: 'device-012',
+        name: 'Svjetlo Kuhinja',
+        type: 'LIGHT',
+        roomId: 'room-002',
+        state: {
+            roomState: 'ON',
+            isOn: true,
+            brightness: 70
+        },
+        supportedActions: ['TOGGLE_ON_OFF', 'SET_BRIGHTNESS']
+    },
+    {
+        id: 'device-013',
+        name: 'Svjetlo Spavaća Soba',
+        type: 'LIGHT',
+        roomId: 'room-003',
+        state: {
+            roomState: 'OFF',
+            isOn: false,
+            brightness: 0
+        },
+        supportedActions: ['TOGGLE_ON_OFF', 'SET_BRIGHTNESS']
+    },
+    {
+        id: 'device-014',
+        name: 'Utičnica Noćna Lampica',
+        type: 'SMART_OUTLET',
+        roomId: 'room-003',
+        state: {
+            roomState: 'OFF',
+            isOn: false,
+            powerUsage: 0
+        },
+        supportedActions: ['TOGGLE_ON_OFF', 'READ_POWER_USAGE']
+    },
+    {
+        id: 'device-015',
+        name: 'Svjetlo Balkon',
+        type: 'LIGHT',
+        roomId: 'room-005',
+        state: {
+            roomState: 'OFF',
+            isOn: false,
+            brightness: 0
+        },
+        supportedActions: ['TOGGLE_ON_OFF', 'SET_BRIGHTNESS']
+    },
+    {
+        id: 'device-016',
+        name: 'Senzor Temp i Vlage Kuhinja',
+        type: 'SENSOR',
+        roomId: 'room-002',
+        state: {
+            temperature: 23,
+            humidity: 55
+        },
+        supportedActions: ['READ']
+    },
+    {
+        id: 'device-017',
+        name: 'Roleta Dnevni Boravak',
+        type: 'SMART_BLIND',
+        roomId: 'room-001',
+        state: {
+            position: 50
+        },
+        supportedActions: ['SET_POSITION', 'OPEN', 'CLOSE']
+    },
+    {
+        id: 'device-018',
+        name: 'Utičnica Grijalica Kupaonica',
+        type: 'SMART_OUTLET',
+        roomId: 'room-004',
+        state: {
+            roomState: 'OFF',
+            isOn: false,
+            powerUsage: 0
+        },
+        supportedActions: ['TOGGLE_ON_OFF', 'READ_POWER_USAGE']
+    },
+    {
+        id: 'device-019',
+        name: 'Termostat Podno Grijanje Kupaonica',
+        type: 'THERMOSTAT',
+        roomId: 'room-004',
+        state: {
+            roomState: 'OFF',
+            isOn: false,
+            temperature: 20,
+            targetTemp: 24,
+            mode: 'OFF',
+            prevMode: 'HEAT'
+        },
+        supportedActions: ['TOGGLE_ON_OFF', 'SET_TEMPERATURE', 'SET_MODE', 'READ_TEMPERATURE']
+    },
+    {
+        id: 'device-020',
+        name: 'Ambijentalno Svjetlo Dnevni Boravak',
+        type: 'LIGHT',
+        roomId: 'room-001',
+        state: {
+            roomState: 'OFF',
+            isOn: false,
+            brightness: 0
+        },
+        supportedActions: ['TOGGLE_ON_OFF', 'SET_BRIGHTNESS']
     }
 ];
 
