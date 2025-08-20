@@ -12,7 +12,7 @@ let simulationIntervalId = null;
 
 let simulationIntervalDuration = 5000;
 
-let deviceIdCounter = 9;
+let deviceIdCounter = 20;
 
 let roomIdCounter = 5;
 
