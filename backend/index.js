@@ -282,6 +282,51 @@ app.get('/api/context/times-of-day', (req, res) => {
     res.json(timesOfDay);
 });
 
+// Dohvati sve rutine
+app.get('/api/routines/getAll', (req, res) => {
+    const routines = deviceManager.getAllRoutines();
+    res.json(routines);
+});
+
+// Dohvati rutinu po ID-u
+app.get('/api/routines/:routineId', (req, res) => {
+    const routineId = req.params.routineId;
+    const routine = deviceManager.getRoutineById(routineId);
+    if (routine) {
+        res.json(routine);
+    } else {
+        res.status(404).json({ error: `Rutina s ID-om ${routineId} nije pronađena.` });
+    }
+});
+
+// Dodaj novu rutinu
+app.post('/api/routines/add', (req, res) => {
+    const { name, description, triggers, conditions, actions } = req.body;
+
+    if (!name || !triggers || !actions) {
+        return res.status(400).json({ message: 'Naziv, okidači i akcije su obavezni.' });
+    }
+
+    try {
+        const newRoutine = deviceManager.addRoutine({ name, description, triggers, conditions, actions });
+        res.status(201).json(newRoutine);
+    } catch (error) {
+        console.error('Greška pri dodavanju rutine:', error);
+        res.status(500).json({ message: 'Greška pri dodavanju rutine.', details: error.message });
+    }
+});
+
+// Ukloni rutinu
+app.delete('/api/routines/:routineId', (req, res) => {
+    const routineId = req.params.routineId;
+    const success = deviceManager.removeRoutine(routineId);
+    if (success) {
+        res.status(200).json({ message: `Rutina s ID-om ${routineId} je uspješno uklonjena.` });
+    } else {
+        res.status(404).json({ message: `Rutina s ID-om ${routineId} nije pronađena.` });
+    }
+});
+
 app.listen(PORT, () => {
     console.log(`Backend server pokrenut na http://localhost:${PORT}`);
 });

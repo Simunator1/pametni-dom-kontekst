@@ -1,3 +1,5 @@
+Faza 2:
+
  + Botun Gašenje/Paljenje uređaja
  + Dodavanje sobe/uređaja
  + MainMenu hamburger Botun
@@ -9,3 +11,9 @@
  + brisanje uređaja
  + brisanje sobe
  + Prikaz detalja sobe
+
+Faza 3:
+
+- struktura za rutine, routines.js
+- funkcija za obilazak i aktiviranje svih rutina
+- simulacija promjene doba dana

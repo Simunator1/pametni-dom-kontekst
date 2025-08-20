@@ -403,3 +403,71 @@ export const getRoomDevices = async (roomId) => {
         throw error;
     }
 }
+
+export const getAllRoutines = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/routines/getAll`);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dohvaćanju rutina: ${response.status} ${errorData.message || ''}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s getAllRoutines:", error);
+        throw error;
+    }
+};
+
+export const getRoutineById = async (routineId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/routines/${routineId}`);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dohvaćanju rutine: ${response.status} ${errorData.message || ''}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s getRoutineById:", error);
+        throw error;
+    }
+};
+
+export const addRoutine = async (routineData) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/routines/add`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(routineData),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dodavanju rutine: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s addRoutine:", error);
+        throw error;
+    }
+};
+
+export const removeRoutine = async (routineId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/routines/${routineId}`, {
+            method: 'DELETE',
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri brisanju rutine: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s removeRoutine:", error);
+        throw error;
+    }
+};

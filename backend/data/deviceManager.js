@@ -16,6 +16,8 @@ let deviceIdCounter = 9;
 
 let roomIdCounter = 5;
 
+let routineIdCounter = 3;
+
 let devices = [
     {
         id: 'device-001',
@@ -155,6 +157,205 @@ let Rooms = [
     }
 ];
 
+let routines = [
+    {
+        id: 'routine-001',
+        name: 'Dobro jutro',
+        description: 'Pali svjetlo u dnevnom boravku i aparat za kavu kada je jutro i korisnik je prisutan.',
+        icon: 'bi bi-sunrise',
+        isEnabled: true,
+        includedDevices: ['device-001', 'device-003'],
+        includedRooms: ['room-001', 'room-002'],
+        triggers: {
+            logicalOperator: 'OR',
+            list: [
+                { type: 'TIME_OF_DAY_CHANGE', value: 'MORNING' }
+            ]
+        },
+        conditions: {
+            logicalOperator: 'AND',
+            list: [
+                { type: 'USER_PRESENCE', value: true }
+            ]
+        },
+        actions: [
+            {
+                type: 'DEVICE_ACTION',
+                deviceId: 'device-001',
+                actionType: 'SET_BRIGHTNESS',
+                payload: { brightness: 40 }
+            },
+            {
+                type: 'DEVICE_ACTION',
+                deviceId: 'device-003',
+                actionType: 'TOGGLE_ON_OFF',
+                payload: { isOn: true }
+            }
+        ]
+    },
+    {
+        id: 'routine-002',
+        name: 'Gasi sve kad odem',
+        description: 'Gasi sva svjetla i uređaje kada korisnik napusti kuću.',
+        icon: 'bi bi-house-door',
+        isEnabled: true,
+        includedDevices: ['device-001', 'device-007', 'device-005'],
+        includedRooms: ['room-001', 'room-004', 'room-003'],
+        triggers: {
+            logicalOperator: 'OR',
+            list: [
+                { type: 'USER_PRESENCE_CHANGE', value: false }
+            ]
+        },
+        conditions: {
+            logicalOperator: 'AND',
+            list: []
+        },
+        actions: [
+            { type: 'DEVICE_ACTION', deviceId: 'device-001', actionType: 'TOGGLE_ON_OFF', payload: { isOn: false } },
+            { type: 'DEVICE_ACTION', deviceId: 'device-007', actionType: 'TOGGLE_ON_OFF', payload: { isOn: false } },
+            { type: 'DEVICE_ACTION', deviceId: 'device-005', actionType: 'TOGGLE_ON_OFF', payload: { isOn: false } }
+        ]
+    },
+    {
+        id: 'routine-003',
+        name: 'Pametno grijanje po noći',
+        description: 'Pali grijanje po noći samo ako je jako hladno vani.',
+        icon: 'bi bi-moon-stars',
+        isEnabled: true,
+        includedDevices: ['device-002'],
+        includedRooms: ['room-002'],
+        triggers: {
+            logicalOperator: 'OR',
+            list: [
+                { type: 'TIME_OF_DAY_CHANGE', value: 'NIGHT' }
+            ]
+        },
+        conditions: {
+            logicalOperator: 'AND',
+            list: [
+                { type: 'USER_PRESENCE', value: true },
+                { type: 'OUTSIDE_TEMPERATURE', operator: '<', value: 5 }
+            ]
+        },
+        actions: [
+            { type: 'DEVICE_ACTION', deviceId: 'device-002', actionType: 'SET_MODE', payload: { mode: 'HEAT' } },
+            { type: 'DEVICE_ACTION', deviceId: 'device-002', actionType: 'SET_TEMPERATURE', payload: { targetTemp: 25 } }
+        ]
+    }
+];
+
+// Funkcije za upravljanje rutinama
+function routineManager(trigger) {
+    console.log(`Motor za rutine pokrenut, okidač: ${trigger.type}, vrijednost: ${trigger.value}`);
+
+    const checkConditions = (conditions) => {
+        if (!conditions || conditions.list.length === 0) {
+            return true;
+        }
+
+        const evaluate = (condition) => {
+            if (condition.type === 'USER_PRESENCE') {
+                return userPresence === condition.value;
+            }
+            if (condition.type === 'OUTSIDE_TEMPERATURE') {
+                if (condition.operator === '<') return outsideTemperature < condition.value;
+                if (condition.operator === '>') return outsideTemperature > condition.value;
+            }
+            return false;
+        };
+
+        if (conditions.logicalOperator === 'AND') {
+            return conditions.list.every(evaluate);
+        }
+        if (conditions.logicalOperator === 'OR') {
+            return conditions.list.some(evaluate);
+        }
+        return false;
+    };
+
+    const checkTriggers = (routineTrigger) => {
+        return routineTrigger.list.some(
+            t => t.type === trigger.type && t.value === trigger.value
+        );
+    };
+
+
+    for (const routine of routines) {
+        if (!routine.isEnabled) {
+            continue;
+        }
+
+        if (checkTriggers(routine.triggers) && checkConditions(routine.conditions)) {
+            console.log(`Rutina "${routine.name}" aktivirana. Izvršavam akcije.`);
+
+            routine.actions.forEach(action => {
+                if (action.type === 'DEVICE_ACTION') {
+                    executeDeviceAction(action.deviceId, action.actionType, action.payload);
+                }
+            });
+        }
+    }
+}
+
+// Funkcija za dodavanje rutine
+function addRoutine({ name, description, icon, triggers, conditions, actions }) {
+    const includedDevices = [];
+    const includedRooms = new Set();
+
+    actions.forEach(action => {
+        if (action.type === 'DEVICE_ACTION') {
+            if (!includedDevices.includes(action.deviceId)) {
+                includedDevices.push(action.deviceId);
+            }
+        }
+    });
+
+    includedDevices.forEach(deviceId => {
+        const device = getDeviceById(deviceId);
+        if (device) {
+            includedRooms.add(device.roomId);
+        }
+    });
+
+    const newRoutine = {
+        id: `routine-${String(++routineIdCounter).padStart(3, '0')}`, // Malo skraćeno
+        name,
+        description,
+        icon: icon || 'bi bi-gear',
+        isEnabled: true,
+        includedDevices,
+        includedRooms: [...includedRooms],
+        triggers,
+        conditions,
+        actions
+    };
+
+    routines.push(routine);
+    console.log(`Rutina "${name}" dodana.`);
+    return routine;
+}
+
+// Funkcija za uklanjanje rutine
+function removeRoutine(routineId) {
+    const index = routines.findIndex(r => r.id === routineId);
+    if (index !== -1) {
+        routines.splice(index, 1);
+        return true;
+    }
+    return false;
+}
+
+// Funkcija za dohvat svih rutina
+function getAllRoutines() {
+    return routines;
+}
+
+// Funkcija za dohvat rutine po ID-u
+function getRoutineById(routineId) {
+    return routines.find(r => r.id === routineId);
+}
+
 function startSimulation(newDuration) {
     if (simulationIntervalId) {
         clearInterval(simulationIntervalId);
@@ -269,14 +470,57 @@ function executeDeviceAction(deviceId, actionType, payload) {
         return null;
     }
 
+    function adjustTempConditioner() {
+        if (actionType === 'SET_TEMPERATURE') {
+            if (payload && typeof payload.targetTemp === 'number') {
+                device.state.targetTemp = Math.max(10, Math.min(30, payload.targetTemp));
+            } else {
+                console.warn('SET_TEMPERATURE pozvana bez ispravnog payload-a.');
+                return null;
+            }
+        } else if (actionType === 'TOGGLE_ON_OFF') {
+            if (payload && typeof payload.isOn === 'boolean') {
+                device.state.isOn = payload.isOn;
+            } else {
+                device.state.isOn = !device.state.isOn;
+            }
+            device.state.roomState = device.state.isOn ? 'ON' : 'OFF';
+            device.state.mode = device.state.isOn ? device.state.prevMode : 'OFF';
+        } else if (actionType === 'SET_MODE') {
+            if (payload && ['HEAT', 'COOL'].includes(payload.mode)) {
+                device.state.mode = device.state.prevMode = payload.mode;
+                device.state.isOn = true;
+                device.state.roomState = 'ON';
+            } else if (payload && payload.mode === 'OFF') {
+                device.state.mode = payload.mode;
+                device.state.isOn = false;
+                device.state.roomState = 'OFF';
+            } else {
+                console.warn('SET_MODE pozvana bez ispravnog payload-a.');
+                return null;
+            }
+        } else if (actionType === 'READ_TEMPERATURE') {
+            return device.state.temperature;
+        } else {
+            console.warn(`Nepoznata akcija za THERMOSTAT uređaj: ${actionType}`);
+            return null;
+        }
+    }
+
     switch (device.type) {
         case 'LIGHT':
             if (actionType === 'TOGGLE_ON_OFF') {
-                device.state.isOn = !device.state.isOn;
+                if (payload && typeof payload.isOn === 'boolean') {
+                    device.state.isOn = payload.isOn;
+                } else {
+                    device.state.isOn = !device.state.isOn;
+                }
                 device.state.roomState = device.state.isOn ? 'ON' : 'OFF';
             } else if (actionType === 'SET_BRIGHTNESS') {
                 if (payload && typeof payload.brightness === 'number') {
                     device.state.brightness = Math.max(0, Math.min(100, payload.brightness));
+                    device.state.isOn = true;
+                    device.state.roomState = 'ON';
                 } else {
                     console.warn('SET_BRIGHTNESS pozvana bez ispravnog payload-a.');
                     return null;
@@ -287,40 +531,15 @@ function executeDeviceAction(deviceId, actionType, payload) {
             }
             break;
         case 'THERMOSTAT':
-            if (actionType === 'SET_TEMPERATURE') {
-                if (payload && typeof payload.targetTemp === 'number') {
-                    device.state.targetTemp = Math.max(10, Math.min(30, payload.targetTemp));
-                } else {
-                    console.warn('SET_TEMPERATURE pozvana bez ispravnog payload-a.');
-                    return null;
-                }
-            } else if (actionType === 'TOGGLE_ON_OFF') {
-                device.state.isOn = !device.state.isOn;
-                device.state.roomState = device.state.isOn ? 'ON' : 'OFF';
-                device.state.mode = device.state.isOn ? device.state.prevMode : 'OFF';
-            } else if (actionType === 'SET_MODE') {
-                if (payload && ['HEAT', 'COOL'].includes(payload.mode)) {
-                    device.state.mode = device.state.prevMode = payload.mode;
-                    device.state.isOn = true;
-                    device.state.roomState = 'ON';
-                } else if (payload && payload.mode === 'OFF') {
-                    device.state.mode = payload.mode;
-                    device.state.isOn = false;
-                    device.state.roomState = 'OFF';
-                } else {
-                    console.warn('SET_MODE pozvana bez ispravnog payload-a.');
-                    return null;
-                }
-            } else if (actionType === 'READ_TEMPERATURE') {
-                return device.state.temperature;
-            } else {
-                console.warn(`Nepoznata akcija za THERMOSTAT uređaj: ${actionType}`);
-                return null;
-            }
+            adjustTempConditioner();
             break;
         case 'SMART_OUTLET':
             if (actionType === 'TOGGLE_ON_OFF') {
-                device.state.isOn = !device.state.isOn;
+                if (payload && typeof payload.isOn === 'boolean') {
+                    device.state.isOn = payload.isOn;
+                } else {
+                    device.state.isOn = !device.state.isOn;
+                }
                 device.state.roomState = device.state.isOn ? 'ON' : 'OFF';
             } else if (actionType === 'READ_POWER_USAGE') {
                 device.state.powerUsage = parseFloat((Math.random() * 100).toFixed(1));
@@ -348,34 +567,7 @@ function executeDeviceAction(deviceId, actionType, payload) {
             }
             break;
         case 'AIR_CONDITIONER':
-            if (actionType === 'SET_TEMPERATURE') {
-                if (payload && typeof payload.targetTemp === 'number') {
-                    device.state.targetTemp = Math.max(16, Math.min(30, payload.targetTemp));
-                } else {
-                    console.warn('SET_TEMPERATURE pozvana bez ispravnog payload-a.');
-                    return null;
-                }
-            } else if (actionType === 'TOGGLE_ON_OFF') {
-                device.state.isOn = !device.state.isOn;
-                device.state.roomState = device.state.isOn ? 'ON' : 'OFF';
-                device.state.mode = device.state.isOn ? device.state.prevMode : 'OFF';
-            } else if (actionType === 'SET_MODE') {
-                if (payload && ['HEAT', 'COOL'].includes(payload.mode)) {
-                    device.state.mode = device.state.prevMode = payload.mode;
-                    device.state.isOn = true;
-                    device.state.roomState = 'ON';
-                } else if (payload && payload.mode === 'OFF') {
-                    device.state.mode = payload.mode;
-                    device.state.isOn = false;
-                    device.state.roomState = 'OFF';
-                } else {
-                    console.warn('SET_MODE pozvana bez ispravnog payload-a.');
-                    return null;
-                }
-            } else {
-                console.warn(`Nepoznata akcija za AIR_CONDITIONER uređaj: ${actionType}`);
-                return null;
-            }
+            adjustTempConditioner();
             break;
         case 'SENSOR':
             if (actionType === 'READ') {
@@ -634,6 +826,7 @@ function setCurrentTimeOfDay(newTimeOfDay) {
     else {
         console.warn(`Nepoznata vrijednost doba dana: ${newTimeOfDay}`);
     }
+    routineManager({ type: 'TIME_OF_DAY_CHANGE', value: currentTimeOfDay });
     return currentTimeOfDay;
 }
 
@@ -650,6 +843,7 @@ function setUserPresence(isPresent) {
     } else {
         console.warn('Pogrešan tip vrijednosti za prisutnost korisnika. Očekuje se boolean.');
     }
+    routineManager({ type: 'USER_PRESENCE_CHANGE', value: userPresence });
     return userPresence;
 }
 
@@ -675,5 +869,9 @@ module.exports = {
     setCurrentTimeOfDay,
     getUserPresence,
     setUserPresence,
-    fetchTimesOfDay
+    fetchTimesOfDay,
+    addRoutine,
+    removeRoutine,
+    getAllRoutines,
+    getRoutineById
 };
