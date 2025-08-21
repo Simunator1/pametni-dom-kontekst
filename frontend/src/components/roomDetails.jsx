@@ -2,12 +2,19 @@ import { useState, useEffect } from 'react';
 import '../styles/roomDetails.css';
 import { toggleRoom } from '../services/apiService';
 import Device from '../components/device';
+import RoutineMini from '../components/routineMini';
 import '../styles/device.css'
 
-const RoomDetails = ({ room, onRoomToggle, handleDeviceChange, handleDeviceSelect }) => {
+const RoomDetails = ({ room, routines, onRoomToggle, handleDeviceChange, handleDeviceSelect, onRoutineToggle }) => {
+    const [selectedRoutines, setSelectedRoutines] = useState(null);
+
+    useEffect(() => {
+        const selectedRoutines = routines.filter(routine => routine.includedRooms.includes(room.id));
+        setSelectedRoutines(selectedRoutines);
+    }, [routines]);
+
     const hasDevices = room.devices && room.numDevices > 0;
     const hasPreferences = false;
-    const hasRoutines = false;
 
     const handleRoomToggle = async () => {
         try {
@@ -53,9 +60,16 @@ const RoomDetails = ({ room, onRoomToggle, handleDeviceChange, handleDeviceSelec
                     <div className="room-devices-container">
                         <span className="room-text">Preferences</span>
                     </div>}
-                {hasRoutines &&
+                {selectedRoutines &&
                     <div className="room-devices-container">
                         <span className="room-text">Routines</span>
+                        {selectedRoutines.map(routine => (
+                            <RoutineMini
+                                key={routine.id}
+                                routine={routine}
+                                onRoutineToggle={onRoutineToggle}
+                            />
+                        ))}
                     </div>}
             </div>
         </div>

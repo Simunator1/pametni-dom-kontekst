@@ -22,6 +22,16 @@ const displayOptions = ({ currentView, onViewChange }) => (
             checked={currentView === 'devices'}
             onChange={() => onViewChange('devices')} />
         <label className="display-btn btn btn-outline-primary" htmlFor="btnradio2">Devices</label>
+
+        <input
+            type="radio"
+            className="btn-check"
+            name="btnradio"
+            id="btnradio3"
+            autoComplete="off"
+            checked={currentView === 'routines'}
+            onChange={() => onViewChange('routines')} />
+        <label className="display-btn btn btn-outline-primary" htmlFor="btnradio3">Routines</label>
     </div>
 );
 

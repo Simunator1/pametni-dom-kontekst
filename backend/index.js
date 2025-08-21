@@ -248,7 +248,7 @@ app.post('/api/simulation/interval', (req, res) => {
 
 // Dohvati trenutno doba dana
 app.get('/api/context/time-of-day', (req, res) => {
-    res.json({ timeOfDay: deviceManager.getCurrentTimeOfDay() });
+    res.json(deviceManager.getCurrentTimeOfDay());
 });
 
 // Postavi novo doba dana
@@ -263,7 +263,7 @@ app.post('/api/context/time-of-day', (req, res) => {
 
 // Dohvati prisutnost korisnika
 app.get('/api/context/user-presence', (req, res) => {
-    res.json({ userPresence: deviceManager.getUserPresence() });
+    res.json(deviceManager.getUserPresence());
 });
 
 // Postavi prisutnost korisnika
@@ -301,14 +301,14 @@ app.get('/api/routines/:routineId', (req, res) => {
 
 // Dodaj novu rutinu
 app.post('/api/routines/add', (req, res) => {
-    const { name, description, triggers, conditions, actions } = req.body;
+    const { name, description, icon, triggers, conditions, actions } = req.body;
 
     if (!name || !triggers || !actions) {
         return res.status(400).json({ message: 'Naziv, okidači i akcije su obavezni.' });
     }
 
     try {
-        const newRoutine = deviceManager.addRoutine({ name, description, triggers, conditions, actions });
+        const newRoutine = deviceManager.addRoutine({ name, description, icon, triggers, conditions, actions });
         res.status(201).json(newRoutine);
     } catch (error) {
         console.error('Greška pri dodavanju rutine:', error);
@@ -322,6 +322,29 @@ app.delete('/api/routines/:routineId', (req, res) => {
     const success = deviceManager.removeRoutine(routineId);
     if (success) {
         res.status(200).json({ message: `Rutina s ID-om ${routineId} je uspješno uklonjena.` });
+    } else {
+        res.status(404).json({ message: `Rutina s ID-om ${routineId} nije pronađena.` });
+    }
+});
+
+// Dohvati formu za rutinu
+app.get('/api/routines-form-template', (req, res) => {
+    const formTemplate = deviceManager.getRoutineFormTemplate();
+    res.json(formTemplate);
+});
+
+// Paljenje/gašenje rutine
+app.post('/api/routines/:routineId/toggle', (req, res) => {
+    const { routineId } = req.params;
+    const { isEnabled } = req.body;
+
+    if (typeof isEnabled !== 'boolean') {
+        return res.status(400).json({ message: 'Vrijednost "isEnabled" je obavezna i mora biti boolean.' });
+    }
+
+    const newRoutine = deviceManager.toggleRoutine(routineId, isEnabled);
+    if (newRoutine) {
+        res.status(200).json(newRoutine);
     } else {
         res.status(404).json({ message: `Rutina s ID-om ${routineId} nije pronađena.` });
     }

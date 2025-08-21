@@ -26,6 +26,7 @@ const MainHeaderIcons = (props) => (
                 className="add-menu"
                 onRoomAdded={props.onRoomAdded}
                 onDeviceAdded={props.onDeviceAdded}
+                onGoToRoutineAdd={props.onGoToRoutineAdd}
             />
         </NavItem>
         <NavItem className="ikona bi bi-list">
@@ -65,6 +66,14 @@ const RoomDetailsHeader = (props) => (
     </div>
 );
 
+const RoutineAddHeader = (props) => (
+    <div className="alternate-header">
+        <i className="ikona bi bi-arrow-left back-button" onClick={props.onBack}></i>
+        <h1 className="naslov">{props.title}</h1>
+    </div>
+);
+
+
 
 const Header = (props) => {
     const renderContent = () => {
@@ -73,6 +82,8 @@ const Header = (props) => {
                 return <RoomDetailsHeader {...props} />;
             case 'deviceDetails':
                 return <DeviceDetailsHeader {...props} />;
+            case 'routineAdd':
+                return <RoutineAddHeader {...props} />;
             case 'main':
             default:
                 return (
@@ -91,6 +102,8 @@ function NavItem(props) {
     const [active, setActive] = useState(false);
     const navItemRef = useRef(null);
 
+    const closeMenu = () => setActive(false);
+
     useEffect(() => {
         function handleClickOutside(event) {
             if (navItemRef.current && !navItemRef.current.contains(event.target)) {
@@ -108,7 +121,7 @@ function NavItem(props) {
     return (
         <li className="nav-item" ref={navItemRef}>
             <a href="#" className={`icon-button ${props.className}`} onClick={() => setActive(!active)}></a>
-            {active && props.children}
+            {active && React.cloneElement(props.children, { closeMenu })}
         </li>
     );
 };

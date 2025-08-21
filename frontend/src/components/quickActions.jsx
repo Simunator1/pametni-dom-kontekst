@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/quickActions.css';
 
-const quickActions = () => (
+const quickActions = ({ routines, quickActions, preferences }) => (
     <div className="quick-actions">
         <div className="quick-header">
             <div></div>
@@ -9,34 +9,12 @@ const quickActions = () => (
             <i className="quick-ikona bi bi-gear"></i>
         </div>
         <div className="actions">
-            <div className="action">
-                <i className="quick-ikona bi bi-film"></i>
-                <p>Movie</p>
-            </div>
-            <div className="action">
-                <i className="quick-ikona bi bi-fire"></i>
-                <p>Cozy</p>
-            </div>
-            <div className="action">
-                <i className="quick-ikona bi bi-bell-slash"></i>
-                <p>Sleeping</p>
-            </div>
-            <div className="action">
-                <i className="quick-ikona bi bi-brightness-high"></i>
-                <p>Morning</p>
-            </div>
-            <div className="action">
-                <i className="quick-ikona bi bi-cake"></i>
-                <p>Party</p>
-            </div>
-            <div className="action">
-                <i className="quick-ikona bi bi-flask"></i>
-                <p>Working</p>
-            </div>
-            <div className="action">
-                <i className="quick-ikona bi bi-fork-knife"></i>
-                <p>Eating</p>
-            </div>
+            {routines.map(routine => (
+                <div className="action" key={routine.id}>
+                    <i className={`quick-ikona ${routine.icon}`}></i>
+                    <p>{routine.name}</p>
+                </div>
+            ))}
         </div>
     </div>
 );

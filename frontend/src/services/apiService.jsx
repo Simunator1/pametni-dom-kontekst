@@ -471,3 +471,39 @@ export const removeRoutine = async (routineId) => {
         throw error;
     }
 };
+
+export const getRoutineFormTemplate = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/routines-form-template`);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dohvaćanju forme rutine: ${response.status} ${errorData.message || ''}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s getRoutineFormTemplate:", error);
+        throw error;
+    }
+}
+
+export const toggleRoutine = async (routineId, isEnabled) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/routines/${routineId}/toggle`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ isEnabled }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri prebacivanju rutine: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s toggleRoutine:", error);
+        throw error;
+    }
+}

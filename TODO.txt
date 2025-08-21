@@ -14,6 +14,15 @@ Faza 2:
 
 Faza 3:
 
-- struktura za rutine, routines.js
-- funkcija za obilazak i aktiviranje svih rutina
++ struktura za rutine, routines.js
++ funkcija za obilazak i aktiviranje svih rutina
++ forma za dodavanje rutine
+- prikaz detalja rutine
++ prikaz svih rutina
++ prikaz rutina u sobama
+- prikaz rutine kod uređaja
+- quick actions
+
+
 - simulacija promjene doba dana
+- nepotrebno pozivanje novih resursi koji već postoje u dashboard

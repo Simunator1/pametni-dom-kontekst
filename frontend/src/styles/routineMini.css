@@ -1,0 +1,59 @@
+.routine {
+    padding-left: 2vh;
+    padding-right: 1vh;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 90vw;
+    height: 8vh;
+    background: linear-gradient(to right, #66bec7, #ffffff);
+    margin-bottom: 2vh;
+    border-radius: 2vw;
+}
+
+.routine.gray {
+    background: linear-gradient(to right, #b0b0b0, #ffffff);
+}
+
+.routine.gray p {
+    color: #848484
+}
+
+.routine-name-wrapper {
+    margin: 0;
+    max-width: 67%;
+    overflow: hidden;
+    display: block;
+}
+
+.routine-name {
+    font-weight: bold;
+    white-space: nowrap;
+    position: relative;
+    display: block;
+}
+
+.form-check {
+    padding-top: 0;
+    padding-bottom: 0;
+    width: 20%;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.form-check-input {
+    padding: 0;
+    margin: 0;
+}
+
+.routine-ikona {
+    width: 5%;
+    font-size: 1.4rem;
+}
+
+.routine-ikona.gray {
+    color: gray;
+}

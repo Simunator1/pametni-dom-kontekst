@@ -108,7 +108,7 @@ function AddDeviceForm({ onDeviceAdded }) {
     );
 }
 
-function AddMenu({ onRoomAdded, onDeviceAdded }) {
+function AddMenu({ onRoomAdded, onDeviceAdded, onGoToRoutineAdd, closeMenu }) {
     const [activeMenu, setActiveMenu] = useState('main');
     const nodeRefMain = useRef(null);
     const nodeRefAddRoom = useRef(null);
@@ -127,6 +127,9 @@ function AddMenu({ onRoomAdded, onDeviceAdded }) {
         <div className="dropdown add-menu">
             <CSSTransition nodeRef={nodeRefMain} in={activeMenu === 'main'} unmountOnExit timeout={500} classNames="menu-primary">
                 <div ref={nodeRefMain} className="menu">
+                    <div onClick={() => { onGoToRoutineAdd(); closeMenu(); }}>
+                        <DropdownItem leftIcon="bi bi-gear-wide-connected">Add routine</DropdownItem>
+                    </div>
                     <DropdownItem goToMenu="addroom" leftIcon="bi bi-house-add">Add Room</DropdownItem>
                     <DropdownItem goToMenu="adddevice" leftIcon="bi bi-plus-circle">Add Device</DropdownItem>
                 </div>

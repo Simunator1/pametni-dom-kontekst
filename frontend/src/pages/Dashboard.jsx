@@ -4,7 +4,8 @@ import {
     getOutsideTemperature, setOutsideTemperature,
     getSimulationInterval, setSimulationInterval,
     getCurrentTimeOfDay, setTimeOfDay,
-    getUserPresence, setUserPresence
+    getUserPresence, setUserPresence,
+    getAllRoutines
 } from '../services/apiService';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/Dashboard.css';
@@ -15,6 +16,8 @@ import Room from '../components/room';
 import Device from '../components/device';
 import DeviceDetails from '../components/deviceDetails';
 import RoomDetails from '../components/roomDetails';
+import RoutineFormMenu from '../components/routineFormMenu';
+import RoutineMini from '../components/routineMini';
 
 function DashboardPage() {
     const [allDevices, setAllDevices] = useState([]); // Za "All Devices" prikaz
@@ -28,6 +31,8 @@ function DashboardPage() {
     const [pollingInterval, setPollingInterval] = useState(5000);
     const [currentTimeOfDay, setCurrentTimeOfDay] = useState('MORNING');
     const [userPresent, setUserPresent] = useState(true);
+    const [allRoutines, setAllRoutines] = useState([]); // Za rutine
+    const [addingRoutine, setAddingRoutine] = useState(false);
 
     const naslov = "Home";
 
@@ -51,14 +56,16 @@ function DashboardPage() {
                     temp,
                     interval,
                     timeOfDay,
-                    presence
+                    presence,
+                    routines
                 ] = await Promise.all([
                     fetchRoomsWithDevices(),
                     fetchDevices(),
                     getOutsideTemperature(),
                     getSimulationInterval(),
                     getCurrentTimeOfDay(),
-                    getUserPresence()
+                    getUserPresence(),
+                    getAllRoutines()
                 ]);
 
                 setRoomsData(rooms);
@@ -67,6 +74,7 @@ function DashboardPage() {
                 setPollingInterval(interval.interval);
                 setCurrentTimeOfDay(timeOfDay);
                 setUserPresent(presence);
+                setAllRoutines(routines);
 
                 setError(null);
             } catch (err) {
@@ -273,6 +281,18 @@ function DashboardPage() {
         setSelectedRoom(null);
     }
 
+    const handleAddRoutine = (newRoutine) => {
+        setAllRoutines(prevRoutines => [...prevRoutines, newRoutine]);
+    }
+
+    const handleRoutineToggle = (updatedRoutine) => {
+        setAllRoutines(prevRoutines =>
+            prevRoutines.map(routine =>
+                routine.id === updatedRoutine.id ? updatedRoutine : routine
+            )
+        );
+    }
+
     let headerProps;
 
 
@@ -297,7 +317,15 @@ function DashboardPage() {
             onRoomRemoved: handleRoomRemoval,
             onDeviceAdded: handleDeviceAdded
         }
-    } else {
+    } else if (addingRoutine) {
+        // Props za dodavanje rutine
+        headerProps = {
+            view: 'routineAdd',
+            title: "Add Routine",
+            onBack: () => setAddingRoutine(false),
+        }
+    }
+    else {
         // Props za glavni prikaz
         headerProps = {
             view: 'main',
@@ -312,6 +340,7 @@ function DashboardPage() {
             UserPresence: userPresent,
             onRoomAdded: handleRoomAdded,
             onDeviceAdded: handleDeviceAdded,
+            onGoToRoutineAdd: () => { setAddingRoutine(true) }
         };
     }
 
@@ -329,7 +358,8 @@ function DashboardPage() {
         return (
             <div className="dashboard-container">
                 <Header {...headerProps} />
-                <QuickActions />
+                <QuickActions
+                    routines={allRoutines} />
                 <DeviceDetails
                     device={selectedDevice}
                     onStateChange={handleDeviceChange}
@@ -345,22 +375,39 @@ function DashboardPage() {
         return (
             <div className="dashboard-container">
                 <Header {...headerProps} />
-                <QuickActions />
+                <QuickActions
+                    routines={allRoutines} />
                 <RoomDetails
                     room={selectedRoom}
+                    routines={allRoutines}
                     onRoomToggle={handleRoomToggle}
                     handleDeviceChange={handleDeviceChange}
                     handleDeviceSelect={handleDeviceSelect}
+                    onRoutineToggle={handleRoutineToggle}
                 />
             </div>
         );
     }
 
-    // --- Prikaz 3: Glavna ploča (Default) ---
+    // --- Prikaz 3: Dodavanje Rutine ---
+    else if (addingRoutine) {
+        return (
+            <div className="dashboard-container">
+                <Header {...headerProps} />
+                <RoutineFormMenu
+                    allDevices={allDevices}
+                    onAddRoutine={handleAddRoutine}
+                    onClose={() => setAddingRoutine(false)} />
+            </div>
+        )
+    }
+
+    // --- Prikaz 4: Glavna ploča (Default) ---
     return (
         <div className="dashboard-container">
             <Header {...headerProps} />
-            <QuickActions />
+            <QuickActions
+                routines={allRoutines} />
             <DisplayOptions currentView={viewMode} onViewChange={setViewMode} />
 
             {viewMode === 'rooms' && (
@@ -383,6 +430,17 @@ function DashboardPage() {
                             device={device}
                             onStateChange={handleDeviceChange}
                             onDeviceSelect={handleDeviceSelect}
+                        />
+                    ))}
+                </div>
+            )}
+            {viewMode === 'routines' && (
+                <div className="devices-wrapper">
+                    {allRoutines.map(routine => (
+                        <RoutineMini
+                            key={routine.id}
+                            routine={routine}
+                            onRoutineToggle={handleRoutineToggle}
                         />
                     ))}
                 </div>

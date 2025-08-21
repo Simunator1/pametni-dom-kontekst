@@ -2,6 +2,172 @@ const DEVICE_TYPES = ['LIGHT', 'THERMOSTAT', 'SMART_OUTLET', 'SMART_BLIND', 'AIR
 
 const TIMES_OF_DAY = ["MORNING", "AFTERNOON", "EVENING", "NIGHT"];
 
+const TRIGGER_TYPES = ['TIME_OF_DAY_CHANGE', 'USER_PRESENCE_CHANGE'];
+
+const LOGICAL_OPERATORS = ['AND', 'OR'];
+
+const ICONS = [
+    'bi bi-sunrise',
+    'bi bi-moon-stars',
+    'bi bi-house-door',
+    'bi bi-gear',
+    'bi bi-lightbulb',
+    'bi bi-thermometer',
+    'bi bi-plug',
+    'bi bi-check-circle',
+    'bi bi-x-circle',
+    'bi bi-exclamation-triangle',
+    'bi bi-info-circle',
+    'bi bi-question-circle',
+    'bi bi-film',
+    'bi bi-fire',
+    'bi bi-bell-slash',
+    'bi bi-brightness-high',
+    'bi bi-cake',
+    'bi bi-fork-knife',
+    'bi bi-wind',
+    'bi bi-droplet-fill',
+    'bi bi-camera-video',
+    'bi bi-lock',
+    'bi bi-unlock',
+    'bi bi-volume-up',
+    'bi bi-tv',
+    'bi bi-router',
+    'bi bi-shield-lock',
+    'bi bi-calendar-event',
+    'bi bi-clock-history',
+    'bi bi-power'
+];
+
+const CONDITION_TYPES = {
+    'USER_PRESENCE':
+        { modes: [true, false] },
+    'OUTSIDE_TEMPERATURE':
+    {
+        operators: ['<', '>'],
+        valueRange: [-15, 45],
+    }
+};
+
+const availableActions = {
+    'LIGHT': [
+        {
+            actionType: 'TOGGLE_ON_OFF',
+            label: 'Toggle ON/OFF',
+            payloads: ['ON', 'OFF']
+        },
+        {
+            actionType: 'SET_BRIGHTNESS',
+            label: 'Set Brightness',
+            payloads: [
+                {
+                    name: 'brightness',
+                    label: 'Brightness (%)',
+                    type: 'number',
+                    min: 0,
+                    max: 100
+                }
+            ]
+        }
+    ],
+    'THERMOSTAT': [
+        {
+            actionType: 'SET_TEMPERATURE',
+            label: 'Set temperature',
+            payloads: [
+                {
+                    name: 'targetTemp',
+                    label: 'Target Temperature (°C)',
+                    type: 'number',
+                    min: 10,
+                    max: 30
+                }
+            ]
+        },
+        {
+            actionType: 'SET_MODE',
+            label: 'Set mode',
+            payloads: [
+                {
+                    name: 'mode',
+                    label: 'Work mode',
+                    type: 'select',
+                    options: ['HEAT', 'COOL', 'OFF']
+                }
+            ]
+        }
+    ],
+    'AIR_CONDITIONER': [
+        {
+            actionType: 'SET_TEMPERATURE',
+            label: 'Set temperature',
+            payloads: [
+                {
+                    name: 'targetTemp',
+                    label: 'Target temperature (°C)',
+                    type: 'number',
+                    min: 16,
+                    max: 30
+                }
+            ]
+        },
+        {
+            actionType: 'SET_MODE',
+            label: 'Set mode',
+            payloads: [
+                {
+                    name: 'mode',
+                    label: 'Work mode',
+                    type: 'select',
+                    options: ['HEAT', 'COOL', 'OFF']
+                }
+            ]
+        }
+    ],
+    'SMART_OUTLET': [
+        {
+            actionType: 'TOGGLE_ON_OFF',
+            label: 'Toggle ON/OFF',
+            payloads: ['ON', 'OFF']
+        }
+    ],
+    'SMART_BLIND': [
+        {
+            actionType: 'SET_POSITION',
+            label: 'Set position',
+            payloads: [
+                {
+                    name: 'position',
+                    label: 'Position (%)',
+                    type: 'number',
+                    min: 0,
+                    max: 100
+                }
+            ]
+        },
+        {
+            actionType: 'OPEN',
+            label: 'Fully open',
+            payloads: []
+        },
+        {
+            actionType: 'CLOSE',
+            label: 'Fully close',
+            payloads: []
+        }
+    ]
+};
+
+const ROUTINE_FORM_TEMPLATE = {
+    DEVICE_TYPES,
+    TIMES_OF_DAY,
+    TRIGGER_TYPES,
+    LOGICAL_OPERATORS,
+    CONDITION_TYPES,
+    ICONS,
+    availableActions
+}
+
 let currentTimeOfDay = TIMES_OF_DAY[0];
 
 let userPresence = true;
@@ -331,9 +497,9 @@ function addRoutine({ name, description, icon, triggers, conditions, actions }) 
         actions
     };
 
-    routines.push(routine);
+    routines.push(newRoutine);
     console.log(`Rutina "${name}" dodana.`);
-    return routine;
+    return newRoutine;
 }
 
 // Funkcija za uklanjanje rutine
@@ -847,6 +1013,24 @@ function setUserPresence(isPresent) {
     return userPresence;
 }
 
+function getRoutineFormTemplate() {
+    return {
+        ROUTINE_FORM_TEMPLATE
+    };
+}
+
+function toggleRoutine(routineId, isEnabled) {
+    const routine = getRoutineById(routineId);
+    if (!routine) {
+        console.error(`Rutina s ID-om '${routineId}' nije pronađena.`);
+        return null;
+    }
+
+    routine.isEnabled = isEnabled;
+    console.log(`Rutina "${routine.name}" je sada ${isEnabled ? 'aktivirana' : 'deaktivirana'}.`);
+    return routine;
+}
+
 module.exports = {
     getAllDevices,
     getDeviceById,
@@ -873,5 +1057,7 @@ module.exports = {
     addRoutine,
     removeRoutine,
     getAllRoutines,
-    getRoutineById
+    getRoutineById,
+    getRoutineFormTemplate,
+    toggleRoutine
 };
