@@ -507,3 +507,75 @@ export const toggleRoutine = async (routineId, isEnabled) => {
         throw error;
     }
 }
+
+export const addQuickAction = async (quickActionData) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/quick-actions/add`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(quickActionData),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dodavanju quick action: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s addQuickAction:", error);
+        throw error;
+    }
+};
+
+export const removeQuickAction = async (quickActionId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/quick-actions/${quickActionId}`, {
+            method: 'DELETE',
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri brisanju quick action: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s removeQuickAction:", error);
+        throw error;
+    }
+};
+
+export const getQuickActions = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/quick-actions`);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dohvaćanju quick actions: ${response.status} ${errorData.message || ''}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s getQuickActions:", error);
+        throw error;
+    }
+};
+
+export const executeQuickAction = async (quickActionId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/quick-actions/${quickActionId}/execute`, {
+            method: 'POST',
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri izvršavanju quick action: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s executeQuickAction:", error);
+        throw error;
+    }
+};

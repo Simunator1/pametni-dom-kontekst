@@ -5,7 +5,7 @@ import {
     getSimulationInterval, setSimulationInterval,
     getCurrentTimeOfDay, setTimeOfDay,
     getUserPresence, setUserPresence,
-    getAllRoutines
+    getAllRoutines, getQuickActions
 } from '../services/apiService';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/Dashboard.css';
@@ -33,6 +33,7 @@ function DashboardPage() {
     const [userPresent, setUserPresent] = useState(true);
     const [allRoutines, setAllRoutines] = useState([]); // Za rutine
     const [addingRoutine, setAddingRoutine] = useState(false);
+    const [allQuickActions, setAllQuickActions] = useState([]); // Za quick actions
 
     const naslov = "Home";
 
@@ -57,7 +58,8 @@ function DashboardPage() {
                     interval,
                     timeOfDay,
                     presence,
-                    routines
+                    routines,
+                    quickActions
                 ] = await Promise.all([
                     fetchRoomsWithDevices(),
                     fetchDevices(),
@@ -65,7 +67,8 @@ function DashboardPage() {
                     getSimulationInterval(),
                     getCurrentTimeOfDay(),
                     getUserPresence(),
-                    getAllRoutines()
+                    getAllRoutines(),
+                    getQuickActions()
                 ]);
 
                 setRoomsData(rooms);
@@ -75,6 +78,7 @@ function DashboardPage() {
                 setCurrentTimeOfDay(timeOfDay);
                 setUserPresent(presence);
                 setAllRoutines(routines);
+                setAllQuickActions(quickActions);
 
                 setError(null);
             } catch (err) {
@@ -293,6 +297,22 @@ function DashboardPage() {
         );
     }
 
+    const handleAddQuickAction = (newQuickAction) => {
+        setAllQuickActions(prevActions => [...prevActions, newQuickAction]);
+    }
+
+    const handleAutomatizationUpdate = (updatedDevices) => {
+        updatedDevices.forEach(device => {
+            handleDeviceChange(device);
+        });
+    }
+
+    const handleQuickActionRemove = (removedQuickAction) => {
+        setAllQuickActions(prevActions =>
+            prevActions.filter(action => action.id !== removedQuickAction.id)
+        );
+    }
+
     let headerProps;
 
 
@@ -359,7 +379,9 @@ function DashboardPage() {
             <div className="dashboard-container">
                 <Header {...headerProps} />
                 <QuickActions
-                    routines={allRoutines} />
+                    quickActions={allQuickActions}
+                    onAutomatizationUpdate={handleAutomatizationUpdate}
+                    onQuickActionRemove={handleQuickActionRemove} />
                 <DeviceDetails
                     device={selectedDevice}
                     onStateChange={handleDeviceChange}
@@ -376,7 +398,9 @@ function DashboardPage() {
             <div className="dashboard-container">
                 <Header {...headerProps} />
                 <QuickActions
-                    routines={allRoutines} />
+                    quickActions={allQuickActions}
+                    onAutomatizationUpdate={handleAutomatizationUpdate}
+                    onQuickActionRemove={handleQuickActionRemove} />
                 <RoomDetails
                     room={selectedRoom}
                     routines={allRoutines}
@@ -389,7 +413,7 @@ function DashboardPage() {
         );
     }
 
-    // --- Prikaz 3: Dodavanje Rutine ---
+    // --- Prikaz 3: Dodavanje Rutine, Quick Action ili Preference ---
     else if (addingRoutine) {
         return (
             <div className="dashboard-container">
@@ -397,6 +421,7 @@ function DashboardPage() {
                 <RoutineFormMenu
                     allDevices={allDevices}
                     onAddRoutine={handleAddRoutine}
+                    onAddQuickAction={handleAddQuickAction}
                     onClose={() => setAddingRoutine(false)} />
             </div>
         )
@@ -407,7 +432,9 @@ function DashboardPage() {
         <div className="dashboard-container">
             <Header {...headerProps} />
             <QuickActions
-                routines={allRoutines} />
+                quickActions={allQuickActions}
+                onAutomatizationUpdate={handleAutomatizationUpdate}
+                onQuickActionRemove={handleQuickActionRemove} />
             <DisplayOptions currentView={viewMode} onViewChange={setViewMode} />
 
             {viewMode === 'rooms' && (

@@ -12,25 +12,30 @@ const RoutineMini = ({ routine, onRoutineToggle }) => {
     };
 
     return (
-        <div className={`routine${!routine.isEnabled ? ' gray' : ''}`} onClick={null}>
-            <i className={`routine-ikona ${!routine.isEnabled ? ' gray ' : ''}${routine.icon}`}></i>
-            <div className={'routine-name-wrapper'}>
-                <p
-                    className="routine-name"
-                    title={routine.name}
-                >
-                    {routine.name}
-                </p>
+        <div className={`routine-container${!routine.isEnabled ? ' gray' : ''}`}>
+            <div className="routine">
+                <i className={`routine-ikona ${!routine.isEnabled ? ' gray ' : ''}${routine.icon}`}></i>
+                <div className={'routine-name-wrapper'}>
+                    <p
+                        className="routine-name"
+                        title={routine.name}
+                    >
+                        {routine.name}
+                    </p>
+                </div>
+                <div className="form-check form-switch" onClick={(e) => e.stopPropagation()}>
+                    <input
+                        className="form-check-input"
+                        type="checkbox"
+                        role="switch"
+                        id={`switch-${routine.id}`}
+                        checked={routine.isEnabled}
+                        onChange={handleToggle}
+                    />
+                </div>
             </div>
-            <div className="form-check form-switch" onClick={(e) => e.stopPropagation()}>
-                <input
-                    className="form-check-input"
-                    type="checkbox"
-                    role="switch"
-                    id={`switch-${routine.id}`}
-                    checked={routine.isEnabled}
-                    onChange={handleToggle}
-                />
+            <div>
+                <p className="description">{routine.description}</p>
             </div>
         </div>
     );

@@ -128,7 +128,7 @@ function AddMenu({ onRoomAdded, onDeviceAdded, onGoToRoutineAdd, closeMenu }) {
             <CSSTransition nodeRef={nodeRefMain} in={activeMenu === 'main'} unmountOnExit timeout={500} classNames="menu-primary">
                 <div ref={nodeRefMain} className="menu">
                     <div onClick={() => { onGoToRoutineAdd(); closeMenu(); }}>
-                        <DropdownItem leftIcon="bi bi-gear-wide-connected">Add routine</DropdownItem>
+                        <DropdownItem leftIcon="bi bi-gear-wide-connected">Add automatization</DropdownItem>
                     </div>
                     <DropdownItem goToMenu="addroom" leftIcon="bi bi-house-add">Add Room</DropdownItem>
                     <DropdownItem goToMenu="adddevice" leftIcon="bi bi-plus-circle">Add Device</DropdownItem>

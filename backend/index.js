@@ -26,8 +26,8 @@ const pool = new Pool({
 app.get('/api/db-test', async (req, res) => {
     try {
         const client = await pool.connect();
-        const result = await client.query('SELECT NOW() as now');
-        res.json({ success: true, time: result.rows[0].now });
+        const updatedDevices = await client.query('SELECT NOW() as now');
+        res.json({ success: true, time: updatedDevices.rows[0].now });
         client.release();
     } catch (err) {
         console.error('Greška pri spajanju na bazu:', err.stack);
@@ -146,13 +146,13 @@ app.post('/api/addDevice', (req, res) => {
         return res.status(400).json({ message: 'Potrebno je unijeti ime, tip i sobu za novi uređaj.' });
     }
 
-    const result = deviceManager.addDevice({ name, type, roomId });
+    const updatedDevices = deviceManager.addDevice({ name, type, roomId });
 
-    if (result.error) {
-        return res.status(400).json({ message: result.error });
+    if (updatedDevices.error) {
+        return res.status(400).json({ message: updatedDevices.error });
     }
 
-    res.status(201).json(result.device);
+    res.status(201).json(updatedDevices.device);
 });
 
 // Uključivanje/isključivanje sobe
@@ -161,14 +161,14 @@ app.post('/api/roomToggle', (req, res) => {
     if (!roomId) {
         return res.status(400).json({ message: 'ID sobe je obavezan.' });
     }
-    const result = deviceManager.roomToggle(roomId);
-    if (result && result.error) {
-        return res.status(400).json({ message: result.error });
+    const updatedDevices = deviceManager.roomToggle(roomId);
+    if (updatedDevices && updatedDevices.error) {
+        return res.status(400).json({ message: updatedDevices.error });
     }
-    if (result === null) {
+    if (updatedDevices === null) {
         return res.status(404).json({ message: `Soba s ID-om ${roomId} nije pronađena.` });
     }
-    res.status(200).json({ success: true, room: result.room });
+    res.status(200).json({ success: true, room: updatedDevices.room });
 });
 
 // Uređivanje sobe
@@ -349,6 +349,54 @@ app.post('/api/routines/:routineId/toggle', (req, res) => {
         res.status(404).json({ message: `Rutina s ID-om ${routineId} nije pronađena.` });
     }
 });
+
+// Dodaj quick action
+app.post('/api/quick-actions/add', (req, res) => {
+    const { name, description, icon, actions } = req.body;
+
+    if (!name || !actions) {
+        return res.status(400).json({ message: 'Naziv i akcije su obavezni.' });
+    }
+
+    try {
+        const newQuickAction = deviceManager.addQuickAction({ name, description, icon, actions });
+        res.status(201).json(newQuickAction);
+    } catch (error) {
+        console.error('Greška pri dodavanju quick action:', error);
+        res.status(500).json({ message: 'Greška pri dodavanju quick action.', details: error.message });
+    }
+});
+
+// Ukloni quick action
+app.delete('/api/quick-actions/:quickActionId', (req, res) => {
+    const quickActionId = req.params.quickActionId;
+    const removedQuickAction = deviceManager.removeQuickAction(quickActionId);
+    if (removedQuickAction) {
+        res.status(200).json(removedQuickAction);
+    } else {
+        res.status(404).json({ message: `Quick action s ID-om ${quickActionId} nije pronađena.` });
+    }
+});
+
+// Dohvati sve quick actions
+app.get('/api/quick-actions', (req, res) => {
+    const quickActions = deviceManager.getQuickActions();
+    res.json(quickActions);
+});
+
+// Izvrši quick action
+app.post('/api/quick-actions/:quickActionId/execute', (req, res) => {
+    const quickActionId = req.params.quickActionId;
+    const updatedDevices = deviceManager.executeQuickAction(quickActionId);
+    if (updatedDevices && updatedDevices.error) {
+        return res.status(400).json({ message: updatedDevices.error });
+    }
+    if (updatedDevices === null) {
+        return res.status(404).json({ message: `Quick action s ID-om ${quickActionId} nije pronađena.` });
+    }
+    res.status(200).json({ success: true, updatedDevices });
+});
+
 
 app.listen(PORT, () => {
     console.log(`Backend server pokrenut na http://localhost:${PORT}`);

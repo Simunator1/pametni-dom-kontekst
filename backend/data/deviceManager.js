@@ -184,6 +184,10 @@ let roomIdCounter = 5;
 
 let routineIdCounter = 3;
 
+let QuickActionIdCounter = 0;
+
+let PreferenceIdCounter = 0;
+
 let devices = [
     {
         id: 'device-001',
@@ -411,6 +415,10 @@ let routines = [
     }
 ];
 
+let QuickAction = [];
+
+let Preferences = [];
+
 // Funkcije za upravljanje rutinama
 function routineManager(trigger) {
     console.log(`Motor za rutine pokrenut, okidač: ${trigger.type}, vrijednost: ${trigger.value}`);
@@ -500,6 +508,53 @@ function addRoutine({ name, description, icon, triggers, conditions, actions }) 
     routines.push(newRoutine);
     console.log(`Rutina "${name}" dodana.`);
     return newRoutine;
+}
+
+// Funkcija za dodavanje quick action
+function addQuickAction({ name, description, icon, actions }) {
+    const includedDevices = [];
+    const includedRooms = new Set();
+
+    actions.forEach(action => {
+        if (action.type === 'DEVICE_ACTION') {
+            if (!includedDevices.includes(action.deviceId)) {
+                includedDevices.push(action.deviceId);
+            }
+        }
+    });
+
+    includedDevices.forEach(deviceId => {
+        const device = getDeviceById(deviceId);
+        if (device) {
+            includedRooms.add(device.roomId);
+        }
+    });
+
+
+    const newQuickAction = {
+        id: `quickaction-${String(++QuickActionIdCounter).padStart(3, '0')}`,
+        name,
+        description,
+        includedDevices,
+        includedRooms: [...includedRooms],
+        icon: icon || 'bi bi-gear',
+        actions
+    }
+
+    QuickAction.push(newQuickAction);
+    console.log(`Quick Action "${name}" dodana.`);
+    return newQuickAction;
+}
+
+// Funkcija za brisanje quick action
+function removeQuickAction(quickActionId) {
+    const index = QuickAction.findIndex(qa => qa.id === quickActionId);
+    if (index !== -1) {
+        const removed = QuickAction.splice(index, 1)[0];
+        console.log(`Quick Action "${removed.name}" uklonjena.`);
+        return removed;
+    }
+    return false;
 }
 
 // Funkcija za uklanjanje rutine
@@ -1013,12 +1068,14 @@ function setUserPresence(isPresent) {
     return userPresence;
 }
 
+// Funkcija za dohvat predloška forme za rutine
 function getRoutineFormTemplate() {
     return {
         ROUTINE_FORM_TEMPLATE
     };
 }
 
+// Funkcija za uključivanje/isključivanje rutine
 function toggleRoutine(routineId, isEnabled) {
     const routine = getRoutineById(routineId);
     if (!routine) {
@@ -1029,6 +1086,30 @@ function toggleRoutine(routineId, isEnabled) {
     routine.isEnabled = isEnabled;
     console.log(`Rutina "${routine.name}" je sada ${isEnabled ? 'aktivirana' : 'deaktivirana'}.`);
     return routine;
+}
+
+function getQuickActions() {
+    return QuickAction;
+}
+
+function executeQuickAction(quickActionId) {
+    let updatedDevices = [];
+
+    const quickAction = QuickAction.find(qa => qa.id === quickActionId);
+    if (!quickAction) {
+        console.error(`Quick Action s ID-om '${quickActionId}' nije pronađena.`);
+        return null;
+    }
+
+    console.log(`Izvršavanje Quick Action "${quickAction.name}".`);
+
+    quickAction.actions.forEach(action => {
+        if (action.type === 'DEVICE_ACTION') {
+            updatedDevices.push(executeDeviceAction(action.deviceId, action.actionType, action.payload));
+        }
+    });
+
+    return updatedDevices;
 }
 
 module.exports = {
@@ -1059,5 +1140,9 @@ module.exports = {
     getAllRoutines,
     getRoutineById,
     getRoutineFormTemplate,
-    toggleRoutine
+    toggleRoutine,
+    addQuickAction,
+    removeQuickAction,
+    getQuickActions,
+    executeQuickAction
 };
