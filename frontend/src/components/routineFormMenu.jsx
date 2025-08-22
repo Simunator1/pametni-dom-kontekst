@@ -1,11 +1,9 @@
 import '../styles/routineFormMenu.css';
-import { getRoutineFormTemplate, addRoutine, addQuickAction } from '../services/apiService';
+import { getRoutineFormTemplate, addRoutine, addQuickAction, editRoutine, removeRoutine } from '../services/apiService';
 import React, { useState, useEffect } from 'react';
 import Select from 'react-select';
 
-const RoutineFormMenu = ({ onClose, allDevices, onAddRoutine, onAddQuickAction }) => {
-    const [formTemplate, setFormTemplate] = useState(null);
-    const [formType, setFormType] = useState('');
+const RoutineFormMenu = ({ onClose, allDevices, onAddRoutine, onAddQuickAction, routine, onDeletedRoutine, onEditedRoutine }) => {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [icon, setIcon] = useState('');
@@ -14,6 +12,21 @@ const RoutineFormMenu = ({ onClose, allDevices, onAddRoutine, onAddQuickAction }
     const [conditionsOperator, setConditionsOperator] = useState('AND');
     const [actions, setActions] = useState([{ id: 1, deviceId: '', actionType: '', payload: {} }]);
     const [feedback, setFeedback] = useState('');
+    const [formTemplate, setFormTemplate] = useState(null);
+    const [formType, setFormType] = useState('');
+
+    useEffect(() => {
+        if (routine) {
+            setName(routine.name);
+            setDescription(routine.description);
+            setIcon(routine.icon);
+            setTriggers(routine.triggers.list.map((trigger, index) => ({ id: index + 1, type: trigger.type, value: String(trigger.value) })));
+            setConditions(routine.conditions.list.map((condition, index) => ({ id: index + 1, type: condition.type, operator: condition.operator, value: String(condition.value) })));
+            setConditionsOperator(routine.conditions.logicalOperator);
+            setActions(routine.actions.map((action, index) => ({ id: index + 1, deviceId: action.deviceId, actionType: action.actionType, payload: action.payload })));
+            setFormType('Routine');
+        }
+    }, [routine]);
 
     useEffect(() => {
         async function fetchData() {
@@ -160,6 +173,18 @@ const RoutineFormMenu = ({ onClose, allDevices, onAddRoutine, onAddQuickAction }
         setFeedback('');
     };
 
+    const handleDelete = async () => {
+        if (!routine) return;
+        try {
+            const deletedRoutine = await removeRoutine(routine.id);
+            onDeletedRoutine(deletedRoutine);
+            onClose();
+        } catch (error) {
+            console.error('Failed to delete routine:', error);
+            setFeedback('Error deleting routine.');
+        }
+    };
+
     const handlePayloadChange = (id, payloadName, payloadValue) => {
         setActions(actions.map(a => a.id === id ? { ...a, payload: { ...a.payload, [payloadName]: payloadValue } } : a));
     };
@@ -208,13 +233,25 @@ const RoutineFormMenu = ({ onClose, allDevices, onAddRoutine, onAddQuickAction }
             }
             return;
         } else if (formType === 'Routine') {
-            try {
-                const newRoutine = await addRoutine(routineData);
-                onAddRoutine(newRoutine);
-                setFeedback('Routine created successfully!');
-            } catch (error) {
-                console.error('Failed to create routine:', error);
-                setFeedback('Error creating routine.');
+            if (routine) {
+                try {
+                    const updatedRoutine = await editRoutine(routine.id, routineData);
+                    onEditedRoutine(updatedRoutine);
+                    setFeedback('Routine updated successfully!');
+                } catch (error) {
+                    console.error('Failed to update routine:', error);
+                    setFeedback('Error updating routine.');
+                }
+            }
+            else {
+                try {
+                    const newRoutine = await addRoutine(routineData);
+                    onAddRoutine(newRoutine);
+                    setFeedback('Routine created successfully!');
+                } catch (error) {
+                    console.error('Failed to create routine:', error);
+                    setFeedback('Error creating routine.');
+                }
             }
         }
     };
@@ -232,11 +269,14 @@ const RoutineFormMenu = ({ onClose, allDevices, onAddRoutine, onAddQuickAction }
 
         if (Array.isArray(actionDetails.payloads) && typeof actionDetails.payloads[0] === 'string') {
             const stateOptions = getPayloadStateOptions(actionDetails);
+            const currentValue = typeof action.payload.isOn === 'boolean'
+                ? stateOptions.find(option => option.value === (action.payload.isOn ? 'ON' : 'OFF'))
+                : null;
             return (
                 <Select
                     className="form-select-mutant mt-2"
                     classNamePrefix="select"
-                    value={stateOptions.find(option => option.value === (action.payload.isOn ? 'ON' : 'OFF'))}
+                    value={currentValue}
                     onChange={selectedOption => handlePayloadChange(action.id, 'isOn', selectedOption.value === 'ON')}
                     options={stateOptions}
                     placeholder="Select state"
@@ -450,7 +490,7 @@ const RoutineFormMenu = ({ onClose, allDevices, onAddRoutine, onAddQuickAction }
     return (
         <div className="routine-form-container">
             <form onSubmit={handleSubmit}>
-                <div className="mb-2">
+                {!routine && <div className="mb-2">
                     <label htmlFor="formType" className="form-label">Type</label>
                     <Select
                         id="formType"
@@ -463,7 +503,7 @@ const RoutineFormMenu = ({ onClose, allDevices, onAddRoutine, onAddQuickAction }
                         isSearchable={false}
                         required
                     />
-                </div>
+                </div>}
 
                 {formType === 'Routine' && (
                     <>
@@ -473,11 +513,20 @@ const RoutineFormMenu = ({ onClose, allDevices, onAddRoutine, onAddQuickAction }
                         {routineActionSection}
                         {feedback &&
                             <div className="alert alert-info">{feedback}</div>}
-                        <div className="form-section-buttons">
-                            <button type="button" className="btn btn-light" onClick={onClose}>Cancel</button>
-                            <button type="button" className="btn btn-danger" onClick={handleClear}>Clear</button>
-                            <button type="submit" className="btn btn-primary">Create Routine</button>
-                        </div>
+                        {routine
+                            ?
+                            <div className="form-section-buttons">
+                                <button type="button" className="btn btn-light" onClick={onClose}>Cancel</button>
+                                <button type="button" className="btn btn-danger" onClick={handleDelete}>Delete</button>
+                                <button type="submit" className="btn btn-primary">Save routine</button>
+                            </div>
+                            :
+                            <div className="form-section-buttons">
+                                <button type="button" className="btn btn-light" onClick={onClose}>Cancel</button>
+                                <button type="button" className="btn btn-danger" onClick={handleClear}>Clear</button>
+                                <button type="submit" className="btn btn-primary">Create Routine</button>
+                            </div>
+                        }
                     </>
                 )}
 

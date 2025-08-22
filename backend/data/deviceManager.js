@@ -36,8 +36,10 @@ const ICONS = [
     'bi bi-shield-lock',
     'bi bi-calendar-event',
     'bi bi-clock-history',
-    'bi bi-power'
+    'bi bi-power',
+    'bi bi-snow2'
 ];
+
 
 const CONDITION_TYPES = {
     'USER_PRESENCE':
@@ -178,244 +180,668 @@ let simulationIntervalId = null;
 
 let simulationIntervalDuration = 5000;
 
-let deviceIdCounter = 9;
+let deviceIdCounter = 29;
 
 let roomIdCounter = 5;
 
-let routineIdCounter = 3;
+let routineIdCounter = 0;
 
-let QuickActionIdCounter = 0;
+let QuickActionIdCounter = 5;
 
 let PreferenceIdCounter = 0;
 
 let devices = [
     {
-        id: 'device-001',
-        name: 'Svjetlo Dnevni Boravak',
-        type: 'LIGHT',
-        roomId: 'room-001',
-        state: {
-            roomState: 'OFF',
-            isOn: false,
-            brightness: 0 // 0 - 100
+        "id": "device-007",
+        "name": "Living Room Blinds",
+        "type": "SMART_BLIND",
+        "roomId": "room-001",
+        "state": {
+            "position": 0
         },
-        supportedActions: ['TOGGLE_ON_OFF', 'SET_BRIGHTNESS']
+        "supportedActions": [
+            "SET_POSITION",
+            "OPEN",
+            "CLOSE"
+        ]
     },
     {
-        id: 'device-002',
-        name: 'Termostat Kuhinja',
-        type: 'THERMOSTAT',
-        roomId: 'room-002',
-        state: {
-            roomState: 'OFF',
-            isOn: false,
-            temperature: 22,
-            targetTemp: 25,
-            mode: 'OFF', // 'OFF', 'HEAT', 'COOL'
-            prevMode: 'HEAT' // 'HEAT' ili 'COOL'
+        "id": "device-008",
+        "name": "Living Room Main Light",
+        "type": "LIGHT",
+        "roomId": "room-001",
+        "state": {
+            "roomState": "OFF",
+            "isOn": false,
+            "brightness": 0
         },
-        supportedActions: ['TOGGLE_ON_OFF', 'SET_TEMPERATURE', 'SET_MODE', 'READ_TEMPERATURE']
+        "supportedActions": [
+            "TOGGLE_ON_OFF",
+            "SET_BRIGHTNESS"
+        ]
     },
     {
-        id: 'device-003',
-        name: 'Utičnica Aparat za Kavu',
-        type: 'SMART_OUTLET',
-        roomId: 'room-002',
-        state: {
-            roomState: 'OFF',
-            isOn: false,
-            powerUsage: 0
+        "id": "device-009",
+        "name": "Living Room TV Light",
+        "type": "LIGHT",
+        "roomId": "room-001",
+        "state": {
+            "roomState": "OFF",
+            "isOn": false,
+            "brightness": 0
         },
-        supportedActions: ['TOGGLE_ON_OFF', 'READ_POWER_USAGE']
+        "supportedActions": [
+            "TOGGLE_ON_OFF",
+            "SET_BRIGHTNESS"
+        ]
     },
     {
-        id: 'device-004',
-        name: 'Roleta Spavaća Soba',
-        type: 'SMART_BLIND',
-        roomId: 'room-003',
-        state: {
-            position: 0 // 0% - 100%
+        "id": "device-010",
+        "name": "Living Room A/C",
+        "type": "AIR_CONDITIONER",
+        "roomId": "room-001",
+        "state": {
+            "roomState": "OFF",
+            "isOn": false,
+            "temperature": 27.9,
+            "targetTemp": 24,
+            "mode": "OFF",
+            "prevMode": "COOL"
         },
-        supportedActions: ['SET_POSITION', 'OPEN', 'CLOSE']
+        "supportedActions": [
+            "TOGGLE_ON_OFF",
+            "SET_TEMPERATURE",
+            "SET_MODE"
+        ]
     },
     {
-        id: 'device-005',
-        name: 'Klima Uređaj Spavaća Soba',
-        type: 'AIR_CONDITIONER',
-        roomId: 'room-003',
-        state: {
-            roomState: 'ON',
-            isOn: true,
-            temperature: 24,
-            targetTemp: 22,
-            mode: 'COOL', // 'OFF', 'HEAT', 'COOL'
-            prevMode: 'HEAT' // 'HEAT' ili 'COOL'
+        "id": "device-013",
+        "name": "Entertainment System",
+        "type": "SMART_OUTLET",
+        "roomId": "room-001",
+        "state": {
+            "roomState": "OFF",
+            "isOn": false,
+            "powerUsage": 0
         },
-        supportedActions: ['TOGGLE_ON_OFF', 'SET_TEMPERATURE', 'SET_MODE']
+        "supportedActions": [
+            "TOGGLE_ON_OFF",
+            "READ_POWER_USAGE"
+        ]
     },
     {
-        id: 'device-006',
-        name: 'Senzor Temp i Vlage Dnevni Boravak',
-        type: 'SENSOR',
-        roomId: 'room-001',
-        state: {
-            temperature: 21,
-            humidity: 40
+        "id": "device-014",
+        "name": "Kitchen Main Light",
+        "type": "LIGHT",
+        "roomId": "room-002",
+        "state": {
+            "roomState": "OFF",
+            "isOn": false,
+            "brightness": 0
         },
-        supportedActions: ['READ']
+        "supportedActions": [
+            "TOGGLE_ON_OFF",
+            "SET_BRIGHTNESS"
+        ]
     },
     {
-        id: 'device-007',
-        name: 'Svjetlo Kupaonica',
-        type: 'LIGHT',
-        roomId: 'room-004',
-        state: {
-            roomState: 'OFF',
-            isOn: false,
-            brightness: 0 // 0 - 100
+        "id": "device-015",
+        "name": "Kitchen Desk Lights",
+        "type": "LIGHT",
+        "roomId": "room-002",
+        "state": {
+            "roomState": "OFF",
+            "isOn": false,
+            "brightness": 0
         },
-        supportedActions: ['TOGGLE_ON_OFF', 'SET_BRIGHTNESS']
+        "supportedActions": [
+            "TOGGLE_ON_OFF",
+            "SET_BRIGHTNESS"
+        ]
     },
     {
-        id: 'device-008',
-        name: 'Roleta Balkon',
-        type: 'SMART_BLIND',
-        roomId: 'room-005',
-        state: {
-            position: 0 // 0% - 100%
+        "id": "device-016",
+        "name": "Coffee Machine",
+        "type": "SMART_OUTLET",
+        "roomId": "room-002",
+        "state": {
+            "roomState": "OFF",
+            "isOn": false,
+            "powerUsage": 0
         },
-        supportedActions: ['SET_POSITION', 'OPEN', 'CLOSE']
+        "supportedActions": [
+            "TOGGLE_ON_OFF",
+            "READ_POWER_USAGE"
+        ]
     },
     {
-        id: 'device-009',
-        name: 'Senzor Temp i Vlage Kupaonica',
-        type: 'SENSOR',
-        roomId: 'room-004',
-        state: {
-            temperature: 21,
-            humidity: 60
+        "id": "device-017",
+        "name": "Kitchen Sensor",
+        "type": "SENSOR",
+        "roomId": "room-002",
+        "state": {
+            "temperature": 28,
+            "humidity": 68
         },
-        supportedActions: ['READ']
+        "supportedActions": [
+            "READ"
+        ]
+    },
+    {
+        "id": "device-018",
+        "name": "Bathroom Main Light",
+        "type": "LIGHT",
+        "roomId": "room-004",
+        "state": {
+            "roomState": "OFF",
+            "isOn": false,
+            "brightness": 0
+        },
+        "supportedActions": [
+            "TOGGLE_ON_OFF",
+            "SET_BRIGHTNESS"
+        ]
+    },
+    {
+        "id": "device-019",
+        "name": "Bathroom Mirror Light",
+        "type": "LIGHT",
+        "roomId": "room-004",
+        "state": {
+            "roomState": "OFF",
+            "isOn": false,
+            "brightness": 0
+        },
+        "supportedActions": [
+            "TOGGLE_ON_OFF",
+            "SET_BRIGHTNESS"
+        ]
+    },
+    {
+        "id": "device-020",
+        "name": "Bathroom Wall Heather",
+        "type": "SMART_OUTLET",
+        "roomId": "room-004",
+        "state": {
+            "roomState": "OFF",
+            "isOn": false,
+            "powerUsage": 0
+        },
+        "supportedActions": [
+            "TOGGLE_ON_OFF",
+            "READ_POWER_USAGE"
+        ]
+    },
+    {
+        "id": "device-021",
+        "name": "Bathroom Sensor",
+        "type": "SENSOR",
+        "roomId": "room-004",
+        "state": {
+            "temperature": 28,
+            "humidity": 49
+        },
+        "supportedActions": [
+            "READ"
+        ]
+    },
+    {
+        "id": "device-022",
+        "name": "Bathroom Floor Heating",
+        "type": "THERMOSTAT",
+        "roomId": "room-004",
+        "state": {
+            "roomState": "OFF",
+            "isOn": false,
+            "temperature": 27.9,
+            "targetTemp": 22,
+            "mode": "OFF",
+            "prevMode": "HEAT"
+        },
+        "supportedActions": [
+            "TOGGLE_ON_OFF",
+            "SET_TEMPERATURE",
+            "SET_MODE"
+        ]
+    },
+    {
+        "id": "device-023",
+        "name": "Balcony Lights",
+        "type": "LIGHT",
+        "roomId": "room-005",
+        "state": {
+            "roomState": "OFF",
+            "isOn": false,
+            "brightness": 0
+        },
+        "supportedActions": [
+            "TOGGLE_ON_OFF",
+            "SET_BRIGHTNESS"
+        ]
+    },
+    {
+        "id": "device-024",
+        "name": "Balcony Blinds",
+        "type": "SMART_BLIND",
+        "roomId": "room-005",
+        "state": {
+            "position": 0
+        },
+        "supportedActions": [
+            "SET_POSITION",
+            "OPEN",
+            "CLOSE"
+        ]
+    },
+    {
+        "id": "device-025",
+        "name": "Balcony Sensor",
+        "type": "SENSOR",
+        "roomId": "room-005",
+        "state": {
+            "temperature": 28,
+            "humidity": 40
+        },
+        "supportedActions": [
+            "READ"
+        ]
+    },
+    {
+        "id": "device-026",
+        "name": "Bedroom A/C",
+        "type": "AIR_CONDITIONER",
+        "roomId": "room-003",
+        "state": {
+            "roomState": "OFF",
+            "isOn": false,
+            "temperature": 28,
+            "targetTemp": 24,
+            "mode": "OFF",
+            "prevMode": "COOL"
+        },
+        "supportedActions": [
+            "TOGGLE_ON_OFF",
+            "SET_TEMPERATURE",
+            "SET_MODE"
+        ]
+    },
+    {
+        "id": "device-027",
+        "name": "Bedroom Light",
+        "type": "LIGHT",
+        "roomId": "room-003",
+        "state": {
+            "roomState": "OFF",
+            "isOn": false,
+            "brightness": 0
+        },
+        "supportedActions": [
+            "TOGGLE_ON_OFF",
+            "SET_BRIGHTNESS"
+        ]
+    },
+    {
+        "id": "device-028",
+        "name": "Bedroom Blinds",
+        "type": "SMART_BLIND",
+        "roomId": "room-003",
+        "state": {
+            "position": 0
+        },
+        "supportedActions": [
+            "SET_POSITION",
+            "OPEN",
+            "CLOSE"
+        ]
+    },
+    {
+        "id": "device-029",
+        "name": "Bedroom Night Light",
+        "type": "LIGHT",
+        "roomId": "room-003",
+        "state": {
+            "roomState": "OFF",
+            "isOn": false,
+            "brightness": 0
+        },
+        "supportedActions": [
+            "TOGGLE_ON_OFF",
+            "SET_BRIGHTNESS"
+        ]
     }
 ];
 
 let Rooms = [
     {
         id: 'room-001',
-        name: 'Dnevni Boravak',
+        name: 'Living Room',
         isOn: true
     },
     {
         id: 'room-002',
-        name: 'Kuhinja',
+        name: 'Kitchen',
         isOn: true
     },
     {
         id: 'room-003',
-        name: 'Spavaća Soba',
+        name: 'Bedroom',
         isOn: true
     },
     {
         id: 'room-004',
-        name: 'Kupaonica',
+        name: 'Bathroom',
         isOn: true
     },
     {
         id: 'room-005',
-        name: 'Balkon',
+        name: 'Balcony',
         isOn: true
     }
 ];
 
-let routines = [
+let routines = [];
+
+let QuickAction = [
     {
-        id: 'routine-001',
-        name: 'Dobro jutro',
-        description: 'Pali svjetlo u dnevnom boravku i aparat za kavu kada je jutro i korisnik je prisutan.',
-        icon: 'bi bi-sunrise',
-        isEnabled: true,
-        includedDevices: ['device-001', 'device-003'],
-        includedRooms: ['room-001', 'room-002'],
-        triggers: {
-            logicalOperator: 'OR',
-            list: [
-                { type: 'TIME_OF_DAY_CHANGE', value: 'MORNING' }
-            ]
-        },
-        conditions: {
-            logicalOperator: 'AND',
-            list: [
-                { type: 'USER_PRESENCE', value: true }
-            ]
-        },
-        actions: [
+        "id": "quickaction-001",
+        "name": "Movie",
+        "description": "Movie time",
+        "includedDevices": [
+            "device-007",
+            "device-008",
+            "device-009",
+            "device-013"
+        ],
+        "includedRooms": [
+            "room-001"
+        ],
+        "icon": "bi bi-film",
+        "actions": [
             {
-                type: 'DEVICE_ACTION',
-                deviceId: 'device-001',
-                actionType: 'SET_BRIGHTNESS',
-                payload: { brightness: 40 }
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-007",
+                "actionType": "CLOSE",
+                "payload": {}
             },
             {
-                type: 'DEVICE_ACTION',
-                deviceId: 'device-003',
-                actionType: 'TOGGLE_ON_OFF',
-                payload: { isOn: true }
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-008",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-009",
+                "actionType": "SET_BRIGHTNESS",
+                "payload": {
+                    "brightness": 10
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-013",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": true
+                }
             }
         ]
     },
     {
-        id: 'routine-002',
-        name: 'Gasi sve kad odem',
-        description: 'Gasi sva svjetla i uređaje kada korisnik napusti kuću.',
-        icon: 'bi bi-house-door',
-        isEnabled: true,
-        includedDevices: ['device-001', 'device-007', 'device-005'],
-        includedRooms: ['room-001', 'room-004', 'room-003'],
-        triggers: {
-            logicalOperator: 'OR',
-            list: [
-                { type: 'USER_PRESENCE_CHANGE', value: false }
-            ]
-        },
-        conditions: {
-            logicalOperator: 'AND',
-            list: []
-        },
-        actions: [
-            { type: 'DEVICE_ACTION', deviceId: 'device-001', actionType: 'TOGGLE_ON_OFF', payload: { isOn: false } },
-            { type: 'DEVICE_ACTION', deviceId: 'device-007', actionType: 'TOGGLE_ON_OFF', payload: { isOn: false } },
-            { type: 'DEVICE_ACTION', deviceId: 'device-005', actionType: 'TOGGLE_ON_OFF', payload: { isOn: false } }
+        "id": "quickaction-002",
+        "name": "Sleep",
+        "description": "Eppy time",
+        "includedDevices": [
+            "device-008",
+            "device-009",
+            "device-014",
+            "device-015",
+            "device-018",
+            "device-019",
+            "device-027",
+            "device-029"
+        ],
+        "includedRooms": [
+            "room-001",
+            "room-002",
+            "room-004",
+            "room-003"
+        ],
+        "icon": "bi bi-moon-stars",
+        "actions": [
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-008",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-009",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-014",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-015",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-018",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-019",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-027",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-029",
+                "actionType": "SET_BRIGHTNESS",
+                "payload": {
+                    "brightness": 15
+                }
+            }
         ]
     },
     {
-        id: 'routine-003',
-        name: 'Pametno grijanje po noći',
-        description: 'Pali grijanje po noći samo ako je jako hladno vani.',
-        icon: 'bi bi-moon-stars',
-        isEnabled: true,
-        includedDevices: ['device-002'],
-        includedRooms: ['room-002'],
-        triggers: {
-            logicalOperator: 'OR',
-            list: [
-                { type: 'TIME_OF_DAY_CHANGE', value: 'NIGHT' }
-            ]
-        },
-        conditions: {
-            logicalOperator: 'AND',
-            list: [
-                { type: 'USER_PRESENCE', value: true },
-                { type: 'OUTSIDE_TEMPERATURE', operator: '<', value: 5 }
-            ]
-        },
-        actions: [
-            { type: 'DEVICE_ACTION', deviceId: 'device-002', actionType: 'SET_MODE', payload: { mode: 'HEAT' } },
-            { type: 'DEVICE_ACTION', deviceId: 'device-002', actionType: 'SET_TEMPERATURE', payload: { targetTemp: 25 } }
+        "id": "quickaction-003",
+        "name": "HeatMax",
+        "description": "VERY HOT",
+        "includedDevices": [
+            "device-010",
+            "device-020",
+            "device-022",
+            "device-026"
+        ],
+        "includedRooms": [
+            "room-001",
+            "room-004",
+            "room-003"
+        ],
+        "icon": "bi bi-thermometer",
+        "actions": [
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-010",
+                "actionType": "SET_MODE",
+                "payload": {
+                    "mode": "HEAT"
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-010",
+                "actionType": "SET_TEMPERATURE",
+                "payload": {
+                    "targetTemp": 30
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-020",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": true
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-022",
+                "actionType": "SET_TEMPERATURE",
+                "payload": {
+                    "targetTemp": 30
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-022",
+                "actionType": "SET_MODE",
+                "payload": {
+                    "mode": "HEAT"
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-026",
+                "actionType": "SET_TEMPERATURE",
+                "payload": {
+                    "targetTemp": 30
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-026",
+                "actionType": "SET_MODE",
+                "payload": {
+                    "mode": "HEAT"
+                }
+            }
+        ]
+    },
+    {
+        "id": "quickaction-004",
+        "name": "CoolMax",
+        "description": "Very Cold",
+        "includedDevices": [
+            "device-010",
+            "device-026",
+            "device-022",
+            "device-020"
+        ],
+        "includedRooms": [
+            "room-001",
+            "room-003",
+            "room-004"
+        ],
+        "icon": "bi bi-snow2",
+        "actions": [
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-010",
+                "actionType": "SET_TEMPERATURE",
+                "payload": {
+                    "targetTemp": 16
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-010",
+                "actionType": "SET_MODE",
+                "payload": {
+                    "mode": "COOL"
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-026",
+                "actionType": "SET_TEMPERATURE",
+                "payload": {
+                    "targetTemp": 16
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-026",
+                "actionType": "SET_MODE",
+                "payload": {
+                    "mode": "COOL"
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-022",
+                "actionType": "SET_MODE",
+                "payload": {
+                    "mode": "OFF"
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-020",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
+                }
+            }
+        ]
+    },
+    {
+        "id": "quickaction-005",
+        "name": "Coffee",
+        "description": "Maketh the Coffee",
+        "includedDevices": [
+            "device-016"
+        ],
+        "includedRooms": [
+            "room-002"
+        ],
+        "icon": "bi bi-droplet-fill",
+        "actions": [
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-016",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": true
+                }
+            }
         ]
     }
 ];
-
-let QuickAction = [];
 
 let Preferences = [];
 
@@ -510,6 +936,46 @@ function addRoutine({ name, description, icon, triggers, conditions, actions }) 
     return newRoutine;
 }
 
+function editRoutine({ routineId, name, description, icon, triggers, conditions, actions }) {
+    const includedDevices = [];
+    const includedRooms = new Set();
+
+    actions.forEach(action => {
+        if (action.type === 'DEVICE_ACTION') {
+            if (!includedDevices.includes(action.deviceId)) {
+                includedDevices.push(action.deviceId);
+            }
+        }
+    });
+
+    includedDevices.forEach(deviceId => {
+        const device = getDeviceById(deviceId);
+        if (device) {
+            includedRooms.add(device.roomId);
+        }
+    });
+
+    const newRoutine = {
+        routineId,
+        name,
+        description,
+        icon: icon || 'bi bi-gear',
+        isEnabled: true,
+        includedDevices,
+        includedRooms: [...includedRooms],
+        triggers,
+        conditions,
+        actions
+    };
+
+    const index = routines.findIndex(r => r.id === routineId);
+    if (index !== -1) {
+        routines[index] = { ...routines[index], ...newRoutine };
+        console.log(`Rutina "${name}" uređena.`);
+        return routines[index];
+    }
+}
+
 // Funkcija za dodavanje quick action
 function addQuickAction({ name, description, icon, actions }) {
     const includedDevices = [];
@@ -561,8 +1027,9 @@ function removeQuickAction(quickActionId) {
 function removeRoutine(routineId) {
     const index = routines.findIndex(r => r.id === routineId);
     if (index !== -1) {
-        routines.splice(index, 1);
-        return true;
+        const removedRoutine = routines.splice(index, 1)[0];
+        console.log(`Rutina "${removedRoutine.name}" uklonjena.`);
+        return removedRoutine;
     }
     return false;
 }
@@ -1088,10 +1555,12 @@ function toggleRoutine(routineId, isEnabled) {
     return routine;
 }
 
+// Funkcija za dohvat svih quick action
 function getQuickActions() {
     return QuickAction;
 }
 
+// Funkcija za izvršavanje quick action
 function executeQuickAction(quickActionId) {
     let updatedDevices = [];
 
@@ -1144,5 +1613,6 @@ module.exports = {
     addQuickAction,
     removeQuickAction,
     getQuickActions,
-    executeQuickAction
+    executeQuickAction,
+    editRoutine
 };

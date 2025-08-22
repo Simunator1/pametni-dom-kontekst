@@ -34,6 +34,7 @@ function DashboardPage() {
     const [allRoutines, setAllRoutines] = useState([]); // Za rutine
     const [addingRoutine, setAddingRoutine] = useState(false);
     const [allQuickActions, setAllQuickActions] = useState([]); // Za quick actions
+    const [selectedRoutine, setSelectedRoutine] = useState(null);
 
     const naslov = "Home";
 
@@ -126,7 +127,7 @@ function DashboardPage() {
             }
             return prevSelected;
         });
-    }, [selectedRoom]);
+    }, []);
 
     const handleDeviceSelect = (device) => {
         setSelectedDevice(device);
@@ -214,6 +215,18 @@ function DashboardPage() {
                 return room;
             })
         );
+        setSelectedRoom(prevRoom => {
+            if (prevRoom && prevRoom.devices.some(device => device.id === deviceIdToDelete
+            )) {
+                const updatedDevices = prevRoom.devices.filter(device => device.id !== deviceIdToDelete);
+                return {
+                    ...prevRoom,
+                    devices: updatedDevices,
+                    numDevices: updatedDevices.length
+                };
+            }
+            return prevRoom;
+        });
         setSelectedDevice(null);
     };
 
@@ -313,6 +326,34 @@ function DashboardPage() {
         );
     }
 
+    const handleSelectedRoutine = (routine) => {
+        setSelectedRoutine(routine);
+        setAddingRoutine(true);
+    }
+
+    const handleRoutineClose = () => {
+        setSelectedRoutine(null);
+        setAddingRoutine(false);
+    }
+
+    const handleDeleteRoutine = (deletedRoutine) => {
+        setAllRoutines(prevRoutines =>
+            prevRoutines.filter(routine => routine.id !== deletedRoutine.id)
+        );
+        setAddingRoutine(true);
+        setSelectedRoutine(null);
+    }
+
+    const handleRoutineEdited = (editedRoutine) => {
+        setAllRoutines(prevRoutines =>
+            prevRoutines.map(routine =>
+                routine.id === editedRoutine.id ? editedRoutine : routine
+            )
+        );
+        setSelectedRoutine(editedRoutine);
+        setAddingRoutine(true);
+    }
+
     let headerProps;
 
 
@@ -326,6 +367,13 @@ function DashboardPage() {
             onDeviceEdited: handleDeviceChange,
             onDeviceRemoved: handleDeviceRemoval
         };
+    } else if (addingRoutine) {
+        // Props za dodavanje rutine
+        headerProps = {
+            view: 'routineAdd',
+            title: selectedRoutine ? "Edit Routine" : "Add Automatization",
+            onBack: handleRoutineClose,
+        }
     } else if (selectedRoom) {
         // Props za detaljni prikaz sobe
         headerProps = {
@@ -336,13 +384,6 @@ function DashboardPage() {
             onRoomEdited: handleRoomEdit,
             onRoomRemoved: handleRoomRemoval,
             onDeviceAdded: handleDeviceAdded
-        }
-    } else if (addingRoutine) {
-        // Props za dodavanje rutine
-        headerProps = {
-            view: 'routineAdd',
-            title: "Add Routine",
-            onBack: () => setAddingRoutine(false),
         }
     }
     else {
@@ -392,7 +433,24 @@ function DashboardPage() {
         );
     }
 
-    // --- Prikaz 2: Detalji Sobe ---
+    // --- Prikaz 2: Dodavanje Rutine, Quick Action ili Preference ---
+    else if (addingRoutine) {
+        return (
+            <div className="dashboard-container">
+                <Header {...headerProps} />
+                <RoutineFormMenu
+                    allDevices={allDevices}
+                    onAddRoutine={handleAddRoutine}
+                    onAddQuickAction={handleAddQuickAction}
+                    onClose={handleRoutineClose}
+                    routine={selectedRoutine}
+                    onDeletedRoutine={handleDeleteRoutine}
+                    onEditedRoutine={handleRoutineEdited} />
+            </div>
+        )
+    }
+
+    // --- Prikaz 3: Detalji Sobe ---
     else if (selectedRoom) {
         return (
             <div className="dashboard-container">
@@ -408,23 +466,10 @@ function DashboardPage() {
                     handleDeviceChange={handleDeviceChange}
                     handleDeviceSelect={handleDeviceSelect}
                     onRoutineToggle={handleRoutineToggle}
+                    onSelectedRoutine={handleSelectedRoutine}
                 />
             </div>
         );
-    }
-
-    // --- Prikaz 3: Dodavanje Rutine, Quick Action ili Preference ---
-    else if (addingRoutine) {
-        return (
-            <div className="dashboard-container">
-                <Header {...headerProps} />
-                <RoutineFormMenu
-                    allDevices={allDevices}
-                    onAddRoutine={handleAddRoutine}
-                    onAddQuickAction={handleAddQuickAction}
-                    onClose={() => setAddingRoutine(false)} />
-            </div>
-        )
     }
 
     // --- Prikaz 4: Glavna ploča (Default) ---
@@ -468,6 +513,7 @@ function DashboardPage() {
                             key={routine.id}
                             routine={routine}
                             onRoutineToggle={handleRoutineToggle}
+                            onSelectRoutine={handleSelectedRoutine}
                         />
                     ))}
                 </div>

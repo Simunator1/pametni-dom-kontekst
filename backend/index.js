@@ -319,9 +319,9 @@ app.post('/api/routines/add', (req, res) => {
 // Ukloni rutinu
 app.delete('/api/routines/:routineId', (req, res) => {
     const routineId = req.params.routineId;
-    const success = deviceManager.removeRoutine(routineId);
-    if (success) {
-        res.status(200).json({ message: `Rutina s ID-om ${routineId} je uspješno uklonjena.` });
+    const removedRoutine = deviceManager.removeRoutine(routineId);
+    if (removedRoutine) {
+        res.status(200).json(removedRoutine);
     } else {
         res.status(404).json({ message: `Rutina s ID-om ${routineId} nije pronađena.` });
     }
@@ -395,6 +395,28 @@ app.post('/api/quick-actions/:quickActionId/execute', (req, res) => {
         return res.status(404).json({ message: `Quick action s ID-om ${quickActionId} nije pronađena.` });
     }
     res.status(200).json({ success: true, updatedDevices });
+});
+
+// Uređivanje rutine
+app.put('/api/routines/:routineId', (req, res) => {
+    const { routineId } = req.params;
+    const { name, description, icon, triggers, conditions, actions } = req.body;
+
+    if (!name || !triggers || !actions) {
+        return res.status(400).json({ message: 'Naziv, okidači i akcije su obavezni.' });
+    }
+
+    try {
+        const updatedRoutine = deviceManager.editRoutine({ routineId, name, description, icon, triggers, conditions, actions });
+        if (updatedRoutine) {
+            res.status(200).json(updatedRoutine);
+        } else {
+            res.status(404).json({ message: `Rutina s ID-om ${routineId} nije pronađena.` });
+        }
+    } catch (error) {
+        console.error('Greška pri uređivanju rutine:', error);
+        res.status(500).json({ message: 'Greška pri uređivanju rutine.', details: error.message });
+    }
 });
 
 

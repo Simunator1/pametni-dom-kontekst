@@ -1,7 +1,7 @@
 import '../styles/routineMini.css';
 import { toggleRoutine } from '../services/apiService';
 
-const RoutineMini = ({ routine, onRoutineToggle }) => {
+const RoutineMini = ({ routine, onRoutineToggle, onSelectRoutine }) => {
     const handleToggle = async () => {
         try {
             const updatedRoutine = await toggleRoutine(routine.id, !routine.isEnabled);
@@ -12,7 +12,7 @@ const RoutineMini = ({ routine, onRoutineToggle }) => {
     };
 
     return (
-        <div className={`routine-container${!routine.isEnabled ? ' gray' : ''}`}>
+        <div className={`routine-container${!routine.isEnabled ? ' gray' : ''}`} onClick={() => onSelectRoutine(routine)}>
             <div className="routine">
                 <i className={`routine-ikona ${!routine.isEnabled ? ' gray ' : ''}${routine.icon}`}></i>
                 <div className={'routine-name-wrapper'}>

@@ -579,3 +579,25 @@ export const executeQuickAction = async (quickActionId) => {
         throw error;
     }
 };
+
+export const editRoutine = async (routineId, updatedData) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/routines/${routineId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedData),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri uređivanju rutine: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s editRoutine:", error);
+        throw error;
+    }
+};

@@ -5,7 +5,7 @@ import Device from '../components/device';
 import RoutineMini from '../components/routineMini';
 import '../styles/device.css'
 
-const RoomDetails = ({ room, routines, onRoomToggle, handleDeviceChange, handleDeviceSelect, onRoutineToggle }) => {
+const RoomDetails = ({ room, routines, onRoomToggle, handleDeviceChange, handleDeviceSelect, onRoutineToggle, onSelectedRoutine }) => {
     const [selectedRoutines, setSelectedRoutines] = useState(null);
 
     useEffect(() => {
@@ -68,6 +68,7 @@ const RoomDetails = ({ room, routines, onRoomToggle, handleDeviceChange, handleD
                                 key={routine.id}
                                 routine={routine}
                                 onRoutineToggle={onRoutineToggle}
+                                onSelectRoutine={onSelectedRoutine}
                             />
                         ))}
                     </div>}
