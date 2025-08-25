@@ -601,3 +601,76 @@ export const editRoutine = async (routineId, updatedData) => {
         throw error;
     }
 };
+
+export const addPreference = async (preferenceData) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/preferences`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(preferenceData),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dodavanju preferencije: ${response.status} ${errorData.message || ''}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s addPreference:", error);
+        throw error;
+    }
+};
+
+export const getAllPreferencesByRoom = async (roomId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/rooms/${roomId}/preferences`);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dohvaćanju preferencija sobe: ${response.status} ${errorData.message || ''}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s getAllPreferencesByRoom:", error);
+        throw error;
+    }
+}
+
+export const removePreference = async (preferenceId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/preferences/${preferenceId}`, {
+            method: 'DELETE',
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri brisanju preferencije: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s removePreference:", error);
+        throw error;
+    }
+}
+
+export const editPreference = async (preferenceId, updatedData) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/preferences/${preferenceId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedData),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri uređivanju preferencije: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s editPreference:", error);
+        throw error;
+    }
+}

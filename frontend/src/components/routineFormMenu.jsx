@@ -57,8 +57,7 @@ const RoutineFormMenu = ({ onClose, allDevices, onAddRoutine, onAddQuickAction, 
 
     const formTypeOptions = [
         { value: 'Routine', label: 'Routine' },
-        { value: 'QuickAction', label: 'Quick Action' },
-        { value: 'Preference', label: 'Preference' }
+        { value: 'QuickAction', label: 'Quick Action' }
     ];
 
     const triggerTypeOptions = formTemplate?.TRIGGER_TYPES.map(type => ({ value: type, label: type })) || [];
@@ -162,6 +161,11 @@ const RoutineFormMenu = ({ onClose, allDevices, onAddRoutine, onAddQuickAction, 
         setActions(newActions);
     };
 
+    const getTimeOfDayOptions = () => {
+        if (!formTemplate || !formTemplate.TIMES_OF_DAY) return [];
+        return formTemplate.TIMES_OF_DAY.map(tod => ({ value: tod, label: tod }));
+    };
+
     const handleClear = () => {
         setName('');
         setDescription('');
@@ -191,6 +195,26 @@ const RoutineFormMenu = ({ onClose, allDevices, onAddRoutine, onAddQuickAction, 
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        const formattedConditions = conditions.map(c => {
+            const condition = { type: c.type };
+            switch (c.type) {
+                case 'USER_PRESENCE':
+                    condition.value = (c.value === 'true');
+                    break;
+                case 'TIME_OF_DAY':
+                    condition.value = c.value;
+                    break;
+                case 'OUTSIDE_TEMPERATURE':
+                    condition.operator = c.operator;
+                    condition.value = Number(c.value);
+                    break;
+                default:
+                    break;
+            }
+            return condition;
+        });
+
         const routineData = {
             name,
             description,
@@ -201,7 +225,7 @@ const RoutineFormMenu = ({ onClose, allDevices, onAddRoutine, onAddQuickAction, 
             },
             conditions: {
                 logicalOperator: conditionsOperator,
-                list: conditions.map(({ type, operator, value }) => ({ type, operator, value: type === 'USER_PRESENCE' ? (value === 'true') : Number(value) }))
+                list: formattedConditions
             },
             actions: actions.map(({ deviceId, actionType, payload }) => ({
                 type: 'DEVICE_ACTION',
@@ -415,6 +439,18 @@ const RoutineFormMenu = ({ onClose, allDevices, onAddRoutine, onAddQuickAction, 
                             required
                         />
                     )}
+                    {condition.type === 'TIME_OF_DAY' && (
+                        <Select
+                            className="form-select-mutant"
+                            classNamePrefix="select"
+                            value={getTimeOfDayOptions().find(option => option.value === condition.value)}
+                            onChange={selectedOption => handleConditionChange(condition.id, 'value', selectedOption.value)}
+                            options={getTimeOfDayOptions()}
+                            placeholder="Select Time of Day"
+                            isSearchable={false}
+                            required
+                        />
+                    )}
                     {condition.type === 'OUTSIDE_TEMPERATURE' && (
                         <>
                             <Select
@@ -540,22 +576,6 @@ const RoutineFormMenu = ({ onClose, allDevices, onAddRoutine, onAddQuickAction, 
                             <button type="button" className="btn btn-light" onClick={onClose}>Cancel</button>
                             <button type="button" className="btn btn-danger" onClick={handleClear}>Clear</button>
                             <button type="submit" className="btn btn-primary">Create QuickAction</button>
-                        </div>
-                    </>
-                )}
-
-                {formType === 'Preference' && (
-                    <>
-                        {routineDetailsSection}
-                        {routineTriggerSection}
-                        {routineConditionSection}
-                        {routineActionSection}
-                        {feedback &&
-                            <div className="alert alert-info">{feedback}</div>}
-                        <div className="form-section-buttons">
-                            <button type="button" className="btn btn-light" onClick={onClose}>Cancel</button>
-                            <button type="button" className="btn btn-danger" onClick={handleClear}>Clear</button>
-                            <button type="submit" className="btn btn-primary">Create Routine</button>
                         </div>
                     </>
                 )}

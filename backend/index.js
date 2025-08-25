@@ -257,8 +257,8 @@ app.post('/api/context/time-of-day', (req, res) => {
     if (!timeOfDay) {
         return res.status(400).json({ message: 'Doba dana je obavezno.' });
     }
-    const newTimeOfDay = deviceManager.setCurrentTimeOfDay(timeOfDay);
-    res.json({ success: true, timeOfDay: newTimeOfDay });
+    const { newTimeOfDay, updatedDevices } = deviceManager.setCurrentTimeOfDay(timeOfDay);
+    res.json({ success: true, timeOfDay: newTimeOfDay, updatedDevices: updatedDevices });
 });
 
 // Dohvati prisutnost korisnika
@@ -272,8 +272,8 @@ app.post('/api/context/user-presence', (req, res) => {
     if (typeof isPresent !== 'boolean') {
         return res.status(400).json({ message: 'Vrijednost prisutnosti mora biti boolean.' });
     }
-    const newUserPresence = deviceManager.setUserPresence(isPresent);
-    res.json({ success: true, userPresence: newUserPresence });
+    const { newUserPresence, updatedDevices } = deviceManager.setUserPresence(isPresent);
+    res.json({ success: true, userPresence: newUserPresence, updatedDevices: updatedDevices });
 });
 
 // Dohvati sva doba dana
@@ -419,6 +419,40 @@ app.put('/api/routines/:routineId', (req, res) => {
     }
 });
 
+// Dohvati sve preferencije za jednu sobu
+app.get('/api/rooms/:roomId/preferences', (req, res) => {
+    const { roomId } = req.params;
+    const roomPreferences = deviceManager.getPreferencesByRoom(roomId);
+    res.json(roomPreferences);
+});
+
+// Dodaj novu preferenciju
+app.post('/api/preferences', (req, res) => {
+    const newPreference = deviceManager.addPreference(req.body);
+    res.status(201).json(newPreference);
+});
+
+// Obriši preferenciju
+app.delete('/api/preferences/:prefId', (req, res) => {
+    const { prefId } = req.params;
+    const success = deviceManager.removePreference(prefId);
+    if (success) {
+        res.json({ success: true });
+    } else {
+        res.status(404).json({ message: 'Preferencija nije pronađena.' });
+    }
+});
+
+// Uredi preferenciju
+app.put('/api/preferences/:prefId', (req, res) => {
+    const { prefId } = req.params;
+    const updatedPreference = deviceManager.editPreference(prefId, req.body);
+    if (updatedPreference) {
+        res.json(updatedPreference);
+    } else {
+        res.status(404).json({ message: 'Preferencija nije pronađena ili nije moguće je urediti.' });
+    }
+});
 
 app.listen(PORT, () => {
     console.log(`Backend server pokrenut na http://localhost:${PORT}`);

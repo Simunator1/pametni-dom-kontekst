@@ -123,7 +123,7 @@ function AddDeviceForm({ onDeviceAdded, room }) {
     );
 }
 
-function EditRoomMenu({ room, onRoomEdited, onRoomRemoved, onDeviceAdded }) {
+function EditRoomMenu({ room, onRoomEdited, onRoomRemoved, onDeviceAdded, onGoToAddPreference, closeMenu }) {
     const [activeMenu, setActiveMenu] = useState('main');
     const nodeRefMain = useRef(null);
     const nodeRefEdit = useRef(null);
@@ -149,6 +149,9 @@ function EditRoomMenu({ room, onRoomEdited, onRoomRemoved, onDeviceAdded }) {
                 <div ref={nodeRefMain} className="menu">
                     <DropdownItem goToMenu="edit" leftIcon="bi bi-pencil-square">Edit Room</DropdownItem>
                     <DropdownItem goToMenu="addDevice" leftIcon="bi bi-plus-square">Add Device</DropdownItem>
+                    <div onClick={() => { onGoToAddPreference(); closeMenu(); }}>
+                        <DropdownItem leftIcon="bi bi-house-gear">Add Preference</DropdownItem>
+                    </div>
                     <DropdownItem goToMenu="remove" leftIcon="bi bi-trash">Remove Room</DropdownItem>
                 </div>
             </CSSTransition>

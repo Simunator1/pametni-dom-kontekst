@@ -18,6 +18,7 @@ import DeviceDetails from '../components/deviceDetails';
 import RoomDetails from '../components/roomDetails';
 import RoutineFormMenu from '../components/routineFormMenu';
 import RoutineMini from '../components/routineMini';
+import PreferenceForm from '../components/preferenceForm';
 
 function DashboardPage() {
     const [allDevices, setAllDevices] = useState([]); // Za "All Devices" prikaz
@@ -35,6 +36,8 @@ function DashboardPage() {
     const [addingRoutine, setAddingRoutine] = useState(false);
     const [allQuickActions, setAllQuickActions] = useState([]); // Za quick actions
     const [selectedRoutine, setSelectedRoutine] = useState(null);
+    const [addingPreference, setAddingPreference] = useState(false);
+    const [selectedPreference, setSelectedPreference] = useState(null);
 
     const naslov = "Home";
 
@@ -119,6 +122,16 @@ function DashboardPage() {
                 return room;
             });
             return newRooms;
+        });
+
+        setSelectedRoom(prevSelectedRoom => {
+            if (prevSelectedRoom && prevSelectedRoom.id === updatedDevice.roomId) {
+                const newDevices = prevSelectedRoom.devices.map(d =>
+                    d.id === updatedDevice.id ? updatedDevice : d
+                );
+                return { ...prevSelectedRoom, devices: newDevices };
+            }
+            return prevSelectedRoom;
         });
 
         setSelectedDevice(prevSelected => {
@@ -250,8 +263,17 @@ function DashboardPage() {
 
     const handleTimeChange = async (newTimeOfDay) => {
         try {
-            await setTimeOfDay(newTimeOfDay);
-            setCurrentTimeOfDay(newTimeOfDay);
+            const response = await setTimeOfDay(newTimeOfDay);
+            const newTime = response.timeOfDay;
+            const updatedDevices = response.updatedDevices;
+
+            if (updatedDevices && Array.isArray(updatedDevices)) {
+                updatedDevices.forEach(device => {
+                    handleDeviceChange(device);
+                });
+            }
+
+            setCurrentTimeOfDay(newTime);
         } catch (error) {
             console.error("Greška pri postavljanju vremena dana:", error);
         }
@@ -259,8 +281,17 @@ function DashboardPage() {
 
     const handlePresenceToggle = async (isPresent) => {
         try {
-            await setUserPresence(isPresent);
-            setUserPresent(isPresent);
+            const response = await setUserPresence(isPresent);
+            const isUserPresent = response.userPresence;
+            const updatedDevices = response.updatedDevices;
+
+            if (updatedDevices && Array.isArray(updatedDevices)) {
+                updatedDevices.forEach(device => {
+                    handleDeviceChange(device);
+                });
+            }
+
+            setUserPresent(isUserPresent);
         }
         catch (error) {
             console.error("Greška pri postavljanju prisutnosti korisnika:", error);
@@ -354,6 +385,16 @@ function DashboardPage() {
         setAddingRoutine(true);
     }
 
+    const handlePreferenceClose = () => {
+        setAddingPreference(false);
+        setSelectedPreference(null);
+    }
+
+    const handleSelectedPreference = (preference) => {
+        setSelectedPreference(preference);
+        setAddingPreference(true);
+    }
+
     let headerProps;
 
 
@@ -374,7 +415,15 @@ function DashboardPage() {
             title: selectedRoutine ? "Edit Routine" : "Add Automatization",
             onBack: handleRoutineClose,
         }
-    } else if (selectedRoom) {
+    } else if (addingPreference) {
+        // Props za dodavanje preferencije
+        headerProps = {
+            view: 'routineAdd',
+            title: selectedPreference ? "Edit Preference" : "Add Preference",
+            onBack: handlePreferenceClose,
+        }
+    }
+    else if (selectedRoom) {
         // Props za detaljni prikaz sobe
         headerProps = {
             view: 'roomDetails',
@@ -383,7 +432,8 @@ function DashboardPage() {
             onBack: handleCloseRoomDetails,
             onRoomEdited: handleRoomEdit,
             onRoomRemoved: handleRoomRemoval,
-            onDeviceAdded: handleDeviceAdded
+            onDeviceAdded: handleDeviceAdded,
+            onGoToAddPreference: () => { setAddingPreference(true); }
         }
     }
     else {
@@ -433,7 +483,7 @@ function DashboardPage() {
         );
     }
 
-    // --- Prikaz 2: Dodavanje Rutine, Quick Action ili Preference ---
+    // --- Prikaz 2: Dodavanje Rutine, Quick Action ---
     else if (addingRoutine) {
         return (
             <div className="dashboard-container">
@@ -450,7 +500,20 @@ function DashboardPage() {
         )
     }
 
-    // --- Prikaz 3: Detalji Sobe ---
+    // --- Prikaz 3: Dodavanje Preferencije ---
+    else if (addingPreference) {
+        return (
+            <div className="dashboard-container">
+                <Header {...headerProps} />
+                <PreferenceForm
+                    room={selectedRoom}
+                    onClose={handlePreferenceClose}
+                    pref={selectedPreference} />
+            </div>
+        )
+    }
+
+    // --- Prikaz 4: Detalji Sobe ---
     else if (selectedRoom) {
         return (
             <div className="dashboard-container">
@@ -467,12 +530,13 @@ function DashboardPage() {
                     handleDeviceSelect={handleDeviceSelect}
                     onRoutineToggle={handleRoutineToggle}
                     onSelectedRoutine={handleSelectedRoutine}
+                    onSelectPref={handleSelectedPreference}
                 />
             </div>
         );
     }
 
-    // --- Prikaz 4: Glavna ploča (Default) ---
+    // --- Prikaz 5: Glavna ploča (Default) ---
     return (
         <div className="dashboard-container">
             <Header {...headerProps} />

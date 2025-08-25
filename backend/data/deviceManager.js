@@ -42,12 +42,15 @@ const ICONS = [
 
 
 const CONDITION_TYPES = {
-    'USER_PRESENCE':
-        { modes: [true, false] },
-    'OUTSIDE_TEMPERATURE':
-    {
+    'USER_PRESENCE': {
+        modes: [true, false]
+    },
+    'OUTSIDE_TEMPERATURE': {
         operators: ['<', '>'],
         valueRange: [-15, 45],
+    },
+    'TIME_OF_DAY': {
+        modes: TIMES_OF_DAY
     }
 };
 
@@ -73,6 +76,11 @@ const availableActions = {
         }
     ],
     'THERMOSTAT': [
+        {
+            actionType: 'TOGGLE_ON_OFF',
+            label: 'ON/OFF',
+            payloads: ['ON', 'OFF']
+        },
         {
             actionType: 'SET_TEMPERATURE',
             label: 'Set temperature',
@@ -100,6 +108,11 @@ const availableActions = {
         }
     ],
     'AIR_CONDITIONER': [
+        {
+            actionType: 'TOGGLE_ON_OFF',
+            label: 'ON/OFF',
+            payloads: ['ON', 'OFF']
+        },
         {
             actionType: 'SET_TEMPERATURE',
             label: 'Set temperature',
@@ -180,15 +193,15 @@ let simulationIntervalId = null;
 
 let simulationIntervalDuration = 5000;
 
-let deviceIdCounter = 29;
+let deviceIdCounter = 30;
 
 let roomIdCounter = 5;
 
-let routineIdCounter = 0;
+let routineIdCounter = 6;
 
-let QuickActionIdCounter = 5;
+let QuickActionIdCounter = 10;
 
-let PreferenceIdCounter = 0;
+let preferenceIdCounter = 15;
 
 let devices = [
     {
@@ -539,7 +552,373 @@ let Rooms = [
     }
 ];
 
-let routines = [];
+let routines = [
+    {
+        "id": "routine-001",
+        "name": "Buđenje",
+        "description": "Ujutro otvara sve rolete u kući, uključi klimu u dnevnom boravku, termostat u WC-u te mašinu za kavu.",
+        "icon": "bi bi-sunrise",
+        "isEnabled": true,
+        "includedDevices": [
+            "device-007",
+            "device-024",
+            "device-028",
+            "device-010",
+            "device-016",
+            "device-022"
+        ],
+        "includedRooms": [
+            "room-001",
+            "room-005",
+            "room-003",
+            "room-002",
+            "room-004"
+        ],
+        "triggers": {
+            "logicalOperator": "OR",
+            "list": [
+                {
+                    "type": "TIME_OF_DAY_CHANGE",
+                    "value": "MORNING"
+                }
+            ]
+        },
+        "conditions": {
+            "logicalOperator": "AND",
+            "list": [
+                {
+                    "type": "USER_PRESENCE",
+                    "value": true
+                }
+            ]
+        },
+        "actions": [
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-007",
+                "actionType": "OPEN",
+                "payload": {}
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-024",
+                "actionType": "OPEN",
+                "payload": {}
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-028",
+                "actionType": "OPEN",
+                "payload": {}
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-010",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": true
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-016",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": true
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-022",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": true
+                }
+            }
+        ],
+        "routineId": "routine-001"
+    },
+    {
+        "id": "routine-003",
+        "name": "Dobrodošao kući",
+        "description": "Prilikom ulaska u kuću, ako je mrak, upale se dva najveća svijetla.",
+        "icon": "bi bi-house-door",
+        "isEnabled": true,
+        "includedDevices": [
+            "device-008",
+            "device-014"
+        ],
+        "includedRooms": [
+            "room-001",
+            "room-002"
+        ],
+        "triggers": {
+            "logicalOperator": "OR",
+            "list": [
+                {
+                    "type": "USER_PRESENCE_CHANGE",
+                    "value": true
+                }
+            ]
+        },
+        "conditions": {
+            "logicalOperator": "OR",
+            "list": [
+                {
+                    "type": "TIME_OF_DAY",
+                    "value": "EVENING"
+                },
+                {
+                    "type": "TIME_OF_DAY",
+                    "value": "NIGHT"
+                }
+            ]
+        },
+        "actions": [
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-008",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": true
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-014",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": true
+                }
+            }
+        ],
+        "routineId": "routine-003"
+    },
+    {
+        "id": "routine-004",
+        "name": "Spavanje",
+        "description": "Kad je vrijeme za spavanje, u spavaćoj sobi zatvore se rolete, upali se klima, ugasi glavno svijetlo i upali noćno svijetlo.",
+        "icon": "bi bi-moon-stars",
+        "isEnabled": true,
+        "includedDevices": [
+            "device-028",
+            "device-027",
+            "device-029"
+        ],
+        "includedRooms": [
+            "room-003"
+        ],
+        "triggers": {
+            "logicalOperator": "OR",
+            "list": [
+                {
+                    "type": "TIME_OF_DAY_CHANGE",
+                    "value": "NIGHT"
+                }
+            ]
+        },
+        "conditions": {
+            "logicalOperator": "AND",
+            "list": [
+                {
+                    "type": "USER_PRESENCE",
+                    "value": true
+                }
+            ]
+        },
+        "actions": [
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-028",
+                "actionType": "CLOSE",
+                "payload": {}
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-027",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-029",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": true
+                }
+            }
+        ],
+        "routineId": "routine-004"
+    },
+    {
+        "id": "routine-006",
+        "name": "Ugasi sve",
+        "description": "Prilikom izlaska iz kuće, sve se ugasi.",
+        "icon": "bi bi-power",
+        "isEnabled": true,
+        "includedDevices": [
+            "device-008",
+            "device-009",
+            "device-014",
+            "device-015",
+            "device-018",
+            "device-019",
+            "device-023",
+            "device-027",
+            "device-029",
+            "device-013",
+            "device-016",
+            "device-020",
+            "device-022",
+            "device-010",
+            "device-026"
+        ],
+        "includedRooms": [
+            "room-001",
+            "room-002",
+            "room-004",
+            "room-005",
+            "room-003"
+        ],
+        "triggers": {
+            "logicalOperator": "OR",
+            "list": [
+                {
+                    "type": "USER_PRESENCE_CHANGE",
+                    "value": false
+                }
+            ]
+        },
+        "conditions": {
+            "logicalOperator": "AND",
+            "list": []
+        },
+        "actions": [
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-008",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-009",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-014",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-015",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-018",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-019",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-023",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-027",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-029",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-013",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-016",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-020",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-022",
+                "actionType": "SET_MODE",
+                "payload": {
+                    "mode": "OFF"
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-010",
+                "actionType": "SET_MODE",
+                "payload": {
+                    "mode": "OFF"
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-026",
+                "actionType": "SET_MODE",
+                "payload": {
+                    "mode": "OFF"
+                }
+            }
+        ]
+    }
+];
 
 let QuickAction = [
     {
@@ -591,7 +970,7 @@ let QuickAction = [
     },
     {
         "id": "quickaction-002",
-        "name": "Sleep",
+        "name": "LightsOut",
         "description": "Eppy time",
         "includedDevices": [
             "device-008",
@@ -609,7 +988,7 @@ let QuickAction = [
             "room-004",
             "room-003"
         ],
-        "icon": "bi bi-moon-stars",
+        "icon": "bi bi-lightbulb",
         "actions": [
             {
                 "type": "DEVICE_ACTION",
@@ -670,9 +1049,17 @@ let QuickAction = [
             {
                 "type": "DEVICE_ACTION",
                 "deviceId": "device-029",
-                "actionType": "SET_BRIGHTNESS",
+                "actionType": "TOGGLE_ON_OFF",
                 "payload": {
-                    "brightness": 15
+                    "isOn": false
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-023",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": false
                 }
             }
         ]
@@ -843,7 +1230,278 @@ let QuickAction = [
     }
 ];
 
-let Preferences = [];
+let preferences = [
+    {
+        "id": "pref-010",
+        "name": "Svjetlina",
+        "description": "Svjetlina podešena na 60%",
+        "icon": "bi bi-lightbulb",
+        "roomId": "room-001",
+        "conditions": {
+            "logicalOperator": "AND",
+            "list": []
+        },
+        "actions": [
+            {
+                "deviceType": "LIGHT",
+                "state": {
+                    "brightness": 60
+                }
+            }
+        ]
+    },
+    {
+        "id": "pref-011",
+        "name": "Grijanje",
+        "description": "Ako je vanjska temperatura ispod 20 stupnjeva, upali grijanje na 24 stupnja.",
+        "icon": "bi bi-thermometer",
+        "roomId": "room-001",
+        "conditions": {
+            "logicalOperator": "AND",
+            "list": [
+                {
+                    "type": "OUTSIDE_TEMPERATURE",
+                    "operator": "<",
+                    "value": 20
+                }
+            ]
+        },
+        "actions": [
+            {
+                "deviceType": "AIR_CONDITIONER",
+                "state": {
+                    "targetTemp": 24,
+                    "mode": "HEAT"
+                }
+            }
+        ]
+    },
+    {
+        "id": "pref-012",
+        "name": "Hlađenje",
+        "description": "Ako je vanjska temperatura iznad 30 stupnjeva, postavi hlađenje na 24 stupnja.",
+        "icon": "bi bi-wind",
+        "roomId": "room-001",
+        "conditions": {
+            "logicalOperator": "AND",
+            "list": [
+                {
+                    "type": "OUTSIDE_TEMPERATURE",
+                    "operator": ">",
+                    "value": 30
+                }
+            ]
+        },
+        "actions": [
+            {
+                "deviceType": "AIR_CONDITIONER",
+                "state": {
+                    "targetTemp": 24,
+                    "mode": "COOL"
+                }
+            }
+        ]
+    },
+    {
+        "id": "pref-009",
+        "name": "Svjetlina",
+        "description": "Svjetlina podešena na 90%",
+        "icon": "bi bi-lightbulb",
+        "roomId": "room-002",
+        "conditions": {
+            "logicalOperator": "AND",
+            "list": []
+        },
+        "actions": [
+            {
+                "deviceType": "LIGHT",
+                "state": {
+                    "brightness": 90
+                }
+            }
+        ]
+    },
+    {
+        "id": "pref-006",
+        "name": "Hlađenje",
+        "description": "Ako je vanjska temperatura iznad 30 upali hlađenje na 26 stupnjeva.",
+        "icon": "bi bi-wind",
+        "roomId": "room-003",
+        "conditions": {
+            "logicalOperator": "AND",
+            "list": [
+                {
+                    "type": "OUTSIDE_TEMPERATURE",
+                    "operator": ">",
+                    "value": 28
+                }
+            ]
+        },
+        "actions": [
+            {
+                "deviceType": "AIR_CONDITIONER",
+                "state": {
+                    "targetTemp": 26,
+                    "mode": "COOL"
+                }
+            }
+        ]
+    },
+    {
+        "id": "pref-007",
+        "name": "Grijanje",
+        "description": "Ako je vanjska temperatura niža od 20 stupnjeva grijanje postavljeno na 25.",
+        "icon": "bi bi-thermometer",
+        "roomId": "room-003",
+        "conditions": {
+            "logicalOperator": "AND",
+            "list": [
+                {
+                    "type": "OUTSIDE_TEMPERATURE",
+                    "operator": "<",
+                    "value": 20
+                }
+            ]
+        },
+        "actions": [
+            {
+                "deviceType": "AIR_CONDITIONER",
+                "state": {
+                    "targetTemp": 25,
+                    "mode": "HEAT"
+                }
+            }
+        ]
+    },
+    {
+        "id": "pref-008",
+        "name": "Svjetlina",
+        "description": "Svjetlina podešena na 30%",
+        "icon": "bi bi-lightbulb",
+        "roomId": "room-003",
+        "conditions": {
+            "logicalOperator": "AND",
+            "list": []
+        },
+        "actions": [
+            {
+                "deviceType": "LIGHT",
+                "state": {
+                    "brightness": 30
+                }
+            }
+        ]
+    },
+    {
+        "id": "pref-004",
+        "name": "Grijanje",
+        "description": "Grijanje na 25 stupnjeva ako je vanjska temperatura ispod 20.",
+        "icon": "bi bi-sunrise",
+        "roomId": "room-004",
+        "conditions": {
+            "logicalOperator": "AND",
+            "list": [
+                {
+                    "type": "OUTSIDE_TEMPERATURE",
+                    "operator": "<",
+                    "value": 20
+                }
+            ]
+        },
+        "actions": [
+            {
+                "deviceType": "THERMOSTAT",
+                "state": {
+                    "targetTemp": 25,
+                    "mode": "HEAT"
+                }
+            }
+        ]
+    },
+    {
+        "id": "pref-005",
+        "name": "Svjetlina",
+        "description": "Svjetlina podešena na 85%",
+        "icon": "bi bi-lightbulb",
+        "roomId": "room-004",
+        "conditions": {
+            "logicalOperator": "AND",
+            "list": []
+        },
+        "actions": [
+            {
+                "deviceType": "LIGHT",
+                "state": {
+                    "brightness": 85
+                }
+            }
+        ]
+    },
+    {
+        "id": "pref-003",
+        "name": "Svjetlina",
+        "description": "Svjetlina podeđena na 70%",
+        "icon": "bi bi-lightbulb",
+        "roomId": "room-005",
+        "conditions": {
+            "logicalOperator": "AND",
+            "list": []
+        },
+        "actions": [
+            {
+                "deviceType": "LIGHT",
+                "state": {
+                    "brightness": 70
+                }
+            }
+        ]
+    }
+];
+
+function checkPreferences(device) {
+    const roomPreferences = preferences.filter(p => p.roomId === device.roomId);
+    if (roomPreferences.length === 0) return null;
+
+    let finalPreferredState = null;
+
+    for (const pref of roomPreferences) {
+        const evaluateCondition = (cond) => {
+            switch (cond.type) {
+                case 'TIME_OF_DAY':
+                    return currentTimeOfDay === cond.value;
+                case 'USER_PRESENCE':
+                    return userPresence === cond.value;
+                case 'OUTSIDE_TEMPERATURE':
+                    if (cond.operator === '<') return outsideTemperature < cond.value;
+                    if (cond.operator === '>') return outsideTemperature > cond.value;
+                    return false;
+                default:
+                    return false;
+            }
+        };
+
+        let conditionsMet = false;
+        const conditions = pref.conditions;
+
+        if (!conditions || !conditions.list || conditions.list.length === 0) {
+            conditionsMet = true;
+        } else if (conditions.logicalOperator === 'AND') {
+            conditionsMet = conditions.list.every(evaluateCondition);
+        } else if (conditions.logicalOperator === 'OR') {
+            conditionsMet = conditions.list.some(evaluateCondition);
+        }
+
+        if (conditionsMet) {
+            const actionForDevice = pref.actions.find(act => act.deviceType === device.type);
+            if (actionForDevice) {
+                finalPreferredState = actionForDevice.state;
+                console.log(`Pronađena aktivna preferencija: "${pref.name}"`);
+                break;
+            }
+        }
+    }
+    return finalPreferredState;
+}
 
 // Funkcije za upravljanje rutinama
 function routineManager(trigger) {
@@ -861,6 +1519,9 @@ function routineManager(trigger) {
             if (condition.type === 'OUTSIDE_TEMPERATURE') {
                 if (condition.operator === '<') return outsideTemperature < condition.value;
                 if (condition.operator === '>') return outsideTemperature > condition.value;
+            }
+            if (condition.type === 'TIME_OF_DAY') {
+                return currentTimeOfDay === condition.value;
             }
             return false;
         };
@@ -880,8 +1541,10 @@ function routineManager(trigger) {
         );
     };
 
+    let updatedDevices = [];
 
     for (const routine of routines) {
+        let updatedDevicesInIteration = [];
         if (!routine.isEnabled) {
             continue;
         }
@@ -891,11 +1554,21 @@ function routineManager(trigger) {
 
             routine.actions.forEach(action => {
                 if (action.type === 'DEVICE_ACTION') {
-                    executeDeviceAction(action.deviceId, action.actionType, action.payload);
+                    updatedDevicesInIteration.push(executeDeviceAction(action.deviceId, action.actionType, action.payload));
                 }
             });
         }
+
+        updatedDevicesInIteration.forEach(device => {
+            if (device && !updatedDevices.includes(device)) {
+                updatedDevices.push(device);
+            } else if (device && updatedDevices.includes(device)) {
+                updatedDevices.splice(updatedDevices.indexOf(device), 1);
+                updatedDevices.push(device);
+            }
+        });
     }
+    return updatedDevices;
 }
 
 // Funkcija za dodavanje rutine
@@ -1159,6 +1832,17 @@ function executeDeviceAction(deviceId, actionType, payload) {
     }
 
     function adjustTempConditioner() {
+        if (actionType === 'TOGGLE_ON_OFF' && (payload?.isOn === true || !device.state.isOn)) {
+            const preferredState = checkPreferences(device);
+            if (preferredState) {
+                device.state = { ...device.state, ...preferredState, isOn: true };
+                device.state.roomState = 'ON';
+                if (preferredState.mode) device.state.prevMode = preferredState.mode;
+
+                console.log(`Primijenjena preferencija za ${device.name}:`, device.state);
+                return;
+            }
+        }
         if (actionType === 'SET_TEMPERATURE') {
             if (payload && typeof payload.targetTemp === 'number') {
                 device.state.targetTemp = Math.max(10, Math.min(30, payload.targetTemp));
@@ -1167,13 +1851,16 @@ function executeDeviceAction(deviceId, actionType, payload) {
                 return null;
             }
         } else if (actionType === 'TOGGLE_ON_OFF') {
+            let turnOn;
             if (payload && typeof payload.isOn === 'boolean') {
-                device.state.isOn = payload.isOn;
+                turnOn = payload.isOn;
             } else {
-                device.state.isOn = !device.state.isOn;
+                turnOn = !device.state.isOn;
             }
-            device.state.roomState = device.state.isOn ? 'ON' : 'OFF';
-            device.state.mode = device.state.isOn ? device.state.prevMode : 'OFF';
+            device.state.isOn = turnOn;
+            device.state.roomState = turnOn ? 'ON' : 'OFF';
+            device.state.mode = turnOn ? device.state.prevMode : 'OFF';
+
         } else if (actionType === 'SET_MODE') {
             if (payload && ['HEAT', 'COOL'].includes(payload.mode)) {
                 device.state.mode = device.state.prevMode = payload.mode;
@@ -1198,12 +1885,23 @@ function executeDeviceAction(deviceId, actionType, payload) {
     switch (device.type) {
         case 'LIGHT':
             if (actionType === 'TOGGLE_ON_OFF') {
+                let turnOn;
                 if (payload && typeof payload.isOn === 'boolean') {
-                    device.state.isOn = payload.isOn;
+                    turnOn = payload.isOn;
                 } else {
-                    device.state.isOn = !device.state.isOn;
+                    turnOn = !device.state.isOn;
                 }
-                device.state.roomState = device.state.isOn ? 'ON' : 'OFF';
+                if (turnOn) {
+                    const preferredState = checkPreferences(device);
+                    if (preferredState) {
+                        device.state = { ...device.state, ...preferredState, isOn: true };
+                        device.state.roomState = 'ON';
+                        console.log(`Primijenjena preferencija za ${device.name}:`, device.state);
+                        break;
+                    }
+                }
+                device.state.isOn = turnOn;
+                device.state.roomState = turnOn ? 'ON' : 'OFF';
             } else if (actionType === 'SET_BRIGHTNESS') {
                 if (payload && typeof payload.brightness === 'number') {
                     device.state.brightness = Math.max(0, Math.min(100, payload.brightness));
@@ -1514,8 +2212,8 @@ function setCurrentTimeOfDay(newTimeOfDay) {
     else {
         console.warn(`Nepoznata vrijednost doba dana: ${newTimeOfDay}`);
     }
-    routineManager({ type: 'TIME_OF_DAY_CHANGE', value: currentTimeOfDay });
-    return currentTimeOfDay;
+    let updatedDevices = routineManager({ type: 'TIME_OF_DAY_CHANGE', value: currentTimeOfDay });
+    return { newTimeOfDay: currentTimeOfDay, updatedDevices: updatedDevices };
 }
 
 // Funkcija za dohvat prisutnosti korisnika
@@ -1531,8 +2229,8 @@ function setUserPresence(isPresent) {
     } else {
         console.warn('Pogrešan tip vrijednosti za prisutnost korisnika. Očekuje se boolean.');
     }
-    routineManager({ type: 'USER_PRESENCE_CHANGE', value: userPresence });
-    return userPresence;
+    let updatedDevices = routineManager({ type: 'USER_PRESENCE_CHANGE', value: userPresence });
+    return { newUserPresence: userPresence, updatedDevices: updatedDevices };
 }
 
 // Funkcija za dohvat predloška forme za rutine
@@ -1581,6 +2279,58 @@ function executeQuickAction(quickActionId) {
     return updatedDevices;
 }
 
+// Funkcija za dodavanje nove preferencije
+function addPreference({ name, description, icon, roomId, conditions, actions }) {
+    const newPreference = {
+        id: `pref-${String(++preferenceIdCounter).padStart(3, '0')}`,
+        name,
+        description,
+        icon,
+        roomId,
+        conditions,
+        actions
+    };
+    preferences.push(newPreference);
+    console.log(`Nova preferencija dodana: "${name}"`);
+    return newPreference;
+}
+
+// Funkcija za uklanjanje preferencije
+function removePreference(prefId) {
+    const index = preferences.findIndex(p => p.id === prefId);
+    if (index !== -1) {
+        const removedPref = preferences.splice(index, 1)[0];
+        console.log(`Preferencija "${removedPref.name}" uklonjena.`);
+        return removedPref;
+    }
+    return false;
+}
+
+// Funkcija za dohvat preferencija po sobi
+function getPreferencesByRoom(roomId) {
+    return preferences.filter(p => p.roomId === roomId);
+}
+
+// Funkcija za uređivanje preferencije
+function editPreference(prefId, { name, description, icon, roomId, conditions, actions }) {
+    const index = preferences.findIndex(p => p.id === prefId);
+    if (index !== -1) {
+        preferences[index] = {
+            id: prefId,
+            name,
+            description,
+            icon,
+            roomId,
+            conditions,
+            actions
+        };
+        console.log(`Preferencija "${name}" uređena.`);
+        return preferences[index];
+    }
+    return false;
+}
+
+
 module.exports = {
     getAllDevices,
     getDeviceById,
@@ -1614,5 +2364,9 @@ module.exports = {
     removeQuickAction,
     getQuickActions,
     executeQuickAction,
-    editRoutine
+    editRoutine,
+    addPreference,
+    removePreference,
+    getPreferencesByRoom,
+    editPreference
 };

@@ -61,6 +61,7 @@ const RoomDetailsHeader = (props) => (
                 onRoomEdited={props.onRoomEdited}
                 onRoomRemoved={props.onRoomRemoved}
                 onDeviceAdded={props.onDeviceAdded}
+                onGoToAddPreference={props.onGoToAddPreference}
             />
         </NavItem>
     </div>
