@@ -4,7 +4,8 @@ import {
     getOutsideTemperature, setOutsideTemperature,
     getSimulationInterval, setSimulationInterval,
     getCurrentTimeOfDay, setTimeOfDay,
-    getUserPresence, setUserPresence
+    getUserPresence, setUserPresence,
+    getAllRoutines, getQuickActions
 } from '../services/apiService';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../styles/Dashboard.css';
@@ -15,6 +16,9 @@ import Room from '../components/room';
 import Device from '../components/device';
 import DeviceDetails from '../components/deviceDetails';
 import RoomDetails from '../components/roomDetails';
+import RoutineFormMenu from '../components/routineFormMenu';
+import RoutineMini from '../components/routineMini';
+import PreferenceForm from '../components/preferenceForm';
 
 function DashboardPage() {
     const [allDevices, setAllDevices] = useState([]); // Za "All Devices" prikaz
@@ -28,6 +32,12 @@ function DashboardPage() {
     const [pollingInterval, setPollingInterval] = useState(5000);
     const [currentTimeOfDay, setCurrentTimeOfDay] = useState('MORNING');
     const [userPresent, setUserPresent] = useState(true);
+    const [allRoutines, setAllRoutines] = useState([]); // Za rutine
+    const [addingRoutine, setAddingRoutine] = useState(false);
+    const [allQuickActions, setAllQuickActions] = useState([]); // Za quick actions
+    const [selectedRoutine, setSelectedRoutine] = useState(null);
+    const [addingPreference, setAddingPreference] = useState(false);
+    const [selectedPreference, setSelectedPreference] = useState(null);
 
     const naslov = "Home";
 
@@ -51,14 +61,18 @@ function DashboardPage() {
                     temp,
                     interval,
                     timeOfDay,
-                    presence
+                    presence,
+                    routines,
+                    quickActions
                 ] = await Promise.all([
                     fetchRoomsWithDevices(),
                     fetchDevices(),
                     getOutsideTemperature(),
                     getSimulationInterval(),
                     getCurrentTimeOfDay(),
-                    getUserPresence()
+                    getUserPresence(),
+                    getAllRoutines(),
+                    getQuickActions()
                 ]);
 
                 setRoomsData(rooms);
@@ -67,6 +81,8 @@ function DashboardPage() {
                 setPollingInterval(interval.interval);
                 setCurrentTimeOfDay(timeOfDay);
                 setUserPresent(presence);
+                setAllRoutines(routines);
+                setAllQuickActions(quickActions);
 
                 setError(null);
             } catch (err) {
@@ -108,13 +124,23 @@ function DashboardPage() {
             return newRooms;
         });
 
+        setSelectedRoom(prevSelectedRoom => {
+            if (prevSelectedRoom && prevSelectedRoom.id === updatedDevice.roomId) {
+                const newDevices = prevSelectedRoom.devices.map(d =>
+                    d.id === updatedDevice.id ? updatedDevice : d
+                );
+                return { ...prevSelectedRoom, devices: newDevices };
+            }
+            return prevSelectedRoom;
+        });
+
         setSelectedDevice(prevSelected => {
             if (prevSelected && prevSelected.id === updatedDevice.id) {
                 return updatedDevice;
             }
             return prevSelected;
         });
-    }, [selectedRoom]);
+    }, []);
 
     const handleDeviceSelect = (device) => {
         setSelectedDevice(device);
@@ -202,6 +228,18 @@ function DashboardPage() {
                 return room;
             })
         );
+        setSelectedRoom(prevRoom => {
+            if (prevRoom && prevRoom.devices.some(device => device.id === deviceIdToDelete
+            )) {
+                const updatedDevices = prevRoom.devices.filter(device => device.id !== deviceIdToDelete);
+                return {
+                    ...prevRoom,
+                    devices: updatedDevices,
+                    numDevices: updatedDevices.length
+                };
+            }
+            return prevRoom;
+        });
         setSelectedDevice(null);
     };
 
@@ -225,8 +263,17 @@ function DashboardPage() {
 
     const handleTimeChange = async (newTimeOfDay) => {
         try {
-            await setTimeOfDay(newTimeOfDay);
-            setCurrentTimeOfDay(newTimeOfDay);
+            const response = await setTimeOfDay(newTimeOfDay);
+            const newTime = response.timeOfDay;
+            const updatedDevices = response.updatedDevices;
+
+            if (updatedDevices && Array.isArray(updatedDevices)) {
+                updatedDevices.forEach(device => {
+                    handleDeviceChange(device);
+                });
+            }
+
+            setCurrentTimeOfDay(newTime);
         } catch (error) {
             console.error("Greška pri postavljanju vremena dana:", error);
         }
@@ -234,8 +281,17 @@ function DashboardPage() {
 
     const handlePresenceToggle = async (isPresent) => {
         try {
-            await setUserPresence(isPresent);
-            setUserPresent(isPresent);
+            const response = await setUserPresence(isPresent);
+            const isUserPresent = response.userPresence;
+            const updatedDevices = response.updatedDevices;
+
+            if (updatedDevices && Array.isArray(updatedDevices)) {
+                updatedDevices.forEach(device => {
+                    handleDeviceChange(device);
+                });
+            }
+
+            setUserPresent(isUserPresent);
         }
         catch (error) {
             console.error("Greška pri postavljanju prisutnosti korisnika:", error);
@@ -273,6 +329,72 @@ function DashboardPage() {
         setSelectedRoom(null);
     }
 
+    const handleAddRoutine = (newRoutine) => {
+        setAllRoutines(prevRoutines => [...prevRoutines, newRoutine]);
+    }
+
+    const handleRoutineToggle = (updatedRoutine) => {
+        setAllRoutines(prevRoutines =>
+            prevRoutines.map(routine =>
+                routine.id === updatedRoutine.id ? updatedRoutine : routine
+            )
+        );
+    }
+
+    const handleAddQuickAction = (newQuickAction) => {
+        setAllQuickActions(prevActions => [...prevActions, newQuickAction]);
+    }
+
+    const handleAutomatizationUpdate = (updatedDevices) => {
+        updatedDevices.forEach(device => {
+            handleDeviceChange(device);
+        });
+    }
+
+    const handleQuickActionRemove = (removedQuickAction) => {
+        setAllQuickActions(prevActions =>
+            prevActions.filter(action => action.id !== removedQuickAction.id)
+        );
+    }
+
+    const handleSelectedRoutine = (routine) => {
+        setSelectedRoutine(routine);
+        setAddingRoutine(true);
+    }
+
+    const handleRoutineClose = () => {
+        setSelectedRoutine(null);
+        setAddingRoutine(false);
+    }
+
+    const handleDeleteRoutine = (deletedRoutine) => {
+        setAllRoutines(prevRoutines =>
+            prevRoutines.filter(routine => routine.id !== deletedRoutine.id)
+        );
+        setAddingRoutine(true);
+        setSelectedRoutine(null);
+    }
+
+    const handleRoutineEdited = (editedRoutine) => {
+        setAllRoutines(prevRoutines =>
+            prevRoutines.map(routine =>
+                routine.id === editedRoutine.id ? editedRoutine : routine
+            )
+        );
+        setSelectedRoutine(editedRoutine);
+        setAddingRoutine(true);
+    }
+
+    const handlePreferenceClose = () => {
+        setAddingPreference(false);
+        setSelectedPreference(null);
+    }
+
+    const handleSelectedPreference = (preference) => {
+        setSelectedPreference(preference);
+        setAddingPreference(true);
+    }
+
     let headerProps;
 
 
@@ -286,7 +408,22 @@ function DashboardPage() {
             onDeviceEdited: handleDeviceChange,
             onDeviceRemoved: handleDeviceRemoval
         };
-    } else if (selectedRoom) {
+    } else if (addingRoutine) {
+        // Props za dodavanje rutine
+        headerProps = {
+            view: 'routineAdd',
+            title: selectedRoutine ? "Edit Routine" : "Add Automatization",
+            onBack: handleRoutineClose,
+        }
+    } else if (addingPreference) {
+        // Props za dodavanje preferencije
+        headerProps = {
+            view: 'routineAdd',
+            title: selectedPreference ? "Edit Preference" : "Add Preference",
+            onBack: handlePreferenceClose,
+        }
+    }
+    else if (selectedRoom) {
         // Props za detaljni prikaz sobe
         headerProps = {
             view: 'roomDetails',
@@ -295,9 +432,11 @@ function DashboardPage() {
             onBack: handleCloseRoomDetails,
             onRoomEdited: handleRoomEdit,
             onRoomRemoved: handleRoomRemoval,
-            onDeviceAdded: handleDeviceAdded
+            onDeviceAdded: handleDeviceAdded,
+            onGoToAddPreference: () => { setAddingPreference(true); }
         }
-    } else {
+    }
+    else {
         // Props za glavni prikaz
         headerProps = {
             view: 'main',
@@ -312,6 +451,7 @@ function DashboardPage() {
             UserPresence: userPresent,
             onRoomAdded: handleRoomAdded,
             onDeviceAdded: handleDeviceAdded,
+            onGoToRoutineAdd: () => { setAddingRoutine(true) }
         };
     }
 
@@ -329,7 +469,10 @@ function DashboardPage() {
         return (
             <div className="dashboard-container">
                 <Header {...headerProps} />
-                <QuickActions />
+                <QuickActions
+                    quickActions={allQuickActions}
+                    onAutomatizationUpdate={handleAutomatizationUpdate}
+                    onQuickActionRemove={handleQuickActionRemove} />
                 <DeviceDetails
                     device={selectedDevice}
                     onStateChange={handleDeviceChange}
@@ -340,27 +483,67 @@ function DashboardPage() {
         );
     }
 
-    // --- Prikaz 2: Detalji Sobe ---
+    // --- Prikaz 2: Dodavanje Rutine, Quick Action ---
+    else if (addingRoutine) {
+        return (
+            <div className="dashboard-container">
+                <Header {...headerProps} />
+                <RoutineFormMenu
+                    allDevices={allDevices}
+                    onAddRoutine={handleAddRoutine}
+                    onAddQuickAction={handleAddQuickAction}
+                    onClose={handleRoutineClose}
+                    routine={selectedRoutine}
+                    onDeletedRoutine={handleDeleteRoutine}
+                    onEditedRoutine={handleRoutineEdited} />
+            </div>
+        )
+    }
+
+    // --- Prikaz 3: Dodavanje Preferencije ---
+    else if (addingPreference) {
+        return (
+            <div className="dashboard-container">
+                <Header {...headerProps} />
+                <PreferenceForm
+                    room={selectedRoom}
+                    onClose={handlePreferenceClose}
+                    pref={selectedPreference} />
+            </div>
+        )
+    }
+
+    // --- Prikaz 4: Detalji Sobe ---
     else if (selectedRoom) {
         return (
             <div className="dashboard-container">
                 <Header {...headerProps} />
-                <QuickActions />
+                <QuickActions
+                    quickActions={allQuickActions}
+                    onAutomatizationUpdate={handleAutomatizationUpdate}
+                    onQuickActionRemove={handleQuickActionRemove} />
                 <RoomDetails
                     room={selectedRoom}
+                    routines={allRoutines}
                     onRoomToggle={handleRoomToggle}
                     handleDeviceChange={handleDeviceChange}
                     handleDeviceSelect={handleDeviceSelect}
+                    onRoutineToggle={handleRoutineToggle}
+                    onSelectedRoutine={handleSelectedRoutine}
+                    onSelectPref={handleSelectedPreference}
                 />
             </div>
         );
     }
 
-    // --- Prikaz 3: Glavna ploča (Default) ---
+    // --- Prikaz 5: Glavna ploča (Default) ---
     return (
         <div className="dashboard-container">
             <Header {...headerProps} />
-            <QuickActions />
+            <QuickActions
+                quickActions={allQuickActions}
+                onAutomatizationUpdate={handleAutomatizationUpdate}
+                onQuickActionRemove={handleQuickActionRemove} />
             <DisplayOptions currentView={viewMode} onViewChange={setViewMode} />
 
             {viewMode === 'rooms' && (
@@ -383,6 +566,18 @@ function DashboardPage() {
                             device={device}
                             onStateChange={handleDeviceChange}
                             onDeviceSelect={handleDeviceSelect}
+                        />
+                    ))}
+                </div>
+            )}
+            {viewMode === 'routines' && (
+                <div className="devices-wrapper">
+                    {allRoutines.map(routine => (
+                        <RoutineMini
+                            key={routine.id}
+                            routine={routine}
+                            onRoutineToggle={handleRoutineToggle}
+                            onSelectRoutine={handleSelectedRoutine}
                         />
                     ))}
                 </div>

@@ -1,13 +1,34 @@
 import { useState, useEffect } from 'react';
 import '../styles/roomDetails.css';
-import { toggleRoom } from '../services/apiService';
+import { toggleRoom, getAllPreferencesByRoom } from '../services/apiService';
 import Device from '../components/device';
+import RoutineMini from '../components/routineMini';
+import PrefMini from '../components/prefMini';
 import '../styles/device.css'
 
-const RoomDetails = ({ room, onRoomToggle, handleDeviceChange, handleDeviceSelect }) => {
+const RoomDetails = ({ room, routines, onRoomToggle, handleDeviceChange, handleDeviceSelect, onRoutineToggle, onSelectedRoutine, onSelectPref }) => {
+    const [selectedRoutines, setSelectedRoutines] = useState(null);
+    const [roomPreferences, setRoomPreferences] = useState([]);
+
+    useEffect(() => {
+        async function fetchPreferences() {
+            try {
+                const prefs = await getAllPreferencesByRoom(room.id);
+                setRoomPreferences(prefs);
+            } catch (error) {
+                console.error('Error fetching preferences:', error);
+            }
+        }
+        fetchPreferences();
+    }, [room.id]);
+
+    useEffect(() => {
+        const selectedRoutines = routines.filter(routine => routine.includedRooms.includes(room.id));
+        setSelectedRoutines(selectedRoutines);
+    }, [routines]);
+
     const hasDevices = room.devices && room.numDevices > 0;
-    const hasPreferences = false;
-    const hasRoutines = false;
+    const hasPreferences = roomPreferences && roomPreferences.length > 0;
 
     const handleRoomToggle = async () => {
         try {
@@ -52,10 +73,25 @@ const RoomDetails = ({ room, onRoomToggle, handleDeviceChange, handleDeviceSelec
                 {hasPreferences &&
                     <div className="room-devices-container">
                         <span className="room-text">Preferences</span>
+                        {roomPreferences.map(pref => (
+                            <PrefMini
+                                key={pref.id}
+                                pref={pref}
+                                onSelectPref={onSelectPref}
+                            />
+                        ))}
                     </div>}
-                {hasRoutines &&
+                {selectedRoutines &&
                     <div className="room-devices-container">
                         <span className="room-text">Routines</span>
+                        {selectedRoutines.map(routine => (
+                            <RoutineMini
+                                key={routine.id}
+                                routine={routine}
+                                onRoutineToggle={onRoutineToggle}
+                                onSelectRoutine={onSelectedRoutine}
+                            />
+                        ))}
                     </div>}
             </div>
         </div>

@@ -26,8 +26,8 @@ const pool = new Pool({
 app.get('/api/db-test', async (req, res) => {
     try {
         const client = await pool.connect();
-        const result = await client.query('SELECT NOW() as now');
-        res.json({ success: true, time: result.rows[0].now });
+        const updatedDevices = await client.query('SELECT NOW() as now');
+        res.json({ success: true, time: updatedDevices.rows[0].now });
         client.release();
     } catch (err) {
         console.error('Greška pri spajanju na bazu:', err.stack);
@@ -146,13 +146,13 @@ app.post('/api/addDevice', (req, res) => {
         return res.status(400).json({ message: 'Potrebno je unijeti ime, tip i sobu za novi uređaj.' });
     }
 
-    const result = deviceManager.addDevice({ name, type, roomId });
+    const updatedDevices = deviceManager.addDevice({ name, type, roomId });
 
-    if (result.error) {
-        return res.status(400).json({ message: result.error });
+    if (updatedDevices.error) {
+        return res.status(400).json({ message: updatedDevices.error });
     }
 
-    res.status(201).json(result.device);
+    res.status(201).json(updatedDevices.device);
 });
 
 // Uključivanje/isključivanje sobe
@@ -161,14 +161,14 @@ app.post('/api/roomToggle', (req, res) => {
     if (!roomId) {
         return res.status(400).json({ message: 'ID sobe je obavezan.' });
     }
-    const result = deviceManager.roomToggle(roomId);
-    if (result && result.error) {
-        return res.status(400).json({ message: result.error });
+    const updatedDevices = deviceManager.roomToggle(roomId);
+    if (updatedDevices && updatedDevices.error) {
+        return res.status(400).json({ message: updatedDevices.error });
     }
-    if (result === null) {
+    if (updatedDevices === null) {
         return res.status(404).json({ message: `Soba s ID-om ${roomId} nije pronađena.` });
     }
-    res.status(200).json({ success: true, room: result.room });
+    res.status(200).json({ success: true, room: updatedDevices.room });
 });
 
 // Uređivanje sobe
@@ -248,7 +248,7 @@ app.post('/api/simulation/interval', (req, res) => {
 
 // Dohvati trenutno doba dana
 app.get('/api/context/time-of-day', (req, res) => {
-    res.json({ timeOfDay: deviceManager.getCurrentTimeOfDay() });
+    res.json(deviceManager.getCurrentTimeOfDay());
 });
 
 // Postavi novo doba dana
@@ -257,13 +257,13 @@ app.post('/api/context/time-of-day', (req, res) => {
     if (!timeOfDay) {
         return res.status(400).json({ message: 'Doba dana je obavezno.' });
     }
-    const newTimeOfDay = deviceManager.setCurrentTimeOfDay(timeOfDay);
-    res.json({ success: true, timeOfDay: newTimeOfDay });
+    const { newTimeOfDay, updatedDevices } = deviceManager.setCurrentTimeOfDay(timeOfDay);
+    res.json({ success: true, timeOfDay: newTimeOfDay, updatedDevices: updatedDevices });
 });
 
 // Dohvati prisutnost korisnika
 app.get('/api/context/user-presence', (req, res) => {
-    res.json({ userPresence: deviceManager.getUserPresence() });
+    res.json(deviceManager.getUserPresence());
 });
 
 // Postavi prisutnost korisnika
@@ -272,14 +272,186 @@ app.post('/api/context/user-presence', (req, res) => {
     if (typeof isPresent !== 'boolean') {
         return res.status(400).json({ message: 'Vrijednost prisutnosti mora biti boolean.' });
     }
-    const newUserPresence = deviceManager.setUserPresence(isPresent);
-    res.json({ success: true, userPresence: newUserPresence });
+    const { newUserPresence, updatedDevices } = deviceManager.setUserPresence(isPresent);
+    res.json({ success: true, userPresence: newUserPresence, updatedDevices: updatedDevices });
 });
 
 // Dohvati sva doba dana
 app.get('/api/context/times-of-day', (req, res) => {
     const timesOfDay = deviceManager.fetchTimesOfDay();
     res.json(timesOfDay);
+});
+
+// Dohvati sve rutine
+app.get('/api/routines/getAll', (req, res) => {
+    const routines = deviceManager.getAllRoutines();
+    res.json(routines);
+});
+
+// Dohvati rutinu po ID-u
+app.get('/api/routines/:routineId', (req, res) => {
+    const routineId = req.params.routineId;
+    const routine = deviceManager.getRoutineById(routineId);
+    if (routine) {
+        res.json(routine);
+    } else {
+        res.status(404).json({ error: `Rutina s ID-om ${routineId} nije pronađena.` });
+    }
+});
+
+// Dodaj novu rutinu
+app.post('/api/routines/add', (req, res) => {
+    const { name, description, icon, triggers, conditions, actions } = req.body;
+
+    if (!name || !triggers || !actions) {
+        return res.status(400).json({ message: 'Naziv, okidači i akcije su obavezni.' });
+    }
+
+    try {
+        const newRoutine = deviceManager.addRoutine({ name, description, icon, triggers, conditions, actions });
+        res.status(201).json(newRoutine);
+    } catch (error) {
+        console.error('Greška pri dodavanju rutine:', error);
+        res.status(500).json({ message: 'Greška pri dodavanju rutine.', details: error.message });
+    }
+});
+
+// Ukloni rutinu
+app.delete('/api/routines/:routineId', (req, res) => {
+    const routineId = req.params.routineId;
+    const removedRoutine = deviceManager.removeRoutine(routineId);
+    if (removedRoutine) {
+        res.status(200).json(removedRoutine);
+    } else {
+        res.status(404).json({ message: `Rutina s ID-om ${routineId} nije pronađena.` });
+    }
+});
+
+// Dohvati formu za rutinu
+app.get('/api/routines-form-template', (req, res) => {
+    const formTemplate = deviceManager.getRoutineFormTemplate();
+    res.json(formTemplate);
+});
+
+// Paljenje/gašenje rutine
+app.post('/api/routines/:routineId/toggle', (req, res) => {
+    const { routineId } = req.params;
+    const { isEnabled } = req.body;
+
+    if (typeof isEnabled !== 'boolean') {
+        return res.status(400).json({ message: 'Vrijednost "isEnabled" je obavezna i mora biti boolean.' });
+    }
+
+    const newRoutine = deviceManager.toggleRoutine(routineId, isEnabled);
+    if (newRoutine) {
+        res.status(200).json(newRoutine);
+    } else {
+        res.status(404).json({ message: `Rutina s ID-om ${routineId} nije pronađena.` });
+    }
+});
+
+// Dodaj quick action
+app.post('/api/quick-actions/add', (req, res) => {
+    const { name, description, icon, actions } = req.body;
+
+    if (!name || !actions) {
+        return res.status(400).json({ message: 'Naziv i akcije su obavezni.' });
+    }
+
+    try {
+        const newQuickAction = deviceManager.addQuickAction({ name, description, icon, actions });
+        res.status(201).json(newQuickAction);
+    } catch (error) {
+        console.error('Greška pri dodavanju quick action:', error);
+        res.status(500).json({ message: 'Greška pri dodavanju quick action.', details: error.message });
+    }
+});
+
+// Ukloni quick action
+app.delete('/api/quick-actions/:quickActionId', (req, res) => {
+    const quickActionId = req.params.quickActionId;
+    const removedQuickAction = deviceManager.removeQuickAction(quickActionId);
+    if (removedQuickAction) {
+        res.status(200).json(removedQuickAction);
+    } else {
+        res.status(404).json({ message: `Quick action s ID-om ${quickActionId} nije pronađena.` });
+    }
+});
+
+// Dohvati sve quick actions
+app.get('/api/quick-actions', (req, res) => {
+    const quickActions = deviceManager.getQuickActions();
+    res.json(quickActions);
+});
+
+// Izvrši quick action
+app.post('/api/quick-actions/:quickActionId/execute', (req, res) => {
+    const quickActionId = req.params.quickActionId;
+    const updatedDevices = deviceManager.executeQuickAction(quickActionId);
+    if (updatedDevices && updatedDevices.error) {
+        return res.status(400).json({ message: updatedDevices.error });
+    }
+    if (updatedDevices === null) {
+        return res.status(404).json({ message: `Quick action s ID-om ${quickActionId} nije pronađena.` });
+    }
+    res.status(200).json({ success: true, updatedDevices });
+});
+
+// Uređivanje rutine
+app.put('/api/routines/:routineId', (req, res) => {
+    const { routineId } = req.params;
+    const { name, description, icon, triggers, conditions, actions } = req.body;
+
+    if (!name || !triggers || !actions) {
+        return res.status(400).json({ message: 'Naziv, okidači i akcije su obavezni.' });
+    }
+
+    try {
+        const updatedRoutine = deviceManager.editRoutine({ routineId, name, description, icon, triggers, conditions, actions });
+        if (updatedRoutine) {
+            res.status(200).json(updatedRoutine);
+        } else {
+            res.status(404).json({ message: `Rutina s ID-om ${routineId} nije pronađena.` });
+        }
+    } catch (error) {
+        console.error('Greška pri uređivanju rutine:', error);
+        res.status(500).json({ message: 'Greška pri uređivanju rutine.', details: error.message });
+    }
+});
+
+// Dohvati sve preferencije za jednu sobu
+app.get('/api/rooms/:roomId/preferences', (req, res) => {
+    const { roomId } = req.params;
+    const roomPreferences = deviceManager.getPreferencesByRoom(roomId);
+    res.json(roomPreferences);
+});
+
+// Dodaj novu preferenciju
+app.post('/api/preferences', (req, res) => {
+    const newPreference = deviceManager.addPreference(req.body);
+    res.status(201).json(newPreference);
+});
+
+// Obriši preferenciju
+app.delete('/api/preferences/:prefId', (req, res) => {
+    const { prefId } = req.params;
+    const success = deviceManager.removePreference(prefId);
+    if (success) {
+        res.json({ success: true });
+    } else {
+        res.status(404).json({ message: 'Preferencija nije pronađena.' });
+    }
+});
+
+// Uredi preferenciju
+app.put('/api/preferences/:prefId', (req, res) => {
+    const { prefId } = req.params;
+    const updatedPreference = deviceManager.editPreference(prefId, req.body);
+    if (updatedPreference) {
+        res.json(updatedPreference);
+    } else {
+        res.status(404).json({ message: 'Preferencija nije pronađena ili nije moguće je urediti.' });
+    }
 });
 
 app.listen(PORT, () => {

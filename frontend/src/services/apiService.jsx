@@ -403,3 +403,274 @@ export const getRoomDevices = async (roomId) => {
         throw error;
     }
 }
+
+export const getAllRoutines = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/routines/getAll`);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dohvaćanju rutina: ${response.status} ${errorData.message || ''}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s getAllRoutines:", error);
+        throw error;
+    }
+};
+
+export const getRoutineById = async (routineId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/routines/${routineId}`);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dohvaćanju rutine: ${response.status} ${errorData.message || ''}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s getRoutineById:", error);
+        throw error;
+    }
+};
+
+export const addRoutine = async (routineData) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/routines/add`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(routineData),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dodavanju rutine: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s addRoutine:", error);
+        throw error;
+    }
+};
+
+export const removeRoutine = async (routineId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/routines/${routineId}`, {
+            method: 'DELETE',
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri brisanju rutine: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s removeRoutine:", error);
+        throw error;
+    }
+};
+
+export const getRoutineFormTemplate = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/routines-form-template`);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dohvaćanju forme rutine: ${response.status} ${errorData.message || ''}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s getRoutineFormTemplate:", error);
+        throw error;
+    }
+}
+
+export const toggleRoutine = async (routineId, isEnabled) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/routines/${routineId}/toggle`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ isEnabled }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri prebacivanju rutine: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s toggleRoutine:", error);
+        throw error;
+    }
+}
+
+export const addQuickAction = async (quickActionData) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/quick-actions/add`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(quickActionData),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dodavanju quick action: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s addQuickAction:", error);
+        throw error;
+    }
+};
+
+export const removeQuickAction = async (quickActionId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/quick-actions/${quickActionId}`, {
+            method: 'DELETE',
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri brisanju quick action: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s removeQuickAction:", error);
+        throw error;
+    }
+};
+
+export const getQuickActions = async () => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/quick-actions`);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dohvaćanju quick actions: ${response.status} ${errorData.message || ''}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s getQuickActions:", error);
+        throw error;
+    }
+};
+
+export const executeQuickAction = async (quickActionId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/quick-actions/${quickActionId}/execute`, {
+            method: 'POST',
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri izvršavanju quick action: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s executeQuickAction:", error);
+        throw error;
+    }
+};
+
+export const editRoutine = async (routineId, updatedData) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/routines/${routineId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedData),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri uređivanju rutine: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s editRoutine:", error);
+        throw error;
+    }
+};
+
+export const addPreference = async (preferenceData) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/preferences`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(preferenceData),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dodavanju preferencije: ${response.status} ${errorData.message || ''}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s addPreference:", error);
+        throw error;
+    }
+};
+
+export const getAllPreferencesByRoom = async (roomId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/rooms/${roomId}/preferences`);
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri dohvaćanju preferencija sobe: ${response.status} ${errorData.message || ''}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s getAllPreferencesByRoom:", error);
+        throw error;
+    }
+}
+
+export const removePreference = async (preferenceId) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/preferences/${preferenceId}`, {
+            method: 'DELETE',
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri brisanju preferencije: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s removePreference:", error);
+        throw error;
+    }
+}
+
+export const editPreference = async (preferenceId, updatedData) => {
+    try {
+        const response = await fetch(`${API_BASE_URL}/preferences/${preferenceId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedData),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ message: response.statusText }));
+            throw new Error(`Greška pri uređivanju preferencije: ${response.status} ${errorData.message || ''}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error("Problem s editPreference:", error);
+        throw error;
+    }
+}

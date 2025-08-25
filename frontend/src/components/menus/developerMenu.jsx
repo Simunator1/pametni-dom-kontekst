@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { getTimesOfDay } from '../../services/apiService';
 import '../../styles/Header.css';
 import '../../styles/developerMenu.css';
-import { use } from 'react';
 
 function DeveloperMenu({
     TimeOfDay,
@@ -71,6 +70,7 @@ function DeveloperMenu({
                     <span className="icon-left bi bi-clock" />
                     <label htmlFor="time-select">Time of day</label>
                     <select id="time-select" className="form-select" value={timeOfDay} onChange={handleTimeChange}>
+                        <option value="">Select time...</option>
                         {timesOfDay.map((time, index) => (
                             <option key={index} value={time}>{time}</option>
                         ))}

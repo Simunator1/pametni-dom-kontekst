@@ -2,3 +2,7 @@
     width: 90vw;
     margin-bottom: 2vh;
 }
+
+.display-options>.btn:not(:first-of-type) {
+    border-left-width: 0;
+}
