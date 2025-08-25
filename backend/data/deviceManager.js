@@ -703,7 +703,8 @@ let routines = [
         "includedDevices": [
             "device-028",
             "device-027",
-            "device-029"
+            "device-029",
+            "device-026"
         ],
         "includedRooms": [
             "room-003"
@@ -744,6 +745,14 @@ let routines = [
             {
                 "type": "DEVICE_ACTION",
                 "deviceId": "device-029",
+                "actionType": "TOGGLE_ON_OFF",
+                "payload": {
+                    "isOn": true
+                }
+            },
+            {
+                "type": "DEVICE_ACTION",
+                "deviceId": "device-026",
                 "actionType": "TOGGLE_ON_OFF",
                 "payload": {
                     "isOn": true
