@@ -42,8 +42,8 @@ function RemoveRoomConfirmation({ room, onRoomRemoved, handleCancel }) {
 
     const handleConfirm = async () => {
         try {
-            await removeRoom(room.id);
-            if (onRoomRemoved) onRoomRemoved(room);
+            const { updatedQuickActions, updatedRoutines } = await removeRoom(room.id);
+            if (onRoomRemoved) onRoomRemoved(room, updatedQuickActions, updatedRoutines);
         } catch (error) {
             setFeedback(error.message || 'Došlo je do greške pri brisanju.');
         }
@@ -92,7 +92,7 @@ function AddDeviceForm({ onDeviceAdded, room }) {
             return;
         }
         try {
-            const newDevice = await addDevice({ name: deviceName, roomId: room.id, type: selectedType });
+            const newDevice = await addDevice({ name: deviceName, room_id: room.id, type: selectedType });
             setFeedback(`Uređaj "${newDevice.name}" je dodan!`);
             setDeviceName('');
             if (onDeviceAdded) {

@@ -4,7 +4,7 @@ import { editDevice, removeDevice, fetchRoomsWithDevices } from '../../services/
 
 function EditDeviceForm({ device, onDeviceEdited }) {
     const [deviceName, setDeviceName] = useState(device.name);
-    const [selectedRoom, setSelectedRoom] = useState(device.roomId);
+    const [selectedRoom, setSelectedRoom] = useState(device.room_id);
     const [rooms, setRooms] = useState([]);
     const [feedback, setFeedback] = useState('');
     const [loading, setLoading] = useState(true);
@@ -64,9 +64,9 @@ function RemoveDeviceConfirmation({ device, onDeviceRemoved, onCancel }) {
 
     const handleConfirm = async () => {
         try {
-            await removeDevice(device.id);
+            const { updatedRoutines, updatedQuickActions } = await removeDevice(device.id);
             setFeedback(`Uređaj "${device.name}" je obrisan.`);
-            if (onDeviceRemoved) onDeviceRemoved(device.id);
+            if (onDeviceRemoved) onDeviceRemoved(device.id, updatedRoutines, updatedQuickActions);
         } catch (error) {
             setFeedback(error.message || 'Došlo je do greške pri brisanju.');
         }

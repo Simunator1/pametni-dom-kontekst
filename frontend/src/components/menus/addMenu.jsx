@@ -76,7 +76,7 @@ function AddDeviceForm({ onDeviceAdded }) {
             return;
         }
         try {
-            const newDevice = await addDevice({ name: deviceName, roomId: selectedRoom, type: selectedType });
+            const newDevice = await addDevice({ name: deviceName, room_id: selectedRoom, type: selectedType });
             setFeedback(`Uređaj "${newDevice.name}" je dodan!`);
             setDeviceName('');
             if (onDeviceAdded) onDeviceAdded(newDevice);

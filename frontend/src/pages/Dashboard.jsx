@@ -107,7 +107,7 @@ function DashboardPage() {
 
         setRoomsData(prevRooms => {
             const newRooms = prevRooms.map(room => {
-                if (room.id === updatedDevice.roomId) {
+                if (room.id === updatedDevice.room_id) {
                     const newDevices = room.devices.map(d =>
                         d.id === updatedDevice.id ? updatedDevice : d
                     );
@@ -125,7 +125,7 @@ function DashboardPage() {
         });
 
         setSelectedRoom(prevSelectedRoom => {
-            if (prevSelectedRoom && prevSelectedRoom.id === updatedDevice.roomId) {
+            if (prevSelectedRoom && prevSelectedRoom.id === updatedDevice.room_id) {
                 const newDevices = prevSelectedRoom.devices.map(d =>
                     d.id === updatedDevice.id ? updatedDevice : d
                 );
@@ -169,7 +169,7 @@ function DashboardPage() {
         setRoomsData(prevRooms => {
             let finalUpdatedRoom = null;
             const newRooms = prevRooms.map(room => {
-                if (room.id === newDevice.roomId) {
+                if (room.id === newDevice.room_id) {
                     const updatedRoom = {
                         ...room,
                         devices: [...room.devices, newDevice],
@@ -181,7 +181,7 @@ function DashboardPage() {
                 return room;
             });
 
-            if (selectedRoom && selectedRoom.id === newDevice.roomId && finalUpdatedRoom) {
+            if (selectedRoom && selectedRoom.id === newDevice.room_id && finalUpdatedRoom) {
                 setSelectedRoom(finalUpdatedRoom);
             }
 
@@ -210,7 +210,7 @@ function DashboardPage() {
         }
     };
 
-    const handleDeviceRemoval = (deviceIdToDelete) => {
+    const handleDeviceRemoval = (deviceIdToDelete, updatedRoutines, updatedQuickActions) => {
         setAllDevices(prevDevices =>
             prevDevices.filter(device => device.id !== deviceIdToDelete)
         );
@@ -240,6 +240,33 @@ function DashboardPage() {
             }
             return prevRoom;
         });
+
+        setAllRoutines(prevRoutines => {
+            const updatesMap = new Map(updatedRoutines.map(r => [r.id, r]));
+
+            const newRoutines = prevRoutines
+                .map(routine => {
+                    const updatedRoutine = updatesMap.get(routine.id);
+                    return updatedRoutine ? updatedRoutine : routine;
+                })
+                .filter(routine => !routine._deleted);
+
+            return newRoutines;
+        });
+
+        setAllQuickActions(prevActions => {
+            const updatesMap = new Map(updatedQuickActions.map(a => [a.id, a]));
+
+            const newQuickActions = prevActions
+                .map(action => {
+                    const updatedAction = updatesMap.get(action.id);
+                    return updatedAction ? updatedAction : action;
+                })
+                .filter(action => !action._deleted);
+
+            return newQuickActions;
+        });
+
         setSelectedDevice(null);
     };
 
@@ -316,18 +343,36 @@ function DashboardPage() {
         setSelectedRoom(updatedRoomWithDevices);
     };
 
-    const handleRoomRemoval = (roomToDelete) => {
-        const devicesToRemove = roomToDelete.devices.map(device => device.id);
+    const handleRoomRemoval = (roomToDelete, updatedRoutines, updatedQuickActions) => {
         setRoomsData(prevRooms =>
             prevRooms.filter(room => room.id !== roomToDelete.id)
         );
 
+        const devicesToRemove = roomToDelete.devices.map(device => device.id);
         setAllDevices(prevDevices =>
             prevDevices.filter(device => !devicesToRemove.includes(device.id))
-        )
+        );
+
+        if (updatedRoutines && updatedRoutines.length > 0) {
+            setAllRoutines(prevRoutines => {
+                const updatesMap = new Map(updatedRoutines.map(r => [r.id, r]));
+                return prevRoutines
+                    .map(routine => updatesMap.get(routine.id) || routine)
+                    .filter(routine => !routine._deleted);
+            });
+        }
+
+        if (updatedQuickActions && updatedQuickActions.length > 0) {
+            setAllQuickActions(prevActions => {
+                const updatesMap = new Map(updatedQuickActions.map(a => [a.id, a]));
+                return prevActions
+                    .map(action => updatesMap.get(action.id) || action)
+                    .filter(action => !action._deleted);
+            });
+        }
 
         setSelectedRoom(null);
-    }
+    };
 
     const handleAddRoutine = (newRoutine) => {
         setAllRoutines(prevRoutines => [...prevRoutines, newRoutine]);
