@@ -542,6 +542,7 @@ function DashboardPage() {
     if (selectedDevice) {
         return (
             <div className="dashboard-container">
+                <Notification message={notification.message} show={notification.show} />
                 <Header {...headerProps} />
                 <QuickActions
                     quickActions={allQuickActions}
@@ -592,6 +593,7 @@ function DashboardPage() {
     else if (selectedRoom) {
         return (
             <div className="dashboard-container">
+                <Notification message={notification.message} show={notification.show} />
                 <Header {...headerProps} />
                 <QuickActions
                     quickActions={allQuickActions}
