@@ -19,6 +19,7 @@ import RoomDetails from '../components/roomDetails';
 import RoutineFormMenu from '../components/routineFormMenu';
 import RoutineMini from '../components/routineMini';
 import PreferenceForm from '../components/preferenceForm';
+import Notification from '../components/notification';
 
 function DashboardPage() {
     const [allDevices, setAllDevices] = useState([]); // Za "All Devices" prikaz
@@ -38,6 +39,7 @@ function DashboardPage() {
     const [selectedRoutine, setSelectedRoutine] = useState(null);
     const [addingPreference, setAddingPreference] = useState(false);
     const [selectedPreference, setSelectedPreference] = useState(null);
+    const [notification, setNotification] = useState({ show: false, message: '' });
 
     const naslov = "Home";
 
@@ -440,6 +442,14 @@ function DashboardPage() {
         setAddingPreference(true);
     }
 
+    const showNotification = (message) => {
+        setNotification({ show: true, message: message });
+
+        setTimeout(() => {
+            setNotification({ show: false, message: '' });
+        }, 3000);
+    };
+
     let headerProps;
 
 
@@ -584,11 +594,13 @@ function DashboardPage() {
     // --- Prikaz 5: Glavna ploča (Default) ---
     return (
         <div className="dashboard-container">
+            <Notification message={notification.message} show={notification.show} />
             <Header {...headerProps} />
             <QuickActions
                 quickActions={allQuickActions}
                 onAutomatizationUpdate={handleAutomatizationUpdate}
-                onQuickActionRemove={handleQuickActionRemove} />
+                onQuickActionRemove={handleQuickActionRemove} 
+                showNotification={showNotification}/>
             <DisplayOptions currentView={viewMode} onViewChange={setViewMode} />
 
             {viewMode === 'rooms' && (
