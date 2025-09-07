@@ -4,7 +4,7 @@ import { toggleRoutine } from '../services/apiService';
 const RoutineMini = ({ routine, onRoutineToggle, onSelectRoutine }) => {
     const handleToggle = async () => {
         try {
-            const updatedRoutine = await toggleRoutine(routine.id, !routine.isEnabled);
+            const updatedRoutine = await toggleRoutine(routine.id, !routine.is_enabled);
             onRoutineToggle(updatedRoutine);
         } catch (error) {
             console.error(`Failed to toggle routine ${routine.id}:`, error);
@@ -12,9 +12,9 @@ const RoutineMini = ({ routine, onRoutineToggle, onSelectRoutine }) => {
     };
 
     return (
-        <div className={`routine-container${!routine.isEnabled ? ' gray' : ''}`} onClick={() => onSelectRoutine(routine)}>
+        <div className={`routine-container${!routine.is_enabled ? ' gray' : ''}`} onClick={() => onSelectRoutine(routine)}>
             <div className="routine">
-                <i className={`routine-ikona ${!routine.isEnabled ? ' gray ' : ''}${routine.icon}`}></i>
+                <i className={`routine-ikona ${!routine.is_enabled ? ' gray ' : ''}${routine.icon}`}></i>
                 <div className={'routine-name-wrapper'}>
                     <p
                         className="routine-name"
@@ -29,13 +29,13 @@ const RoutineMini = ({ routine, onRoutineToggle, onSelectRoutine }) => {
                         type="checkbox"
                         role="switch"
                         id={`switch-${routine.id}`}
-                        checked={routine.isEnabled}
+                        checked={routine.is_enabled}
                         onChange={handleToggle}
                     />
                 </div>
             </div>
             <div>
-                <p className="description">{routine.description}</p>
+                <p className={`description${!routine.is_enabled ? ' gray' : ''}`}>{routine.description}</p>
             </div>
         </div>
     );

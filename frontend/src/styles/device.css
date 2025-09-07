@@ -5,19 +5,23 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    width: 90vw;
+    width: 100%;
     height: 8vh;
-    background: linear-gradient(to right, #66bec7, #ffffff);
+    background: var(--miniature-bg);
     margin-bottom: 2vh;
     border-radius: 2vw;
 }
 
 .device.gray {
-    background: linear-gradient(to right, #b0b0b0, #ffffff);
+    background: var(--miniature-gray-bg);
+}
+
+.device p {
+    color: var(--miniature-text-color);
 }
 
 .device.gray p {
-    color: #848484
+    color: var(--miniature-gray-text-color);
 }
 
 .device-name-wrapper {
@@ -78,8 +82,15 @@
 .device-ikona {
     width: 5%;
     font-size: 1.4rem;
+    color: var(--miniature-text-color);
 }
 
 .device-ikona.gray {
-    color: gray;
+    color: var(--miniature-gray-text-color);
+}
+
+@media screen and (min-width: 750px) {
+    .device {
+        border-radius: 15px;
+    }
 }

@@ -110,7 +110,7 @@ const PreferenceForm = ({ room, onClose, pref }) => {
             name,
             description,
             icon,
-            roomId: room.id,
+            room_id: room.id,
             conditions: {
                 logicalOperator: conditionsOperator,
                 list: conditions.map(c => {

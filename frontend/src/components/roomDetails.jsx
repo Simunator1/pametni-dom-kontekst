@@ -23,7 +23,7 @@ const RoomDetails = ({ room, routines, onRoomToggle, handleDeviceChange, handleD
     }, [room.id]);
 
     useEffect(() => {
-        const selectedRoutines = routines.filter(routine => routine.includedRooms.includes(room.id));
+        const selectedRoutines = routines.filter(routine => routine.included_rooms.includes(room.id));
         setSelectedRoutines(selectedRoutines);
     }, [routines]);
 
@@ -52,7 +52,7 @@ const RoomDetails = ({ room, routines, onRoomToggle, handleDeviceChange, handleD
                         className="form-check-input"
                         type="checkbox"
                         role="switch"
-                        checked={room.isOn}
+                        checked={room.is_on}
                         onChange={handleRoomToggle}
                     />
                 </div>

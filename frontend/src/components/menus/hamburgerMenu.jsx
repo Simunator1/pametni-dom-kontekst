@@ -29,21 +29,21 @@ function HamburgerMenu(props) {
                 classNames="menu-primary"
             >
                 <div ref={nodeRefMain} className="menu">
-                    <DropdownItem
+                    {/* <DropdownItem
                         goToMenu="account"
                         leftIcon="bi bi-person"
-                    >Account</DropdownItem>
+                    >Account</DropdownItem> */}
                     <DropdownItem
                         leftIcon="bi bi-gear"
                         goToMenu="settings"
                     >Settings</DropdownItem>
-                    <DropdownItem
+                    {/* <DropdownItem
                         leftIcon="bi bi-box-arrow-left"
-                    >Logout</DropdownItem>
+                    >Logout</DropdownItem> */}
                 </div>
             </CSSTransition>
 
-            <CSSTransition
+            {/* <CSSTransition
                 nodeRef={nodeRefAccount}
                 in={activeMenu === 'account'}
                 unmountOnExit
@@ -64,7 +64,7 @@ function HamburgerMenu(props) {
                         leftIcon="bi bi-clock-history"
                     >Activity Log</DropdownItem>
                 </div>
-            </CSSTransition>
+            </CSSTransition> */}
 
             <CSSTransition
                 nodeRef={settingsRef}
@@ -75,9 +75,12 @@ function HamburgerMenu(props) {
             >
                 <div className="menu" ref={settingsRef}>
                     <DropdownItem goToMenu="main" leftIcon="bi bi-arrow-left">Return</DropdownItem>
-                    <DropdownItem leftIcon="bi bi-palette">Appearance</DropdownItem>
-                    <DropdownItem leftIcon="bi bi-bell">Notifications</DropdownItem>
-                    <DropdownItem leftIcon="bi bi-shield-lock">Security</DropdownItem>
+                    <a href="#" className="menu-item" onClick={props.onToggleTheme}>
+                        <span className="icon-left bi bi-palette"></span>
+                        Appearance
+                    </a>
+                    {/* <DropdownItem leftIcon="bi bi-bell">Notifications</DropdownItem> */}
+                    {/* <DropdownItem leftIcon="bi bi-shield-lock">Security</DropdownItem> */}
                 </div>
             </CSSTransition>
 

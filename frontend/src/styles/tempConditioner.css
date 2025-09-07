@@ -6,7 +6,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 90%;
+    width: 80%;
 }
 
 .tempControl span {
@@ -36,7 +36,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 90%;
+    width: 80%;
 }
 
 .ONOFF-control span {
@@ -75,4 +75,12 @@
 .disabled i {
     opacity: 0.5;
     pointer-events: none;
+}
+
+.bi-plus-circle {
+    color: var(--details-widget-text);
+}
+
+.bi-dash-circle {
+    color: var(--details-widget-text);
 }

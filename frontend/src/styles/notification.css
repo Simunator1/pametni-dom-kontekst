@@ -1,0 +1,20 @@
+.notification-banner {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%) translateY(-150%);
+    width: 90vw;
+    max-width: 500px;
+    background-color: #28a745;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+    border-radius: 0 0 10px 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    transition: transform 0.5s ease-in-out;
+}
+
+.notification-banner.show {
+    transform: translateX(-50%) translateY(0);
+}

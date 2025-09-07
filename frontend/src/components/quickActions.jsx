@@ -2,7 +2,7 @@ import { useState } from 'react';
 import '../styles/quickActions.css';
 import { executeQuickAction, removeQuickAction } from '../services/apiService';
 
-function quickActions({ quickActions, onAutomatizationUpdate, onQuickActionRemove }) {
+function quickActions({ quickActions, onAutomatizationUpdate, onQuickActionRemove, showNotification }) {
     const [removal, setRemoval] = useState(false);
 
     const quickActionRemoval = (quickActionId) => async (e) => {
@@ -16,16 +16,16 @@ function quickActions({ quickActions, onAutomatizationUpdate, onQuickActionRemov
         }
     }
 
-    const handleExecuteQuickAction = (quickActionId) => async () => {
+    const handleExecuteQuickAction = (quickAction) => async () => {
         if (removal) return;
         try {
-            const response = await executeQuickAction(quickActionId);
+            const response = await executeQuickAction(quickAction.id);
             const updatedDevices = response.updatedDevices;
             onAutomatizationUpdate(updatedDevices);
-            console.log(`Quick action ${quickActionId} executed successfully.`);
+            showNotification(`Quick action ${quickAction.name} activated.`);
         }
         catch (error) {
-            console.error(`Error executing quick action ${quickActionId}:`, error);
+            console.error(`Error executing quick action ${quickAction.id}:`, error);
         }
     }
 
@@ -38,7 +38,7 @@ function quickActions({ quickActions, onAutomatizationUpdate, onQuickActionRemov
             </div>
             <div className="actions">
                 {quickActions.map(quickAction => (
-                    <div className="action" key={quickAction.id} onClick={handleExecuteQuickAction(quickAction.id)}>
+                    <div className="action" key={quickAction.id} onClick={handleExecuteQuickAction(quickAction)}>
                         {removal && <i className="removeIcon bi bi-dash" onClick={quickActionRemoval(quickAction.id)} />}
                         <i className={`quick-ikona ${quickAction.icon}`}></i>
                         <p>{quickAction.name}</p>
