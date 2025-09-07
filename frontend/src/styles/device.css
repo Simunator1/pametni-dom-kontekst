@@ -5,7 +5,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    width: 90vw;
+    width: 100%;
     height: 8vh;
     background: var(--miniature-bg);
     margin-bottom: 2vh;
@@ -87,4 +87,10 @@
 
 .device-ikona.gray {
     color: var(--miniature-gray-text-color);
+}
+
+@media screen and (min-width: 750px) {
+    .device {
+        border-radius: 15px;
+    }
 }

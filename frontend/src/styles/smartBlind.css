@@ -23,7 +23,7 @@
 }
 
 .smart-blind-control {
-    width: 80vw;
+    width: 80%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -55,6 +55,7 @@
     border-radius: 5px;
     transform: rotate(270deg);
     cursor: pointer;
+    max-width: 350px;
 }
 
 .blind-slider::-webkit-slider-runnable-track {
@@ -91,4 +92,10 @@
     border-radius: 10%;
     cursor: pointer;
     border: none;
+}
+
+@media screen and (min-width: 750px) {
+    .smartBlindButtons {
+        justify-content: space-around;
+    }
 }

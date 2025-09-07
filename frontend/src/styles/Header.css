@@ -3,7 +3,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    width: 90vw;
+    width: 100%;
     height: auto;
     margin-bottom: 0vh;
 }
@@ -70,7 +70,7 @@ a {
 
 .dropdown {
     position: absolute;
-    width: 90.5vw;
+    width: 90.5%;
     background-color: var(--menu-bg);
     border-radius: 5px;
     overflow: hidden;
@@ -85,9 +85,8 @@ a {
 }
 
 .icon-left {
-    --button-size: 10vw;
-    width: var(--button-size);
-    height: var(--button-size);
+    height: 120%;
+    aspect-ratio: 1 / 1;
     background-color: var(--menu-icon-bg);
     color: var(--menu-icon-color) !important;
     border-radius: 50%;
@@ -200,4 +199,18 @@ a {
     color: var(--widget-text-color);
     border-color: var(--switch-on-bg-color);
     box-shadow: none;
+}
+
+@media screen and (min-width: 750px) {
+    .dropdown {
+        width: 40%;
+        /* IZMIJENJENO */
+        right: 0;
+        left: auto;
+        transform: translateX(0);
+    }
+
+    .header {
+        position: relative;
+    }
 }

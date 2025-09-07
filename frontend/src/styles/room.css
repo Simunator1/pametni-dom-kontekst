@@ -2,7 +2,7 @@
     margin: 1vh;
     background-color: var(--widget-bg-color);
     width: 40vw;
-    height: 54vw;
+    aspect-ratio: 1 / 1.35;
     border-radius: 7vw;
 }
 
@@ -26,11 +26,11 @@
     bottom: 95%;
     left: 78%;
     width: 19.4%;
-    height: 24%;
+    aspect-ratio: 1 / 1;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 110%;
+    font-size: 130%;
     color: rgb(255, 255, 255);
 }
 
@@ -77,4 +77,17 @@
 
 .form-check-input {
     font-size: 150%;
+}
+
+@media screen and (min-width: 750px) {
+    .room {
+        aspect-ratio: 1 / 1;
+        width: 90%;
+        border-radius: 3.5vh;
+    }
+
+    .room-image {
+        border-radius: 3.5vh 3.5vh 0 0;
+    }
+
 }
