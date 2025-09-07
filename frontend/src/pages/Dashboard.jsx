@@ -40,6 +40,7 @@ function DashboardPage() {
     const [addingPreference, setAddingPreference] = useState(false);
     const [selectedPreference, setSelectedPreference] = useState(null);
     const [notification, setNotification] = useState({ show: false, message: '' });
+    const [theme, setTheme] = useState('theme-light');
 
     const naslov = "Home";
 
@@ -99,6 +100,11 @@ function DashboardPage() {
 
         fetchInitialData();
     }, []);
+
+    useEffect(() => {
+        document.body.className = '';
+        document.body.classList.add(theme);
+    }, [theme]);
 
     const handleDeviceChange = useCallback((updatedDevice) => {
         setAllDevices(prevDevices =>
@@ -450,6 +456,10 @@ function DashboardPage() {
         }, 3000);
     };
 
+    const toggleTheme = () => {
+        setTheme(prevTheme => prevTheme === 'theme-light' ? 'theme-dark' : 'theme-light');
+    };
+
     let headerProps;
 
 
@@ -506,7 +516,8 @@ function DashboardPage() {
             UserPresence: userPresent,
             onRoomAdded: handleRoomAdded,
             onDeviceAdded: handleDeviceAdded,
-            onGoToRoutineAdd: () => { setAddingRoutine(true) }
+            onGoToRoutineAdd: () => { setAddingRoutine(true) },
+            onToggleTheme: toggleTheme
         };
     }
 
@@ -527,7 +538,8 @@ function DashboardPage() {
                 <QuickActions
                     quickActions={allQuickActions}
                     onAutomatizationUpdate={handleAutomatizationUpdate}
-                    onQuickActionRemove={handleQuickActionRemove} />
+                    onQuickActionRemove={handleQuickActionRemove}
+                    showNotification={showNotification} />
                 <DeviceDetails
                     device={selectedDevice}
                     onStateChange={handleDeviceChange}
@@ -576,7 +588,8 @@ function DashboardPage() {
                 <QuickActions
                     quickActions={allQuickActions}
                     onAutomatizationUpdate={handleAutomatizationUpdate}
-                    onQuickActionRemove={handleQuickActionRemove} />
+                    onQuickActionRemove={handleQuickActionRemove}
+                    showNotification={showNotification} />
                 <RoomDetails
                     room={selectedRoom}
                     routines={allRoutines}
@@ -599,8 +612,8 @@ function DashboardPage() {
             <QuickActions
                 quickActions={allQuickActions}
                 onAutomatizationUpdate={handleAutomatizationUpdate}
-                onQuickActionRemove={handleQuickActionRemove} 
-                showNotification={showNotification}/>
+                onQuickActionRemove={handleQuickActionRemove}
+                showNotification={showNotification} />
             <DisplayOptions currentView={viewMode} onViewChange={setViewMode} />
 
             {viewMode === 'rooms' && (

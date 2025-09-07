@@ -350,9 +350,9 @@ async function addRoutine({ name, description, icon, triggers, conditions, actio
             true,
             includedDevices,
             includedRooms,
-            triggers,
-            conditions,
-            actions
+            JSON.stringify(triggers),
+            JSON.stringify(conditions),
+            JSON.stringify(actions)
         ];
 
         const result = await client.query(insertQuery, values);
@@ -414,9 +414,9 @@ async function editRoutine({ routineId, name, description, icon, triggers, condi
         icon || 'bi bi-gear',
         includedDevices,
         includedRooms,
-        triggers,
-        conditions,
-        actions,
+        JSON.stringify(triggers),
+        JSON.stringify(conditions),
+        JSON.stringify(actions),
         routineId
     ];
 
@@ -484,7 +484,7 @@ async function addQuickAction({ name, description, icon, actions }) {
             includedDevices,
             includedRooms,
             icon || 'bi bi-gear',
-            actions
+            JSON.stringify(actions)
         ];
 
         const result = await client.query(insertQuery, values);
@@ -1394,7 +1394,7 @@ async function executeQuickAction(quickActionId) {
 }
 
 // Funkcija za dodavanje nove preferencije
-async function addPreference({ name, description, icon, roomId, conditions, actions }) {
+async function addPreference({ name, description, icon, room_id, conditions, actions }) {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
@@ -1414,9 +1414,9 @@ async function addPreference({ name, description, icon, roomId, conditions, acti
             name,
             description,
             icon,
-            roomId,
-            conditions,
-            actions
+            room_id,
+            JSON.stringify(conditions),
+            JSON.stringify(actions)
         ];
 
         const result = await client.query(insertQuery, values);
@@ -1469,7 +1469,7 @@ async function getPreferencesByRoom(roomId) {
 }
 
 // Funkcija za uređivanje preferencije
-async function editPreference(prefId, { name, description, icon, roomId, conditions, actions }) {
+async function editPreference(prefId, { name, description, icon, room_id, conditions, actions }) {
     const updateQuery = `
         UPDATE preferences 
         SET 
@@ -1486,9 +1486,9 @@ async function editPreference(prefId, { name, description, icon, roomId, conditi
         name,
         description,
         icon,
-        roomId,
-        conditions,
-        actions,
+        room_id,
+        JSON.stringify(conditions),
+        JSON.stringify(actions),
         prefId
     ];
 

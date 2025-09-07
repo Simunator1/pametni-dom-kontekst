@@ -19,8 +19,6 @@
     display: none;
 }
 
-
-
 .room-control {
     display: flex;
     flex-direction: row;
@@ -32,6 +30,7 @@
 .room-control span {
     font-weight: bold;
     font-size: 1.2rem;
+    color: var(--details-widget-text);
 }
 
 .room-devices-container {
@@ -46,7 +45,8 @@
     text-align: center;
     font-weight: bold;
     font-size: 1.1rem;
-    background-color: whitesmoke;
+    background-color: var(--details-section-header-bg);
+    color: var(--details-section-header-text);
     border-radius: 10px;
     margin-bottom: 2vh;
 }

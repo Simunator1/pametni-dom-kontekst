@@ -3,6 +3,23 @@
     margin-bottom: 2vh;
 }
 
+.display-options .display-btn {
+    background-color: var(--display-options-bg);
+    color: var(--display-options-text);
+    border-color: var(--display-options-border);
+}
+
+.display-options .btn-check:checked+.display-btn {
+    background-color: var(--display-options-active-bg);
+    color: var(--display-options-active-text);
+    border-color: var(--display-options-border);
+}
+
+.display-options .btn-check:not(:checked)+.display-btn:hover {
+    background-color: var(--display-options-active-bg);
+    color: var(--display-options-active-text);
+}
+
 .display-options>.btn:not(:first-of-type) {
     border-left-width: 0;
 }

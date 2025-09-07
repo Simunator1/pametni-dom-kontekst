@@ -2,12 +2,148 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap');
 @import 'bootstrap-icons/font/bootstrap-icons.css';
 
+/* ==========================================================================
+   Light Theme (Default)
+   ========================================================================== */
+:root,
+.theme-light {
+  /* --- Globalne Boje --- */
+  --main-bg: linear-gradient(to bottom, #5db4c3, #3de3bf);
+  --switch-on-bg-color: #0d6efd;
+  /* Bootstrap plava za prekidače */
+
+  /* --- Glavni Prikaz: Zaglavlje --- */
+  --header-text-color: #000;
+  --header-icon-color: #fff;
+
+  /* --- Glavni Prikaz: Widget-i (Quick Actions, Sobe...) --- */
+  --widget-bg-color: #fff;
+  --widget-text-color: #000;
+
+  /* --- Glavni Prikaz: Minijature (Uređaji, Rutine) --- */
+  --miniature-bg: linear-gradient(to right, #66bec7, #ffffff);
+  --miniature-text-color: #000;
+  --miniature-gray-bg: linear-gradient(to right, #b0b0b0, #ffffff);
+  --miniature-gray-text-color: #848484;
+
+  /* --- Glavni Prikaz: Display Options --- */
+  --display-options-bg: #ffffff00;
+  --display-options-text: #0d6efd;
+  --display-options-border: #0d6efd;
+  --display-options-active-bg: #0d6efd;
+  --display-options-active-text: #ffffff;
+
+  /* --- Detaljni Prikazi (Sobe i Uređaji) --- */
+  --details-header-bg: linear-gradient(to right, #008CFF, rgb(255, 255, 255));
+  --details-header-text: #000;
+  --details-widget-bg: linear-gradient(to right, #D1D1D1, #F8FBFF);
+  --details-widget-text: #000;
+  --details-section-header-bg: whitesmoke;
+  --details-section-header-text: #000;
+
+  /* --- SmartBlind Komponenta --- */
+  --button-primary-bg: #0d6efd;
+  --button-success-bg: #198754;
+  --slider-track-bg: #656565;
+  --slider-track-fill: #ffffff;
+  --slider-thumb-bg: #000000;
+
+  /* --- Izbornici u Zaglavlju --- */
+  --menu-bg: #5db4c3;
+  --menu-item-text-color: #000;
+  --menu-icon-bg: #484a4d9c;
+  --menu-border-color: #000;
+  --menu-icon-color: #000;
+
+  /* --- Forme (Rutine, Preferencije, Akcije) --- */
+  --form-input-bg: #fff;
+  --form-input-text: #000;
+  --form-input-border: #dee2e6;
+  --action-item-bg: #d2d2d2;
+  --button-secondary-bg: #6c757d;
+  --button-secondary-text: #fff;
+  --button-danger-bg: #dc3545;
+  --button-danger-text: #fff;
+  --button-light-bg: #f8f9fa;
+  --button-light-text: #000;
+  --button-primary-text: #fff;
+}
+
+/* ==========================================================================
+   Dark Theme
+   ========================================================================== */
+.theme-dark {
+  /* --- Globalne Boje --- */
+  --main-bg: linear-gradient(to bottom, #2c3e50, #4ca1af);
+  --switch-on-bg-color: #3498db;
+  /* Svjetlija plava za tamnu temu */
+
+  /* --- Glavni Prikaz: Zaglavlje --- */
+  --header-text-color: #ecf0f1;
+  --header-icon-color: #ecf0f1;
+
+  /* --- Glavni Prikaz: Widget-i (Quick Actions, Sobe...) --- */
+  --widget-bg-color: #34495e;
+  --widget-text-color: #ecf0f1;
+
+  /* --- Glavni Prikaz: Minijature (Uređaji, Rutine) --- */
+  --miniature-bg: linear-gradient(to right, #4ca1af, #2c3e50);
+  --miniature-text-color: #ecf0f1;
+  --miniature-gray-bg: linear-gradient(to right, #7f8c8d, #95a5a6);
+  --miniature-gray-text-color: #bdc3c7;
+
+  /* --- Glavni Prikaz: Display Options --- */
+  --display-options-bg: #34495e00;
+  --display-options-text: #ecf0f1;
+  --display-options-border: #ecf0f1;
+  --display-options-active-bg: #ecf0f1;
+  --display-options-active-text: #2c3e50;
+
+  /* --- Detaljni Prikazi (Sobe i Uređaji) --- */
+  --details-header-bg: linear-gradient(to right, #4ca1af, #2c3e50);
+  --details-header-text: #ecf0f1;
+  --details-widget-bg: linear-gradient(to right, #2c3e50, #34495e);
+  --details-widget-text: #ecf0f1;
+  --details-section-header-bg: #2c3e50;
+  --details-section-header-text: #ecf0f1;
+
+  /* --- SmartBlind Komponenta --- */
+  --button-primary-bg: #3498db;
+  --button-success-bg: #2ecc71;
+  --slider-track-bg: #7f8c8d;
+  --slider-track-fill: #bdc3c7;
+  --slider-thumb-bg: #ecf0f1;
+
+  /* --- Izbornici u Zaglavlju --- */
+  --menu-bg: #ffffff;
+  --menu-item-text-color: #000;
+  --menu-icon-bg: #484a4d9c;
+  --menu-border-color: #000;
+  --menu-icon-color: #000;
+
+  /* --- Forme (Rutine, Preferencije, Akcije) --- */
+  --form-input-bg: #56708b;
+  --form-input-text: #ecf0f1;
+  --form-input-border: #7f8c8d;
+  --action-item-bg: #2c3e50;
+  --button-secondary-bg: #7f8c8d;
+  --button-secondary-text: #ecf0f1;
+  --button-danger-bg: #e74c3c;
+  --button-danger-text: #ecf0f1;
+  --button-light-bg: #95a5a6;
+  --button-light-text: #2c3e50;
+  --button-primary-text: #fff;
+}
+
+/* ==========================================================================
+   Osnovni stilovi
+   ========================================================================== */
 #root {
   display: flex;
   flex-direction: column;
   align-items: center;
   font-family: 'Roboto', sans-serif;
-  background: linear-gradient(to bottom, #5db4c3, #3de3bf);
+  background: var(--main-bg);
 }
 
 body {

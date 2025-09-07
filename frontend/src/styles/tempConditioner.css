@@ -76,3 +76,11 @@
     opacity: 0.5;
     pointer-events: none;
 }
+
+.bi-plus-circle {
+    color: var(--details-widget-text);
+}
+
+.bi-dash-circle {
+    color: var(--details-widget-text);
+}

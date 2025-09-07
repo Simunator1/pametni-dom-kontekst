@@ -34,3 +34,7 @@
     flex-direction: row;
     width: 30%;
 }
+
+.bi-lightning-charge {
+    color: var(--details-widget-text);
+}

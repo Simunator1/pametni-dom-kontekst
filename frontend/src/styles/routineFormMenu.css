@@ -16,8 +16,55 @@
     font-size: 1.2rem;
 }
 
-.form-section-bootstrapNO {
-    margin: 2vh 0 2vh 0;
+.routine-background {
+    background-image: var(--details-widget-bg);
+    color: var(--details-widget-text);
+    padding: 1vh;
+    border-radius: 10px;
+    margin-bottom: 2vh;
+}
+
+.routine-background h5 {
+    font-weight: bold;
+    font-size: 1.8rem;
+}
+
+.routine-form-container .form-control,
+.routine-form-container .form-select-mutant .select__control {
+    background-color: var(--form-input-bg) !important;
+    border-color: var(--form-input-border) !important;
+}
+
+.routine-form-container .form-control,
+.routine-form-container .form-select-mutant .select__single-value,
+.routine-form-container .form-select-mutant .select__placeholder {
+    color: var(--form-input-text) !important;
+}
+
+.routine-form-container .form-select-mutant .select__menu {
+    background-color: var(--form-input-bg);
+}
+
+.routine-form-container .form-select-mutant .select__option {
+    color: var(--form-input-text);
+}
+
+.routine-form-container .form-select-mutant .select__option--is-focused {
+    background-color: var(--button-primary-bg);
+}
+
+.action-item {
+    border-radius: 15px;
+    padding: 1vh;
+    margin-bottom: 1vh;
+    background-color: var(--action-item-bg);
+}
+
+.add-button {
+    margin-bottom: 1vh;
+    --bs-btn-bg: var(--button-secondary-bg);
+    --bs-btn-color: var(--button-secondary-text);
+    --bs-btn-border-color: var(--button-secondary-bg);
 }
 
 .form-section-buttons {
@@ -27,40 +74,24 @@
     margin-bottom: 2vh;
 }
 
-.action-item {
-    border-radius: 15px;
-    padding: 1vh;
-    margin-bottom: 1vh;
-    background-color: rgb(150, 150, 150);
+.routine-form-container .btn-primary {
+    --bs-btn-bg: var(--button-primary-bg);
+    --bs-btn-color: var(--button-primary-text);
+    --bs-btn-border-color: var(--button-primary-bg);
 }
 
-.routine-form-container h5 {
-    font-weight: bold;
-    font-size: 1.8rem;
+.routine-form-container .btn-light {
+    --bs-btn-bg: var(--button-light-bg);
+    --bs-btn-color: var(--button-light-text);
+    --bs-btn-border-color: var(--button-light-bg);
 }
 
-.form-select-mutant {
-    width: 100%;
+.routine-form-container .btn-danger {
+    --bs-btn-bg: var(--button-danger-bg);
+    --bs-btn-color: var(--button-danger-text);
+    --bs-btn-border-color: var(--button-danger-bg);
 }
 
-.form-control:focus {
-    box-shadow: none;
-    outline: none;
-}
-
-.select__control--is-focused {
-    border-color: hsl(0, 0%, 80%) !important;
-    box-shadow: none !important;
-    outline: none !important;
-}
-
-.add-button {
-    margin-bottom: 1vh;
-}
-
-.routine-background {
-    background-image: linear-gradient(to bottom, #d2d2d2, #ffffff);
-    padding: 1vh;
-    border-radius: 10px;
-    margin-bottom: 2vh;
+.routine-form-container .btn-danger.btn-sm i {
+    color: var(--button-danger-text);
 }

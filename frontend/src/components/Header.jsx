@@ -30,7 +30,7 @@ const MainHeaderIcons = (props) => (
             />
         </NavItem>
         <NavItem className="ikona bi bi-list">
-            <HamburgerMenu className="hamburger-menu" />
+            <HamburgerMenu className="hamburger-menu" onToggleTheme={props.onToggleTheme} />
         </NavItem>
     </ul>
 );

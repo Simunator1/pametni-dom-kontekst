@@ -5,7 +5,7 @@
     align-items: center;
     width: 90vw;
     margin-bottom: 2vh;
-    background: linear-gradient(to right, #66bec7, #ffffff);
+    background: var(--miniature-bg);
     border-radius: 2vw;
 }
 
@@ -21,11 +21,15 @@
 }
 
 .routine-container.gray {
-    background: linear-gradient(to right, #b0b0b0, #ffffff);
+    background: var(--miniature-gray-bg);
+}
+
+.routine-container p {
+    color: var(--miniature-text-color);
 }
 
 .routine-container.gray p {
-    color: #848484
+    color: var(--miniature-gray-text-color);
 }
 
 .routine-name-wrapper {
@@ -60,10 +64,11 @@
 .routine-ikona {
     width: 5%;
     font-size: 1.4rem;
+    color: var(--miniature-text-color);
 }
 
 .routine-ikona.gray {
-    color: gray;
+    color: var(--miniature-gray-text-color);
 }
 
 .description {
