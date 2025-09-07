@@ -35,7 +35,7 @@ const RoutineMini = ({ routine, onRoutineToggle, onSelectRoutine }) => {
                 </div>
             </div>
             <div>
-                <p className="description">{routine.description}</p>
+                <p className={`description${!routine.is_enabled ? ' gray' : ''}`}>{routine.description}</p>
             </div>
         </div>
     );

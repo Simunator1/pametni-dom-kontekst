@@ -79,3 +79,7 @@
     border-radius: 1vw;
     margin: 0 2vw 2vw 2vw;
 }
+
+.description.gray {
+    border: solid 2px var(--miniature-gray-text-color);
+}

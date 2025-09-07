@@ -5,7 +5,7 @@
     align-items: center;
     width: 90vw;
     margin-bottom: 2vh;
-    background: linear-gradient(to right, #66bec7, #ffffff);
+    background: var(--miniature-bg);
     border-radius: 2vw;
 }
 
@@ -23,6 +23,7 @@
     width: 5%;
     font-size: 1.4rem;
     flex: 2;
+    color: var(--miniature-text-color);
 }
 
 .pref-name-wrapper {
@@ -38,10 +39,12 @@
     white-space: nowrap;
     position: relative;
     display: block;
+    color: var(--miniature-text-color);
 }
 
 .description {
     font-size: 1rem;
     text-align: center;
     padding: 0 2vw 1vw 2vw;
+    color: var(--miniature-text-color);
 }

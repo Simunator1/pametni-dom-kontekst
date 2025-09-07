@@ -457,7 +457,15 @@ function DashboardPage() {
     };
 
     const toggleTheme = () => {
-        setTheme(prevTheme => prevTheme === 'theme-light' ? 'theme-dark' : 'theme-light');
+        setTheme(prevTheme => {
+            if (prevTheme === 'theme-light') {
+                return 'theme-dark';
+            } else if (prevTheme === 'theme-dark') {
+                return 'theme-sunset';
+            } else {
+                return 'theme-light';
+            }
+        });
     };
 
     let headerProps;
