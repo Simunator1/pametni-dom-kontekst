@@ -52,7 +52,7 @@ const RoomDetails = ({ room, routines, onRoomToggle, handleDeviceChange, handleD
                         className="form-check-input"
                         type="checkbox"
                         role="switch"
-                        checked={room.is_on}
+                        checked={room.isOn}
                         onChange={handleRoomToggle}
                     />
                 </div>
